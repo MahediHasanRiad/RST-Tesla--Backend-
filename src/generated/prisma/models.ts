@@ -9,12 +9,14 @@
  * 🟢 You can import this file directly.
  */
 export type * from './models/User.js'
+export type * from './models/OtpChallenge.js'
+export type * from './models/RefreshSession.js'
+export type * from './models/AuthRateLimit.js'
 export type * from './models/Driver.js'
 export type * from './models/Vehicle.js'
 export type * from './models/ServiceZone.js'
 export type * from './models/RidePool.js'
 export type * from './models/RideRequest.js'
-export type * from './models/PoolMembership.js'
 export type * from './models/RideStatusHistory.js'
 export type * from './models/Payment.js'
 export type * from './commonInputTypes.js'

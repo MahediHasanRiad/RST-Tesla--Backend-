@@ -17,7 +17,8 @@ The selected baseline is a **modular monolith**: a React web application, a Node
 | Database | PostgreSQL | Authoritative relational data, constraints, history, and capacity transactions. |
 | ORM | Prisma | Typed schema, migrations, and normal database access; explicit transactions/raw SQL are used where row locking is necessary. |
 | Cache | Redis | Short-lived cache for read-heavy, non-critical data such as area lists and fare estimates. |
-| Background jobs | BullMQ with Redis | Retries and processes non-critical work such as notifications and file processing. |
+| Email delivery | Brevo API | Sends OTP emails directly; PostgreSQL remains the source of truth for OTP state. |
+| Media | Cloudinary | Validated public user-avatar storage and delivery. |
 | Logging | Winston | Structured application logs with request and domain context. |
 | AI agent | OpenAI Responses API | Natural-language ride assistance through narrowly scoped application tools. |
 | Containers | Docker and Docker Compose | Reproducible API, PostgreSQL, and Redis services for local development and deployment. |
@@ -41,6 +42,7 @@ flowchart LR
   W -->|HTTPS / JSON| A[Node.js REST API\nModular monolith]
   A -->|SQL transactions| D[(PostgreSQL)]
   A -->|Cache reads/writes| R[(Redis)]
+  A -->|Validated avatar uploads| C[Cloudinary]
   A -->|Private file operations| S[Supabase Storage]
   A -->|Function calling| O[OpenAI Responses API]
   A --> L[Structured logs and health endpoint]
@@ -54,12 +56,13 @@ flowchart LR
 ### Responsibilities
 
 - **React web app:** public pages plus authenticated passenger and driver screens, forms, loading/error/empty states, and API integration. It never decides capacity, ownership, fare, or state transitions.
-- **Node.js API:** authentication, request validation, authorization, matching, fare calculation, state-machine enforcement, and transaction boundaries. Fastify or Express are reasonable choices; Fastify is recommended for schema validation and a small API surface. Winston records structured application logs.
+- **Node.js API:** authentication, request validation, authorization, matching, fare calculation, state-machine enforcement, and transaction boundaries. Use Zod schemas to validate every external input—request bodies, route parameters, query strings, headers, cookies, and multipart metadata—before controller business logic runs. Reject unknown, malformed, unsafe, or out-of-range values with a consistent `400` response. Express is used with Multer for multipart uploads. Winston records structured application logs.
 - **PostgreSQL with Prisma:** durable relational records, foreign keys, unique constraints, indexes, and row-level locks for capacity-sensitive mutations. Prisma owns schema migrations and normal typed queries; use Prisma interactive transactions with explicit locking/raw SQL where lock semantics need to be unambiguous.
-- **Redis:** caches area lists, compatible-area rules, and non-binding fare estimates with short TTLs. It also backs BullMQ for asynchronous notifications and file-processing jobs. It must not be the source of truth for vehicle capacity, memberships, request status, fares already quoted, or authorization. Invalidate relevant keys after an area/rule update; PostgreSQL is used whenever a stale read could admit an invalid booking.
+- **Redis:** caches area lists, compatible-area rules, and non-binding fare estimates with short TTLs. Registration additionally caches the raw verification OTP under a challenge-ID key for exactly five minutes; PostgreSQL remains the authoritative OTP, account, authorization, and lifecycle store. Redis must not be the source of truth for vehicle capacity, memberships, request status, fares already quoted, or authorization. Invalidate relevant keys after an area/rule update; PostgreSQL is used whenever a stale read could admit an invalid booking.
 - **Docker Compose:** starts the API, PostgreSQL, and Redis together, using health checks so the API waits for its dependencies. It is the reproducible local setup and deployment baseline.
-- **Supabase Storage:** stores files rather than relational booking data. The Node.js API is the only component permitted to use the Supabase secret key; React receives only authorized, short-lived signed URLs. Bucket policies remain private by default and object paths, MIME types, and sizes are validated by the API.
-- **Ride API Agent:** uses the OpenAI Responses API and function calling to interpret natural-language requests. Its tools call the same authenticated ride services as HTTP endpoints; it cannot access Prisma, Redis, secrets, or Supabase directly. Capacity, authorization, state transitions, and user confirmation remain application-enforced.
+- **Supabase Storage:** stores private files rather than relational booking data. The Node.js API is the only component permitted to use the Supabase secret key; React receives only authorized, short-lived signed URLs. Bucket policies remain private by default and object paths, MIME types, and sizes are validated by the API.
+- **Cloudinary:** stores validated public user-avatar media. The API accepts only allowlisted image MIME types and configured size limits, stages each upload under `public/assert` using a random server-generated filename, uploads it server-side using Cloudinary credentials, and deletes the staged file in both success and failure paths. PostgreSQL stores only the resulting secure URL. Never expose Cloudinary credentials, accept arbitrary remote URLs, or trust client-provided filenames or media metadata.
+- **Ride API Agent:** uses the OpenAI Responses API and function calling to interpret natural-language requests. Its tools call the same authenticated controller actions as HTTP endpoints; it cannot access Prisma, Redis, secrets, or Supabase directly. Capacity, authorization, state transitions, and user confirmation remain application-enforced.
 
 ## Domain model
 
@@ -193,7 +196,7 @@ Capacity is enforced in a single database transaction:
 
 This means if Nusrat and Shirin both try to reserve Bullet's last seat, only the transaction that holds the lock first can succeed; the second rechecks capacity and receives a conflict response. At larger scale, keep the invariant in the database and add retries for serialization failures—not a client-side availability check.
 
-Anyone may browse the public site without an account. Creating, viewing, changing, or cancelling a ride request requires authentication. Use JWT or secure session authentication; every protected endpoint derives the actor identity from the credential, not request body fields. Passengers can read/change only their own request before the cancellation cutoff; drivers can act only on their own vehicle's pools; administrators, if added, require a separate role. Validate all inputs server-side and return predictable validation, authorization, conflict, and state-transition errors.
+Anyone may browse the public site without an account. Creating, viewing, changing, or cancelling a ride request requires authentication. Use JWT or secure session authentication; every protected endpoint derives the actor identity from the credential, not request body fields. Passengers can read/change only their own request before the cancellation cutoff; drivers can act only on their own vehicle's pools; administrators, if added, require a separate role. Validate every external input with Zod server-side before it is used, including request bodies, path parameters, query strings, headers, cookies, and multipart metadata. Validation schemas must be strict by default and return predictable validation, authorization, conflict, and state-transition errors.
 
 ## API boundary
 
@@ -207,7 +210,7 @@ The API owns all business rules; browser pages are clients of these contracts.
 
 ## Backend project structure
 
-The backend follows a versioned, feature-oriented API layout. The examples below use TypeScript (`.ts`) because the selected backend is TypeScript; each feature keeps its controller, service, repository, routes, validation, and model together.
+The backend follows a versioned, feature-oriented API layout. The examples below use TypeScript (`.ts`) because the selected backend is TypeScript; each feature keeps its controllers, class-based repository, routes, validation, and model together. There is no service layer: controllers contain the feature's business logic. Controllers are kept in a feature-level `controllers/` folder, and every registered route action has its own controller file.
 
 ```text
 src/
@@ -219,8 +222,10 @@ src/
 ├── api/
 │   └── v1/
 │       ├── users/
-│       │   ├── user.controller.ts
-│       │   ├── user.service.ts
+│       │   ├── controllers/
+│       │   │   ├── create-user.controller.ts
+│       │   │   ├── get-user.controller.ts
+│       │   │   └── update-user.controller.ts
 │       │   ├── user.repository.ts
 │       │   ├── user.routes.ts
 │       │   ├── user.validation.ts
@@ -245,14 +250,14 @@ src/
 └── tests/
 ```
 
-Controllers translate HTTP requests and responses; services own business rules; repositories are the only layer that reads or writes PostgreSQL. BullMQ workers handle retryable background work such as notifications, generating signed upload paths, and post-trip file processing. They must never decide or mutate booking capacity independently of the PostgreSQL transaction used by the ride service.
+Controllers translate HTTP requests and responses and contain business rules; repositories are class-based and are the only layer that reads or writes PostgreSQL. A route module imports its controller from the feature's `controllers/` folder, and each registered route action maps to one separate controller file—for example, `POST /users` maps to `controllers/create-user.controller.ts`. Each feature defines Zod validation schemas in its `*.validation.ts` file, and routes or validation middleware parse every external input before invoking a controller. Controllers may only receive validated, typed data: controller files MUST NOT define Zod schemas, call `parse` or `safeParse`, inspect raw request input for validation, or contain any other input-validation code. Multipart endpoints use Multer memory storage with explicit file-count, field-count, size, and MIME-type limits before Cloudinary upload; validation modules validate parsed text fields and normalized upload metadata with Zod before the controller runs. Email delivery is a direct Brevo side effect and does not make capacity or lifecycle decisions.
 
 ## MVP quality baseline
 
 - Test that capacity cannot be exceeded, including two near-simultaneous claims.
 - Test driver acceptance before matching, rejected lifecycle transitions, the 5% late-cancellation fee, ownership checks, and Nusrat/Rafiq fare calculations at 10 BDT/km.
 - Winston logs request ID, authenticated actor, pool ID, state transition, queue-job failure, and transaction failure without logging secrets or password hashes.
-- Use password hashing, HTTPS in deployment, environment-provided secrets, rate limits on authentication, input validation, and an authenticated health/readiness strategy.
+- Use password hashing, HTTPS in deployment, environment-provided secrets, rate limits on authentication, strict Zod validation for every external input, and an authenticated health/readiness strategy.
 - Keep `SUPABASE_SECRET_KEY` only in the API environment; never commit it or send it to React. Use a dedicated private bucket and signed URLs for retrieval.
 - Provide Docker Compose, migrations, `.env.example`, and seed data for Jashim, Bullet, Nusrat, Rafiq, and Shirin as required by the [project brief](project.md).
 
@@ -260,7 +265,7 @@ Controllers translate HTTP requests and responses; services own business rules; 
 
 This design favors explainability and relational correctness over sophisticated routing or real-time push updates. PostgreSQL and a modular API remain appropriate for the MVP; Redis is deliberately limited to cacheable reads and a lightweight polling UI is enough initially.
 
-If adoption approaches 1M passengers and 100k drivers, evolve incrementally: stateless API replicas behind a load balancer, targeted indexes and read replicas, Redis-backed cached reference reads, a geospatial index for matching, BullMQ workers for notifications, idempotency keys for writes, and centralized metrics/tracing. Partition high-volume history when evidence requires it. These are future options, not MVP dependencies; microservices, Kafka, and Kubernetes are intentionally not mandated now.
+If adoption approaches 1M passengers and 100k drivers, evolve incrementally: stateless API replicas behind a load balancer, targeted indexes and read replicas, Redis-backed cached reference reads, a geospatial index for matching, idempotency keys for writes, and centralized metrics/tracing. Partition high-volume history when evidence requires it. These are future options, not MVP dependencies; microservices, Kafka, and Kubernetes are intentionally not mandated now.
 
 ## Decisions to confirm
 

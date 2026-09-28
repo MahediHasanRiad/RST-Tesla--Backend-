@@ -60,7 +60,7 @@ export type VehicleCountAggregateOutputType = {
   name: number
   capacity: number
   availability: number
-  imagePaths: number
+  images: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -101,7 +101,7 @@ export type VehicleCountAggregateInputType = {
   name?: true
   capacity?: true
   availability?: true
-  imagePaths?: true
+  images?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -199,7 +199,7 @@ export type VehicleGroupByOutputType = {
   name: string
   capacity: number
   availability: $Enums.VehicleAvailability
-  imagePaths: string[]
+  images: string[]
   createdAt: Date
   updatedAt: Date
   _count: VehicleCountAggregateOutputType | null
@@ -233,7 +233,7 @@ export type VehicleWhereInput = {
   name?: Prisma.StringFilter<"Vehicle"> | string
   capacity?: Prisma.IntFilter<"Vehicle"> | number
   availability?: Prisma.EnumVehicleAvailabilityFilter<"Vehicle"> | $Enums.VehicleAvailability
-  imagePaths?: Prisma.StringNullableListFilter<"Vehicle">
+  images?: Prisma.StringNullableListFilter<"Vehicle">
   createdAt?: Prisma.DateTimeFilter<"Vehicle"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Vehicle"> | Date | string
   driver?: Prisma.XOR<Prisma.DriverScalarRelationFilter, Prisma.DriverWhereInput>
@@ -246,7 +246,7 @@ export type VehicleOrderByWithRelationInput = {
   name?: Prisma.SortOrder
   capacity?: Prisma.SortOrder
   availability?: Prisma.SortOrder
-  imagePaths?: Prisma.SortOrder
+  images?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   driver?: Prisma.DriverOrderByWithRelationInput
@@ -262,7 +262,7 @@ export type VehicleWhereUniqueInput = Prisma.AtLeast<{
   name?: Prisma.StringFilter<"Vehicle"> | string
   capacity?: Prisma.IntFilter<"Vehicle"> | number
   availability?: Prisma.EnumVehicleAvailabilityFilter<"Vehicle"> | $Enums.VehicleAvailability
-  imagePaths?: Prisma.StringNullableListFilter<"Vehicle">
+  images?: Prisma.StringNullableListFilter<"Vehicle">
   createdAt?: Prisma.DateTimeFilter<"Vehicle"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Vehicle"> | Date | string
   driver?: Prisma.XOR<Prisma.DriverScalarRelationFilter, Prisma.DriverWhereInput>
@@ -275,7 +275,7 @@ export type VehicleOrderByWithAggregationInput = {
   name?: Prisma.SortOrder
   capacity?: Prisma.SortOrder
   availability?: Prisma.SortOrder
-  imagePaths?: Prisma.SortOrder
+  images?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.VehicleCountOrderByAggregateInput
@@ -294,7 +294,7 @@ export type VehicleScalarWhereWithAggregatesInput = {
   name?: Prisma.StringWithAggregatesFilter<"Vehicle"> | string
   capacity?: Prisma.IntWithAggregatesFilter<"Vehicle"> | number
   availability?: Prisma.EnumVehicleAvailabilityWithAggregatesFilter<"Vehicle"> | $Enums.VehicleAvailability
-  imagePaths?: Prisma.StringNullableListFilter<"Vehicle">
+  images?: Prisma.StringNullableListFilter<"Vehicle">
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Vehicle"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Vehicle"> | Date | string
 }
@@ -304,7 +304,7 @@ export type VehicleCreateInput = {
   name: string
   capacity: number
   availability?: $Enums.VehicleAvailability
-  imagePaths?: Prisma.VehicleCreateimagePathsInput | string[]
+  images?: Prisma.VehicleCreateimagesInput | string[]
   createdAt?: Date | string
   updatedAt?: Date | string
   driver: Prisma.DriverCreateNestedOneWithoutVehicleInput
@@ -317,7 +317,7 @@ export type VehicleUncheckedCreateInput = {
   name: string
   capacity: number
   availability?: $Enums.VehicleAvailability
-  imagePaths?: Prisma.VehicleCreateimagePathsInput | string[]
+  images?: Prisma.VehicleCreateimagesInput | string[]
   createdAt?: Date | string
   updatedAt?: Date | string
   pools?: Prisma.RidePoolUncheckedCreateNestedManyWithoutVehicleInput
@@ -328,7 +328,7 @@ export type VehicleUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   capacity?: Prisma.IntFieldUpdateOperationsInput | number
   availability?: Prisma.EnumVehicleAvailabilityFieldUpdateOperationsInput | $Enums.VehicleAvailability
-  imagePaths?: Prisma.VehicleUpdateimagePathsInput | string[]
+  images?: Prisma.VehicleUpdateimagesInput | string[]
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   driver?: Prisma.DriverUpdateOneRequiredWithoutVehicleNestedInput
@@ -341,7 +341,7 @@ export type VehicleUncheckedUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   capacity?: Prisma.IntFieldUpdateOperationsInput | number
   availability?: Prisma.EnumVehicleAvailabilityFieldUpdateOperationsInput | $Enums.VehicleAvailability
-  imagePaths?: Prisma.VehicleUpdateimagePathsInput | string[]
+  images?: Prisma.VehicleUpdateimagesInput | string[]
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   pools?: Prisma.RidePoolUncheckedUpdateManyWithoutVehicleNestedInput
@@ -353,7 +353,7 @@ export type VehicleCreateManyInput = {
   name: string
   capacity: number
   availability?: $Enums.VehicleAvailability
-  imagePaths?: Prisma.VehicleCreateimagePathsInput | string[]
+  images?: Prisma.VehicleCreateimagesInput | string[]
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -363,7 +363,7 @@ export type VehicleUpdateManyMutationInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   capacity?: Prisma.IntFieldUpdateOperationsInput | number
   availability?: Prisma.EnumVehicleAvailabilityFieldUpdateOperationsInput | $Enums.VehicleAvailability
-  imagePaths?: Prisma.VehicleUpdateimagePathsInput | string[]
+  images?: Prisma.VehicleUpdateimagesInput | string[]
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -374,7 +374,7 @@ export type VehicleUncheckedUpdateManyInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   capacity?: Prisma.IntFieldUpdateOperationsInput | number
   availability?: Prisma.EnumVehicleAvailabilityFieldUpdateOperationsInput | $Enums.VehicleAvailability
-  imagePaths?: Prisma.VehicleUpdateimagePathsInput | string[]
+  images?: Prisma.VehicleUpdateimagesInput | string[]
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -398,7 +398,7 @@ export type VehicleCountOrderByAggregateInput = {
   name?: Prisma.SortOrder
   capacity?: Prisma.SortOrder
   availability?: Prisma.SortOrder
-  imagePaths?: Prisma.SortOrder
+  images?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -468,23 +468,15 @@ export type VehicleUncheckedUpdateOneWithoutDriverNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.VehicleUpdateToOneWithWhereWithoutDriverInput, Prisma.VehicleUpdateWithoutDriverInput>, Prisma.VehicleUncheckedUpdateWithoutDriverInput>
 }
 
-export type VehicleCreateimagePathsInput = {
+export type VehicleCreateimagesInput = {
   set: string[]
-}
-
-export type IntFieldUpdateOperationsInput = {
-  set?: number
-  increment?: number
-  decrement?: number
-  multiply?: number
-  divide?: number
 }
 
 export type EnumVehicleAvailabilityFieldUpdateOperationsInput = {
   set?: $Enums.VehicleAvailability
 }
 
-export type VehicleUpdateimagePathsInput = {
+export type VehicleUpdateimagesInput = {
   set?: string[]
   push?: string | string[]
 }
@@ -508,7 +500,7 @@ export type VehicleCreateWithoutDriverInput = {
   name: string
   capacity: number
   availability?: $Enums.VehicleAvailability
-  imagePaths?: Prisma.VehicleCreateimagePathsInput | string[]
+  images?: Prisma.VehicleCreateimagesInput | string[]
   createdAt?: Date | string
   updatedAt?: Date | string
   pools?: Prisma.RidePoolCreateNestedManyWithoutVehicleInput
@@ -519,7 +511,7 @@ export type VehicleUncheckedCreateWithoutDriverInput = {
   name: string
   capacity: number
   availability?: $Enums.VehicleAvailability
-  imagePaths?: Prisma.VehicleCreateimagePathsInput | string[]
+  images?: Prisma.VehicleCreateimagesInput | string[]
   createdAt?: Date | string
   updatedAt?: Date | string
   pools?: Prisma.RidePoolUncheckedCreateNestedManyWithoutVehicleInput
@@ -546,7 +538,7 @@ export type VehicleUpdateWithoutDriverInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   capacity?: Prisma.IntFieldUpdateOperationsInput | number
   availability?: Prisma.EnumVehicleAvailabilityFieldUpdateOperationsInput | $Enums.VehicleAvailability
-  imagePaths?: Prisma.VehicleUpdateimagePathsInput | string[]
+  images?: Prisma.VehicleUpdateimagesInput | string[]
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   pools?: Prisma.RidePoolUpdateManyWithoutVehicleNestedInput
@@ -557,7 +549,7 @@ export type VehicleUncheckedUpdateWithoutDriverInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   capacity?: Prisma.IntFieldUpdateOperationsInput | number
   availability?: Prisma.EnumVehicleAvailabilityFieldUpdateOperationsInput | $Enums.VehicleAvailability
-  imagePaths?: Prisma.VehicleUpdateimagePathsInput | string[]
+  images?: Prisma.VehicleUpdateimagesInput | string[]
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   pools?: Prisma.RidePoolUncheckedUpdateManyWithoutVehicleNestedInput
@@ -568,7 +560,7 @@ export type VehicleCreateWithoutPoolsInput = {
   name: string
   capacity: number
   availability?: $Enums.VehicleAvailability
-  imagePaths?: Prisma.VehicleCreateimagePathsInput | string[]
+  images?: Prisma.VehicleCreateimagesInput | string[]
   createdAt?: Date | string
   updatedAt?: Date | string
   driver: Prisma.DriverCreateNestedOneWithoutVehicleInput
@@ -580,7 +572,7 @@ export type VehicleUncheckedCreateWithoutPoolsInput = {
   name: string
   capacity: number
   availability?: $Enums.VehicleAvailability
-  imagePaths?: Prisma.VehicleCreateimagePathsInput | string[]
+  images?: Prisma.VehicleCreateimagesInput | string[]
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -606,7 +598,7 @@ export type VehicleUpdateWithoutPoolsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   capacity?: Prisma.IntFieldUpdateOperationsInput | number
   availability?: Prisma.EnumVehicleAvailabilityFieldUpdateOperationsInput | $Enums.VehicleAvailability
-  imagePaths?: Prisma.VehicleUpdateimagePathsInput | string[]
+  images?: Prisma.VehicleUpdateimagesInput | string[]
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   driver?: Prisma.DriverUpdateOneRequiredWithoutVehicleNestedInput
@@ -618,7 +610,7 @@ export type VehicleUncheckedUpdateWithoutPoolsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   capacity?: Prisma.IntFieldUpdateOperationsInput | number
   availability?: Prisma.EnumVehicleAvailabilityFieldUpdateOperationsInput | $Enums.VehicleAvailability
-  imagePaths?: Prisma.VehicleUpdateimagePathsInput | string[]
+  images?: Prisma.VehicleUpdateimagesInput | string[]
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -660,7 +652,7 @@ export type VehicleSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   name?: boolean
   capacity?: boolean
   availability?: boolean
-  imagePaths?: boolean
+  images?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   driver?: boolean | Prisma.DriverDefaultArgs<ExtArgs>
@@ -674,7 +666,7 @@ export type VehicleSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   name?: boolean
   capacity?: boolean
   availability?: boolean
-  imagePaths?: boolean
+  images?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   driver?: boolean | Prisma.DriverDefaultArgs<ExtArgs>
@@ -686,7 +678,7 @@ export type VehicleSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   name?: boolean
   capacity?: boolean
   availability?: boolean
-  imagePaths?: boolean
+  images?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   driver?: boolean | Prisma.DriverDefaultArgs<ExtArgs>
@@ -698,12 +690,12 @@ export type VehicleSelectScalar = {
   name?: boolean
   capacity?: boolean
   availability?: boolean
-  imagePaths?: boolean
+  images?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type VehicleOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "driverId" | "name" | "capacity" | "availability" | "imagePaths" | "createdAt" | "updatedAt", ExtArgs["result"]["vehicle"]>
+export type VehicleOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "driverId" | "name" | "capacity" | "availability" | "images" | "createdAt" | "updatedAt", ExtArgs["result"]["vehicle"]>
 export type VehicleInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   driver?: boolean | Prisma.DriverDefaultArgs<ExtArgs>
   pools?: boolean | Prisma.Vehicle$poolsArgs<ExtArgs>
@@ -728,7 +720,7 @@ export type $VehiclePayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     name: string
     capacity: number
     availability: $Enums.VehicleAvailability
-    imagePaths: string[]
+    images: string[]
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["vehicle"]>
@@ -1161,7 +1153,7 @@ export interface VehicleFieldRefs {
   readonly name: Prisma.FieldRef<"Vehicle", 'String'>
   readonly capacity: Prisma.FieldRef<"Vehicle", 'Int'>
   readonly availability: Prisma.FieldRef<"Vehicle", 'VehicleAvailability'>
-  readonly imagePaths: Prisma.FieldRef<"Vehicle", 'String[]'>
+  readonly images: Prisma.FieldRef<"Vehicle", 'String[]'>
   readonly createdAt: Prisma.FieldRef<"Vehicle", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Vehicle", 'DateTime'>
 }

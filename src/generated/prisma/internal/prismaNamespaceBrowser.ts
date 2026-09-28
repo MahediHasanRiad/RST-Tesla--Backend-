@@ -52,12 +52,14 @@ export const AnyNull = runtime.AnyNull
 
 export const ModelName = {
   User: 'User',
+  OtpChallenge: 'OtpChallenge',
+  RefreshSession: 'RefreshSession',
+  AuthRateLimit: 'AuthRateLimit',
   Driver: 'Driver',
   Vehicle: 'Vehicle',
   ServiceZone: 'ServiceZone',
   RidePool: 'RidePool',
   RideRequest: 'RideRequest',
-  PoolMembership: 'PoolMembership',
   RideStatusHistory: 'RideStatusHistory',
   Payment: 'Payment'
 } as const
@@ -82,14 +84,63 @@ export const UserScalarFieldEnum = {
   id: 'id',
   role: 'role',
   name: 'name',
+  email: 'email',
   phone: 'phone',
-  passwordHash: 'passwordHash',
+  password: 'password',
+  isEmailVerified: 'isEmailVerified',
+  failedLoginAttempts: 'failedLoginAttempts',
+  lockedUntil: 'lockedUntil',
   avatar: 'avatar',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
+
+
+export const OtpChallengeScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  email: 'email',
+  purpose: 'purpose',
+  codeHash: 'codeHash',
+  expiresAt: 'expiresAt',
+  consumedAt: 'consumedAt',
+  attempts: 'attempts',
+  deliveryCount: 'deliveryCount',
+  lastSentAt: 'lastSentAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type OtpChallengeScalarFieldEnum = (typeof OtpChallengeScalarFieldEnum)[keyof typeof OtpChallengeScalarFieldEnum]
+
+
+export const RefreshSessionScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  tokenHash: 'tokenHash',
+  expiresAt: 'expiresAt',
+  revokedAt: 'revokedAt',
+  replacedById: 'replacedById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type RefreshSessionScalarFieldEnum = (typeof RefreshSessionScalarFieldEnum)[keyof typeof RefreshSessionScalarFieldEnum]
+
+
+export const AuthRateLimitScalarFieldEnum = {
+  id: 'id',
+  scope: 'scope',
+  keyHash: 'keyHash',
+  windowStart: 'windowStart',
+  count: 'count',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AuthRateLimitScalarFieldEnum = (typeof AuthRateLimitScalarFieldEnum)[keyof typeof AuthRateLimitScalarFieldEnum]
 
 
 export const DriverScalarFieldEnum = {
@@ -110,7 +161,7 @@ export const VehicleScalarFieldEnum = {
   name: 'name',
   capacity: 'capacity',
   availability: 'availability',
-  imagePaths: 'imagePaths',
+  images: 'images',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -157,18 +208,6 @@ export const RideRequestScalarFieldEnum = {
 } as const
 
 export type RideRequestScalarFieldEnum = (typeof RideRequestScalarFieldEnum)[keyof typeof RideRequestScalarFieldEnum]
-
-
-export const PoolMembershipScalarFieldEnum = {
-  id: 'id',
-  poolId: 'poolId',
-  requestId: 'requestId',
-  seatsReserved: 'seatsReserved',
-  farePaisa: 'farePaisa',
-  createdAt: 'createdAt'
-} as const
-
-export type PoolMembershipScalarFieldEnum = (typeof PoolMembershipScalarFieldEnum)[keyof typeof PoolMembershipScalarFieldEnum]
 
 
 export const RideStatusHistoryScalarFieldEnum = {

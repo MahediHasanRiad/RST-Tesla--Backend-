@@ -23,6 +23,21 @@ export * from './enums.js';
  */
 export type User = Prisma.UserModel
 /**
+ * Model OtpChallenge
+ * 
+ */
+export type OtpChallenge = Prisma.OtpChallengeModel
+/**
+ * Model RefreshSession
+ * 
+ */
+export type RefreshSession = Prisma.RefreshSessionModel
+/**
+ * Model AuthRateLimit
+ * 
+ */
+export type AuthRateLimit = Prisma.AuthRateLimitModel
+/**
  * Model Driver
  * 
  */
@@ -47,11 +62,6 @@ export type RidePool = Prisma.RidePoolModel
  * 
  */
 export type RideRequest = Prisma.RideRequestModel
-/**
- * Model PoolMembership
- * 
- */
-export type PoolMembership = Prisma.PoolMembershipModel
 /**
  * Model RideStatusHistory
  * 

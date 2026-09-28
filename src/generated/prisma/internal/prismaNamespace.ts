@@ -398,12 +398,14 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 
 export const ModelName = {
   User: 'User',
+  OtpChallenge: 'OtpChallenge',
+  RefreshSession: 'RefreshSession',
+  AuthRateLimit: 'AuthRateLimit',
   Driver: 'Driver',
   Vehicle: 'Vehicle',
   ServiceZone: 'ServiceZone',
   RidePool: 'RidePool',
   RideRequest: 'RideRequest',
-  PoolMembership: 'PoolMembership',
   RideStatusHistory: 'RideStatusHistory',
   Payment: 'Payment'
 } as const
@@ -421,7 +423,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "driver" | "vehicle" | "serviceZone" | "ridePool" | "rideRequest" | "poolMembership" | "rideStatusHistory" | "payment"
+    modelProps: "user" | "otpChallenge" | "refreshSession" | "authRateLimit" | "driver" | "vehicle" | "serviceZone" | "ridePool" | "rideRequest" | "rideStatusHistory" | "payment"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -496,6 +498,228 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.UserCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.UserCountAggregateOutputType> | number
+        }
+      }
+    }
+    OtpChallenge: {
+      payload: Prisma.$OtpChallengePayload<ExtArgs>
+      fields: Prisma.OtpChallengeFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.OtpChallengeFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OtpChallengePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.OtpChallengeFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OtpChallengePayload>
+        }
+        findFirst: {
+          args: Prisma.OtpChallengeFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OtpChallengePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.OtpChallengeFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OtpChallengePayload>
+        }
+        findMany: {
+          args: Prisma.OtpChallengeFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OtpChallengePayload>[]
+        }
+        create: {
+          args: Prisma.OtpChallengeCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OtpChallengePayload>
+        }
+        createMany: {
+          args: Prisma.OtpChallengeCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.OtpChallengeCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OtpChallengePayload>[]
+        }
+        delete: {
+          args: Prisma.OtpChallengeDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OtpChallengePayload>
+        }
+        update: {
+          args: Prisma.OtpChallengeUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OtpChallengePayload>
+        }
+        deleteMany: {
+          args: Prisma.OtpChallengeDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.OtpChallengeUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.OtpChallengeUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OtpChallengePayload>[]
+        }
+        upsert: {
+          args: Prisma.OtpChallengeUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OtpChallengePayload>
+        }
+        aggregate: {
+          args: Prisma.OtpChallengeAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateOtpChallenge>
+        }
+        groupBy: {
+          args: Prisma.OtpChallengeGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.OtpChallengeGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.OtpChallengeCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.OtpChallengeCountAggregateOutputType> | number
+        }
+      }
+    }
+    RefreshSession: {
+      payload: Prisma.$RefreshSessionPayload<ExtArgs>
+      fields: Prisma.RefreshSessionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.RefreshSessionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RefreshSessionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.RefreshSessionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RefreshSessionPayload>
+        }
+        findFirst: {
+          args: Prisma.RefreshSessionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RefreshSessionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.RefreshSessionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RefreshSessionPayload>
+        }
+        findMany: {
+          args: Prisma.RefreshSessionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RefreshSessionPayload>[]
+        }
+        create: {
+          args: Prisma.RefreshSessionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RefreshSessionPayload>
+        }
+        createMany: {
+          args: Prisma.RefreshSessionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.RefreshSessionCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RefreshSessionPayload>[]
+        }
+        delete: {
+          args: Prisma.RefreshSessionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RefreshSessionPayload>
+        }
+        update: {
+          args: Prisma.RefreshSessionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RefreshSessionPayload>
+        }
+        deleteMany: {
+          args: Prisma.RefreshSessionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.RefreshSessionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.RefreshSessionUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RefreshSessionPayload>[]
+        }
+        upsert: {
+          args: Prisma.RefreshSessionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RefreshSessionPayload>
+        }
+        aggregate: {
+          args: Prisma.RefreshSessionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateRefreshSession>
+        }
+        groupBy: {
+          args: Prisma.RefreshSessionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.RefreshSessionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.RefreshSessionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.RefreshSessionCountAggregateOutputType> | number
+        }
+      }
+    }
+    AuthRateLimit: {
+      payload: Prisma.$AuthRateLimitPayload<ExtArgs>
+      fields: Prisma.AuthRateLimitFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.AuthRateLimitFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AuthRateLimitPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.AuthRateLimitFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AuthRateLimitPayload>
+        }
+        findFirst: {
+          args: Prisma.AuthRateLimitFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AuthRateLimitPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.AuthRateLimitFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AuthRateLimitPayload>
+        }
+        findMany: {
+          args: Prisma.AuthRateLimitFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AuthRateLimitPayload>[]
+        }
+        create: {
+          args: Prisma.AuthRateLimitCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AuthRateLimitPayload>
+        }
+        createMany: {
+          args: Prisma.AuthRateLimitCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.AuthRateLimitCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AuthRateLimitPayload>[]
+        }
+        delete: {
+          args: Prisma.AuthRateLimitDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AuthRateLimitPayload>
+        }
+        update: {
+          args: Prisma.AuthRateLimitUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AuthRateLimitPayload>
+        }
+        deleteMany: {
+          args: Prisma.AuthRateLimitDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.AuthRateLimitUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.AuthRateLimitUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AuthRateLimitPayload>[]
+        }
+        upsert: {
+          args: Prisma.AuthRateLimitUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AuthRateLimitPayload>
+        }
+        aggregate: {
+          args: Prisma.AuthRateLimitAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateAuthRateLimit>
+        }
+        groupBy: {
+          args: Prisma.AuthRateLimitGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AuthRateLimitGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.AuthRateLimitCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AuthRateLimitCountAggregateOutputType> | number
         }
       }
     }
@@ -869,80 +1093,6 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
-    PoolMembership: {
-      payload: Prisma.$PoolMembershipPayload<ExtArgs>
-      fields: Prisma.PoolMembershipFieldRefs
-      operations: {
-        findUnique: {
-          args: Prisma.PoolMembershipFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PoolMembershipPayload> | null
-        }
-        findUniqueOrThrow: {
-          args: Prisma.PoolMembershipFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PoolMembershipPayload>
-        }
-        findFirst: {
-          args: Prisma.PoolMembershipFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PoolMembershipPayload> | null
-        }
-        findFirstOrThrow: {
-          args: Prisma.PoolMembershipFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PoolMembershipPayload>
-        }
-        findMany: {
-          args: Prisma.PoolMembershipFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PoolMembershipPayload>[]
-        }
-        create: {
-          args: Prisma.PoolMembershipCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PoolMembershipPayload>
-        }
-        createMany: {
-          args: Prisma.PoolMembershipCreateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        createManyAndReturn: {
-          args: Prisma.PoolMembershipCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PoolMembershipPayload>[]
-        }
-        delete: {
-          args: Prisma.PoolMembershipDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PoolMembershipPayload>
-        }
-        update: {
-          args: Prisma.PoolMembershipUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PoolMembershipPayload>
-        }
-        deleteMany: {
-          args: Prisma.PoolMembershipDeleteManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateMany: {
-          args: Prisma.PoolMembershipUpdateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateManyAndReturn: {
-          args: Prisma.PoolMembershipUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PoolMembershipPayload>[]
-        }
-        upsert: {
-          args: Prisma.PoolMembershipUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PoolMembershipPayload>
-        }
-        aggregate: {
-          args: Prisma.PoolMembershipAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregatePoolMembership>
-        }
-        groupBy: {
-          args: Prisma.PoolMembershipGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.PoolMembershipGroupByOutputType>[]
-        }
-        count: {
-          args: Prisma.PoolMembershipCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.PoolMembershipCountAggregateOutputType> | number
-        }
-      }
-    }
     RideStatusHistory: {
       payload: Prisma.$RideStatusHistoryPayload<ExtArgs>
       fields: Prisma.RideStatusHistoryFieldRefs
@@ -1134,14 +1284,63 @@ export const UserScalarFieldEnum = {
   id: 'id',
   role: 'role',
   name: 'name',
+  email: 'email',
   phone: 'phone',
-  passwordHash: 'passwordHash',
+  password: 'password',
+  isEmailVerified: 'isEmailVerified',
+  failedLoginAttempts: 'failedLoginAttempts',
+  lockedUntil: 'lockedUntil',
   avatar: 'avatar',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
+
+
+export const OtpChallengeScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  email: 'email',
+  purpose: 'purpose',
+  codeHash: 'codeHash',
+  expiresAt: 'expiresAt',
+  consumedAt: 'consumedAt',
+  attempts: 'attempts',
+  deliveryCount: 'deliveryCount',
+  lastSentAt: 'lastSentAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type OtpChallengeScalarFieldEnum = (typeof OtpChallengeScalarFieldEnum)[keyof typeof OtpChallengeScalarFieldEnum]
+
+
+export const RefreshSessionScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  tokenHash: 'tokenHash',
+  expiresAt: 'expiresAt',
+  revokedAt: 'revokedAt',
+  replacedById: 'replacedById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type RefreshSessionScalarFieldEnum = (typeof RefreshSessionScalarFieldEnum)[keyof typeof RefreshSessionScalarFieldEnum]
+
+
+export const AuthRateLimitScalarFieldEnum = {
+  id: 'id',
+  scope: 'scope',
+  keyHash: 'keyHash',
+  windowStart: 'windowStart',
+  count: 'count',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AuthRateLimitScalarFieldEnum = (typeof AuthRateLimitScalarFieldEnum)[keyof typeof AuthRateLimitScalarFieldEnum]
 
 
 export const DriverScalarFieldEnum = {
@@ -1162,7 +1361,7 @@ export const VehicleScalarFieldEnum = {
   name: 'name',
   capacity: 'capacity',
   availability: 'availability',
-  imagePaths: 'imagePaths',
+  images: 'images',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -1209,18 +1408,6 @@ export const RideRequestScalarFieldEnum = {
 } as const
 
 export type RideRequestScalarFieldEnum = (typeof RideRequestScalarFieldEnum)[keyof typeof RideRequestScalarFieldEnum]
-
-
-export const PoolMembershipScalarFieldEnum = {
-  id: 'id',
-  poolId: 'poolId',
-  requestId: 'requestId',
-  seatsReserved: 'seatsReserved',
-  farePaisa: 'farePaisa',
-  createdAt: 'createdAt'
-} as const
-
-export type PoolMembershipScalarFieldEnum = (typeof PoolMembershipScalarFieldEnum)[keyof typeof PoolMembershipScalarFieldEnum]
 
 
 export const RideStatusHistoryScalarFieldEnum = {
@@ -1307,16 +1494,9 @@ export type ListEnumUserRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$Pri
 
 
 /**
- * Reference to a field of type 'DateTime'
+ * Reference to a field of type 'Boolean'
  */
-export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime'>
-    
-
-
-/**
- * Reference to a field of type 'DateTime[]'
- */
-export type ListDateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime[]'>
+export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
     
 
 
@@ -1335,9 +1515,30 @@ export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel,
 
 
 /**
- * Reference to a field of type 'Boolean'
+ * Reference to a field of type 'DateTime'
  */
-export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
+export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime'>
+    
+
+
+/**
+ * Reference to a field of type 'DateTime[]'
+ */
+export type ListDateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime[]'>
+    
+
+
+/**
+ * Reference to a field of type 'OtpPurpose'
+ */
+export type EnumOtpPurposeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'OtpPurpose'>
+    
+
+
+/**
+ * Reference to a field of type 'OtpPurpose[]'
+ */
+export type ListEnumOtpPurposeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'OtpPurpose[]'>
     
 
 
@@ -1590,12 +1791,14 @@ export interface PrismaClientOptionsWithAdapter extends PrismaClientBaseOptions 
 export type PrismaClientOptions = PrismaClientOptionsWithAccelerateUrl | PrismaClientOptionsWithAdapter
 export type GlobalOmitConfig = {
   user?: Prisma.UserOmit
+  otpChallenge?: Prisma.OtpChallengeOmit
+  refreshSession?: Prisma.RefreshSessionOmit
+  authRateLimit?: Prisma.AuthRateLimitOmit
   driver?: Prisma.DriverOmit
   vehicle?: Prisma.VehicleOmit
   serviceZone?: Prisma.ServiceZoneOmit
   ridePool?: Prisma.RidePoolOmit
   rideRequest?: Prisma.RideRequestOmit
-  poolMembership?: Prisma.PoolMembershipOmit
   rideStatusHistory?: Prisma.RideStatusHistoryOmit
   payment?: Prisma.PaymentOmit
 }

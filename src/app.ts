@@ -1,34 +1,22 @@
-import cors from "@fastify/cors";
-import helmet from "@fastify/helmet";
-import Fastify from "fastify";
+import cors from "cors";
+import express from "express";
+import helmet from "helmet";
+import { authRoutes } from "./api/v1/auth/auth.routes.js";
+import { errorHandler } from "./middleware/error.middleware.js";
 
-import { prisma } from "./lib/prisma.js";
-import { redis } from "./lib/redis.js";
-import { logger } from "./lib/logger.js";
+export function buildApp() {
 
-export async function buildApp() {
-  const app = Fastify({ logger: false });
+  const app = express();
+  
+  app.use(cors({ origin: false }));
+  app.use(helmet());
+  app.use(express.json({ limit: "100kb" }));
+  app.use(express.urlencoded({extended: true}))
 
-  await app.register(cors, { origin: false });
-  await app.register(helmet);
+  app.use("/api/v1/auth", authRoutes);
+  app.get("/health", (_request, response) => response.json({ status: "ok" }));
 
-  app.addHook("onRequest", async (request) => {
-    logger.info("Request received", { requestId: request.id, method: request.method, url: request.url });
-  });
-
-  app.get("/health", async () => ({ status: "ok" }));
-
-  app.get("/ready", async (_request, reply) => {
-    try {
-      await prisma.$queryRaw`SELECT 1`;
-      if (redis.status === "wait") await redis.connect();
-      await redis.ping();
-      return { status: "ready" };
-    } catch (error) {
-      logger.error("Dependency readiness check failed", { error });
-      return reply.code(503).send({ status: "unavailable" });
-    }
-  });
+  app.use(errorHandler);
 
   return app;
 }

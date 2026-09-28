@@ -1,0 +1,4 @@
+-- The initial schema already contains User.password. Authentication migration
+-- 20260928110000_add_authentication safely copies it into User.passwordHash.
+-- This no-op preserves the migration sequence without attempting to drop a
+-- column that does not exist in the initial database.

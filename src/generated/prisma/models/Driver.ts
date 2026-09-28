@@ -430,10 +430,6 @@ export type NullableIntFieldUpdateOperationsInput = {
   divide?: number
 }
 
-export type BoolFieldUpdateOperationsInput = {
-  set?: boolean
-}
-
 export type DriverCreateNestedOneWithoutVehicleInput = {
   create?: Prisma.XOR<Prisma.DriverCreateWithoutVehicleInput, Prisma.DriverUncheckedCreateWithoutVehicleInput>
   connectOrCreate?: Prisma.DriverCreateOrConnectWithoutVehicleInput

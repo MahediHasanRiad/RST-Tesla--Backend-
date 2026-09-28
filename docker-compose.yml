@@ -1,4 +1,37 @@
 services:
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      DATABASE_URL: postgresql://${POSTGRES_USER:-dhaka_tesla}:${POSTGRES_PASSWORD:-change-me}@postgres:5432/${POSTGRES_DB:-dhaka_tesla_pool}?schema=public
+      DIRECT_URL: postgresql://${POSTGRES_USER:-dhaka_tesla}:${POSTGRES_PASSWORD:-change-me}@postgres:5432/${POSTGRES_DB:-dhaka_tesla_pool}?schema=public
+      REDIS_URL: redis://redis:6379
+      JWT_SECRET: ${JWT_SECRET:-replace-this-before-production}
+      JWT_ISSUER: ${JWT_ISSUER:-dhaka-tesla-pool-api}
+      OTP_ENCRYPTION_KEY: ${OTP_ENCRYPTION_KEY:-replace-with-a-base64-encoded-32-byte-key}
+      BREVO_API_KEY: ${BREVO_API_KEY:-}
+      BREVO_SENDER_EMAIL: ${BREVO_SENDER_EMAIL:-no-reply@example.com}
+      AVATAR_MAX_BYTES: ${AVATAR_MAX_BYTES:-5242880}
+      CLOUDINARY_CLOUD_NAME: ${CLOUDINARY_CLOUD_NAME:-}
+      CLOUDINARY_API_KEY: ${CLOUDINARY_API_KEY:-}
+      CLOUDINARY_API_SECRET: ${CLOUDINARY_API_SECRET:-}
+    ports:
+      - "${API_PORT:-3001}:3001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:3001/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+
   postgres:
     image: postgres:17-alpine
     environment:
@@ -25,28 +58,6 @@ services:
       timeout: 3s
       retries: 10
 
-  api:
-    build:
-      context: ./backend
-    environment:
-      NODE_ENV: production
-      PORT: 3001
-      DATABASE_URL: postgresql://${POSTGRES_USER:-dhaka_tesla}:${POSTGRES_PASSWORD:-change-me}@postgres:5432/${POSTGRES_DB:-dhaka_tesla_pool}?schema=public
-      REDIS_URL: redis://redis:6379
-      JWT_SECRET: ${JWT_SECRET:-replace-this-before-production}
-    ports:
-      - "${API_PORT:-3001}:3001"
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD", "node", "-e", "fetch('http://localhost:3001/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"]
-      interval: 10s
-      timeout: 5s
-      retries: 6
-
+  
 volumes:
   postgres_data:
-
