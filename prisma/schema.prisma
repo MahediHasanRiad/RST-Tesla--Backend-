@@ -1,0 +1,171 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserRole {
+  PASSENGER
+  DRIVER
+  ADMIN
+}
+
+enum VehicleAvailability {
+  OFFLINE
+  ONLINE
+}
+
+enum PoolStatus {
+  OPEN
+  PENDING_DRIVER_ACCEPTANCE
+  MATCHED
+  DRIVER_ARRIVED
+  STARTED
+  COMPLETED
+  CANCELLED
+}
+
+enum RideRequestStatus {
+  REQUESTED
+  PENDING_DRIVER_ACCEPTANCE
+  MATCHED
+  DRIVER_ARRIVED
+  STARTED
+  COMPLETED
+  CANCELLED
+}
+
+enum PaymentMethod {
+  CASH
+  TESLA_PAY
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  REFUNDED
+  FAILED
+}
+
+model User {
+  id       String   @id @default(uuid()) @db.Uuid
+  role     UserRole
+  name     String
+  phone    String   @unique
+  password String
+  avatar   String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  rideRequests  RideRequest[]       @relation("PassengerRequests")
+  statusChanges RideStatusHistory[] @relation("StatusChangedBy")
+  driver        Driver?
+}
+
+model Driver {
+  id              String   @id @default(uuid()) @db.Uuid
+  userId          String   @unique @db.Uuid
+  user            User     @relation(fields: [userId], references: [id])
+  experienceYears Int?
+  isVerified      Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  vehicle         Vehicle?
+}
+
+model Vehicle {
+  id           String              @id @default(uuid()) @db.Uuid
+  driverId     String              @unique @db.Uuid
+  name         String
+  capacity     Int
+  availability VehicleAvailability @default(OFFLINE)
+  images       String[]            @default([])
+
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
+  
+  driver       Driver              @relation(fields: [driverId], references: [id])
+  pools        RidePool[]
+}
+
+model ServiceZone {
+  id                  String        @id @default(uuid()) @db.Uuid
+  name                String        @unique
+  latitude            Decimal       @db.Decimal(9, 6)
+  longitude           Decimal       @db.Decimal(9, 6)
+
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+  
+  pickupPools         RidePool[]    @relation("PoolPickupZone")
+  pickupRequests      RideRequest[] @relation("RequestPickupZone")
+  destinationRequests RideRequest[] @relation("RequestDestinationZone")
+}
+
+model RidePool {
+  id            String        @id @default(uuid()) @db.Uuid
+  vehicleId     String        @db.Uuid
+  pickupZoneId  String        @db.Uuid
+  status        PoolStatus    @default(OPEN)
+  reservedSeats Int           @default(0)
+  vehicle       Vehicle       @relation(fields: [vehicleId], references: [id])
+  pickupZone    ServiceZone   @relation("PoolPickupZone", fields: [pickupZoneId], references: [id])
+  requests      RideRequest[]
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  @@index([vehicleId, status])
+  @@index([pickupZoneId, status])
+}
+
+model RideRequest {
+  id                String              @id @default(uuid()) @db.Uuid
+  passengerId       String              @db.Uuid
+  poolId            String?             @db.Uuid
+  pickupZoneId      String              @db.Uuid
+  destinationZoneId String              @db.Uuid
+  requestedSeats    Int
+  status            RideRequestStatus   @default(REQUESTED)
+  farePaisa         Int?
+
+  passenger         User                @relation("PassengerRequests", fields: [passengerId], references: [id])
+  pool              RidePool?           @relation(fields: [poolId], references: [id])
+  pickupZone        ServiceZone         @relation("RequestPickupZone", fields: [pickupZoneId], references: [id])
+  destinationZone   ServiceZone         @relation("RequestDestinationZone", fields: [destinationZoneId], references: [id])
+  statusHistory     RideStatusHistory[]
+  payment           Payment?
+  
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+
+  @@index([pickupZoneId, status])
+  @@index([passengerId, createdAt])
+}
+
+model RideStatusHistory {
+  id          String             @id @default(uuid()) @db.Uuid
+  requestId   String             @db.Uuid
+  fromStatus  RideRequestStatus?
+  toStatus    RideRequestStatus
+  changedById String?            @db.Uuid
+  request     RideRequest        @relation(fields: [requestId], references: [id])
+  changedBy   User?              @relation("StatusChangedBy", fields: [changedById], references: [id])
+  createdAt   DateTime           @default(now())
+
+  @@index([requestId, createdAt])
+}
+
+model Payment {
+  id          String        @id @default(uuid()) @db.Uuid
+  requestId   String        @unique @db.Uuid
+  amountPaisa Int
+  method      PaymentMethod
+  status      PaymentStatus @default(PENDING)
+  request     RideRequest   @relation(fields: [requestId], references: [id])
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}
