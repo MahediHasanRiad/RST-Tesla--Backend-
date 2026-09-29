@@ -1,6 +1,12 @@
 import "dotenv/config";
 import { z } from "zod";
 
+const tokenTtl = (fallback: string) =>
+  z.preprocess(
+    (value) => value === "" ? undefined : value,
+    z.string().trim().regex(/^[1-9]\d*(?:\s*[smhdw])?$/i).default(fallback),
+  ).transform((value) => /^\d+$/.test(value) ? `${value}s` : value.replace(/\s+/g, ""));
+
 const environment = z.object({
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
   PORT: z.coerce.number().int().positive().default(3001),
@@ -9,8 +15,11 @@ const environment = z.object({
   REDIS_URL: z.string().url(),
   JWT_SECRET: z.string(),
   JWT_ISSUER: z.string().min(1).default("dhaka-tesla-pool-api"),
-  ACCESS_TOKEN_TTL_SECONDS: z.coerce.number().int().positive().default(900),
-  REFRESH_TOKEN_TTL_SECONDS: z.coerce.number().int().positive().default(2_592_000),
+  ACCESS_TOKEN_TTL_SECONDS: tokenTtl("900s"),
+  ACCESS_TOKEN_SECRET_KEY:z.string(),
+  REFRESH_TOKEN_TTL_SECONDS: tokenTtl("30d"),
+  LOGIN_MAX_FAILURES: z.coerce.number().int().positive().default(5),
+  LOGIN_LOCKOUT_SECONDS: z.coerce.number().int().positive().default(900),
   OTP_TTL_SECONDS: z.coerce.number().int().positive().default(600),
   BREVO_API_KEY: z.string().min(1).optional(),
   BREVO_SENDER_EMAIL: z.string().email().optional(),

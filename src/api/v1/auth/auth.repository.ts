@@ -41,6 +41,7 @@ export class AuthRepository {
     password: string;
     role: "PASSENGER" | "DRIVER";
     avatar?: string;
+    avatarPublicId?: string;
   }) {
     try {
       return await prisma.$transaction(async (tx) => {
@@ -52,6 +53,7 @@ export class AuthRepository {
             password: data.password,
             role: data.role as UserRole,
             avatar: data.avatar,
+            avatarPublicId: data.avatarPublicId,
           },
         });
         if (data.role === "DRIVER")
@@ -100,87 +102,6 @@ export class AuthRepository {
       });
     } catch (error) {
       this.fail("clearLoginFailures", error, { actorId: userId });
-      throw error;
-    }
-  }
-
-  async createSession(userId: string, tokenHash: string, expiresAt: Date) {
-    try {
-      return await prisma.refreshSession.create({
-        data: { userId, tokenHash, expiresAt },
-      });
-    } catch (error) {
-      this.fail("createSession", error, { actorId: userId });
-      throw error;
-    }
-  }
-
-  async rotateSession(
-    tokenHash: string,
-    replacementHash: string,
-    expiresAt: Date,
-  ) {
-    try {
-      return await prisma.$transaction(async (tx) => {
-        const old = await tx.refreshSession.findUnique({
-          where: { tokenHash },
-          include: { user: true },
-        });
-        if (!old || old.revokedAt || old.expiresAt <= new Date()) return null;
-        const session = await tx.refreshSession.create({
-          data: { userId: old.userId, tokenHash: replacementHash, expiresAt },
-        });
-        return (
-          await tx.refreshSession.updateMany({
-            where: { id: old.id, revokedAt: null },
-            data: { revokedAt: new Date(), replacedById: session.id },
-          })
-        ).count
-          ? { user: old.user, session }
-          : null;
-      });
-    } catch (error) {
-      this.fail("rotateSession", error);
-      throw error;
-    }
-  }
-
-  async revokeSession(id: string) {
-    try {
-      return await prisma.refreshSession.updateMany({
-        where: { id, revokedAt: null },
-        data: { revokedAt: new Date() },
-      });
-    } catch (error) {
-      this.fail("revokeSession", error);
-      throw error;
-    }
-  }
-
-  async isSessionActive(id: string) {
-    try {
-      return Boolean(
-        await prisma.refreshSession.findFirst({
-          where: { id, revokedAt: null, expiresAt: { gt: new Date() } },
-        }),
-      );
-    } catch (error) {
-      this.fail("isSessionActive", error);
-      throw error;
-    }
-  }
-
-  async updatePasswordAndRevoke(userId: string, password: string) {
-    try {
-      return await prisma.$transaction([
-        prisma.user.update({ where: { id: userId }, data: { password } }),
-        prisma.refreshSession.updateMany({
-          where: { userId, revokedAt: null },
-          data: { revokedAt: new Date() },
-        }),
-      ]);
-    } catch (error) {
-      this.fail("updatePasswordAndRevoke", error, { actorId: userId });
       throw error;
     }
   }

@@ -47,11 +47,6 @@ export { Prisma }
  */
 export type User = Prisma.UserModel
 /**
- * Model RefreshSession
- * 
- */
-export type RefreshSession = Prisma.RefreshSessionModel
-/**
  * Model AuthRateLimit
  * 
  */

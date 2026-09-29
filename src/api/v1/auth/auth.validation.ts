@@ -6,10 +6,15 @@ const phone = z
   .string()
   .trim()
 
+  .regex(/^\+?[1-9]\d{7,14}$/, "Invalid phone number");
 
 const password = z
   .string()
-
+  .min(8)
+  .max(128)
+  .regex(/[a-z]/, "Password must include a lowercase letter")
+  .regex(/[A-Z]/, "Password must include an uppercase letter")
+  .regex(/\d/, "Password must include a number");
 
 const otp = z.string().regex(/^\d{6}$/);
 
@@ -40,9 +45,6 @@ export const verifyOtpSchema = z.object({ email, otp }).strict();
 export const resendVerificationSchema = z.object({ email }).strict();
 export const loginSchema = z
   .object({ email, password: z.string().min(1).max(128) })
-  .strict();
-export const refreshSchema = z
-  .object({ refreshToken: z.string().min(32).max(512) })
   .strict();
 export const forgotPasswordSchema = z.object({ email }).strict();
 export const resetPasswordSchema = z.object({ email, otp, password }).strict();

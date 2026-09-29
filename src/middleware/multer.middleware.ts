@@ -12,6 +12,8 @@ export const upload = multer({
     parts: 6,
   },
   fileFilter: (_request, file, callback) => {
-    callback(null, avatarMimeTypes.has(file.mimetype));
+    if (!avatarMimeTypes.has(file.mimetype))
+      return callback(new multer.MulterError("LIMIT_UNEXPECTED_FILE", file.fieldname));
+    callback(null, true);
   },
 });

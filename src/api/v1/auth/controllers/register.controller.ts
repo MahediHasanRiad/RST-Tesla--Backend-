@@ -44,6 +44,7 @@ async function registerHandler(req: Request, res: Response) {
       phone,
       role,
       avatar: uploadedAvatar?.url,
+      avatarPublicId: uploadedAvatar?.publicId,
       password: await AuthCredentials.hashPassword(password),
     });
 

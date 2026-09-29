@@ -30,7 +30,9 @@ export const errorHandler: ErrorRequestHandler = (
     return sendError(response, 409, "conflict", "Resource already exists");
   logger.error("Unhandled request error", {
     requestId: request.requestId,
-    error,
+    errorName: error instanceof Error ? error.name : "UnknownError",
+    errorMessage: error instanceof Error ? error.message : String(error),
+    errorStack: error instanceof Error ? error.stack : undefined,
   });
   return sendError(
     response,

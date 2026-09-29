@@ -35,24 +35,33 @@ export class AuthCredentials {
     return createHash("sha256").update(value).digest("base64url");
   }
 
-  static createRefreshToken() {
-    return randomBytes(48).toString("base64url");
-  }
-
-  static async signAccessToken(actor: {
-    id: string;
+  static async signRefreshToken(actor: {
+    userId: string;
     role: string;
-    sessionId: string;
   }) {
     return new SignJWT({
       role: actor.role,
-      sessionId: actor.sessionId,
       type: "access",
     })
       .setProtectedHeader({ alg: "HS256" })
-      .setSubject(actor.id)
+      .setSubject(actor.userId)
       .setIssuer(env.JWT_ISSUER)
-      .setExpirationTime(`${env.ACCESS_TOKEN_TTL_SECONDS}s`)
+      .setExpirationTime(env.REFRESH_TOKEN_TTL_SECONDS)
+      .sign(secret);
+  }
+  
+  static async signAccessToken(actor: {
+    userId: string;
+    role: string;
+  }) {
+    return new SignJWT({
+      role: actor.role,
+      type: "access",
+    })
+      .setProtectedHeader({ alg: "HS256" })
+      .setSubject(actor.userId)
+      .setIssuer(env.JWT_ISSUER)
+      .setExpirationTime(env.ACCESS_TOKEN_TTL_SECONDS)
       .sign(secret);
   }
   
@@ -63,14 +72,12 @@ export class AuthCredentials {
     if (
       payload.type !== "access" ||
       !payload.sub ||
-      typeof payload.role !== "string" ||
-      typeof payload.sessionId !== "string"
+      typeof payload.role !== "string"
     )
       throw new Error("Invalid access token");
     return {
-      id: payload.sub,
+      userId: payload.sub,
       role: payload.role as "PASSENGER" | "DRIVER" | "ADMIN",
-      sessionId: payload.sessionId,
     };
   }
 }

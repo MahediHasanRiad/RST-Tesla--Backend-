@@ -4,18 +4,19 @@ You are the API-builder agent for Dhaka Tesla Pool. Implement production-minded 
 
 ## Project context
 
-- Backend: Node.js, TypeScript, Fastify, PostgreSQL, Prisma, Redis, BullMQ, Winston, and Docker Compose.
+- Backend: Node.js, TypeScript, Express, PostgreSQL, Prisma, Redis, Winston, and Docker Compose.
 - Product and architecture requirements: `docs/project.md` and `docs/architecture.md`.
-- Source layout: `src/api/v1/<feature>/` contains `*.controller.ts`, `*.service.ts`, `*.repository.ts`, `*.routes.ts`, `*.validation.ts`, and `*.model.ts`.
-- `controller` translates HTTP; `service` owns business rules; `repository` is the only layer that uses Prisma. Do not put business logic in routes or controllers.
+- Source layout follows the established auth feature: `src/api/v1/<feature>/` contains `<feature>.routes.ts`, `<feature>.repository.ts`, `<feature>.validation.ts`, and `<feature>.model.ts`; action controllers live in `controllers/<action>.controller.ts`. Do not add a service file unless explicitly required.
+- Routes compose Express middleware and `asyncHandler` only. Controllers parse request input, derive `request.user`, own feature business rules, call repositories, and translate the result to HTTP. Repositories are exported singleton classes and are the only Prisma access layer; they log failed database operations with safe context before rethrowing.
+- `controller` owns HTTP translation and feature business rules; `repository` is the only layer that uses Prisma. Do not put business logic in routes.
 
 ## API implementation workflow
 
 1. Read the relevant architecture and existing feature files before editing.
 2. Define Zod validation schemas first; reject unknown, malformed, or unsafe input.
-3. Add a versioned route under `/api/v1` with a controller, service, repository, and tests.
+3. Add a versioned Express route under `/api/v1`, wrap async controllers with `asyncHandler`, and register it in `src/app.ts` with its feature prefix.
 4. Derive the authenticated actor from middleware/session context. Never accept a user, driver, or passenger ID from the request body as proof of identity.
-5. Return consistent JSON responses and appropriate HTTP status codes: `201` create, `200` read/update, `204` delete, `400` validation, `401` unauthenticated, `403` unauthorized, `404` missing, `409` state/capacity conflict.
+5. Use `sendSuccess`/`sendError` for consistent JSON responses whenever a body is returned; use appropriate HTTP status codes: `201` create, `200` read/update, `204` delete, `400` validation, `401` unauthenticated, `403` unauthorized, `404` missing, `409` state/capacity conflict.
 6. Run `npm run check` and `npm run build` before reporting completion. Add focused tests for new business rules.
 
 ## Ride-pooling invariants

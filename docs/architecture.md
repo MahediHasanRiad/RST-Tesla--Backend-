@@ -196,7 +196,7 @@ Capacity is enforced in a single database transaction:
 
 This means if Nusrat and Shirin both try to reserve Bullet's last seat, only the transaction that holds the lock first can succeed; the second rechecks capacity and receives a conflict response. At larger scale, keep the invariant in the database and add retries for serialization failures—not a client-side availability check.
 
-Anyone may browse the public site without an account. Creating, viewing, changing, or cancelling a ride request requires authentication. Use JWT or secure session authentication; every protected endpoint derives the actor identity from the credential, not request body fields. Passengers can read/change only their own request before the cancellation cutoff; drivers can act only on their own vehicle's pools; administrators, if added, require a separate role. Validate every external input with Zod server-side before it is used, including request bodies, path parameters, query strings, headers, cookies, and multipart metadata. Validation schemas must be strict by default and return predictable validation, authorization, conflict, and state-transition errors.
+Anyone may browse the public site without an account. Creating, viewing, changing, or cancelling a ride request requires a short-lived stateless JWT; every protected endpoint derives the actor identity from the credential, not request body fields. Logout and password changes cannot revoke an already-issued token, so access-token expiry must remain short. Passengers can read/change only their own request before the cancellation cutoff; drivers can act only on their own vehicle's pools; administrators, if added, require a separate role. Validate every external input with Zod server-side before it is used, including request bodies, path parameters, query strings, headers, cookies, and multipart metadata. Validation schemas must be strict by default and return predictable validation, authorization, conflict, and state-transition errors.
 
 ## API boundary
 
@@ -276,3 +276,6 @@ The following are safe MVP defaults, but should be confirmed before implementati
 3. whether a pool is automatically proposed on the first request or created by a driver before acceptance;
 4. whether the 5% fee applies from `DRIVER_ARRIVED` onward (the current interpretation); and
 5. the initial authentication credential type and deployment target.
+# User-profile deletion
+
+`/api/v1/users/me` is an authenticated self-service resource. Account deletion is password-confirmed and transactionally rejects active passenger rides and driver pools. Historical completed/cancelled requests retain fare and lifecycle data while their passenger reference, status actor reference, and driver account reference are set to null; no live user account or profile data remains. Avatar cleanup is post-commit and logged for remediation if Cloudinary is unavailable.

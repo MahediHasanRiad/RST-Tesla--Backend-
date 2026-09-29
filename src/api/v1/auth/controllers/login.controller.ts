@@ -1,4 +1,5 @@
 import type { Request, Response } from "express";
+import { randomBytes } from "node:crypto";
 import { asyncHandler } from "../../../../shared/http/async-handler.js";
 import { env } from "../../../../config/env.js";
 import { AuthCredentials } from "../../../../shared/auth/credentials.js";
@@ -43,13 +44,20 @@ async function loginHandler(
       .status(user?.lockedUntil && user.lockedUntil > now ? 429 : 401)
       .send({ error: "invalid_credentials" });
   }
-  if (AuthCredentials.needsPasswordRehash(user.password))
-    await authRepository.updatePassword(
-      user.id,
-      await AuthCredentials.hashPassword(body.password),
-    );
-  await authRepository.clearLoginFailures(user.id);
 
+  // set in cookie
+  const accessToken = await AuthCredentials.signAccessToken({
+    userId: user.id,
+    role: user.role,
+  });
+  const refreshToken = await AuthCredentials.signRefreshToken({
+    userId: user.id,
+    role: user.role,
+  });
+
+  res.cookie('access-token', accessToken)
+  res.cookie('refresh-token', refreshToken)
+  
   return sendSuccess(res, 200, toPublicUser(user));
 }
 

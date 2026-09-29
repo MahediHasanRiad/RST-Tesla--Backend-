@@ -4,8 +4,6 @@ import { env } from "../../../config/env.js";
 import { requireAuth } from "../../../middleware/auth.middleware.js";
 import { changePasswordController } from "./controllers/change-password.controller.js";
 import { loginController } from "./controllers/login.controller.js";
-import { logoutController } from "./controllers/logout.controller.js";
-import { refreshController } from "./controllers/refresh.controller.js";
 import { registerController } from "./controllers/register.controller.js";
 import { resendVerificationController } from "./controllers/resend-verification.controller.js";
 import { resetPasswordController } from "./controllers/reset-password.controller.js";
@@ -29,10 +27,8 @@ authRoutes.post(
   asyncHandler(resendVerificationController),
 );
 authRoutes.post("/login", asyncHandler(loginController));
-authRoutes.post("/refresh", asyncHandler(refreshController));
 authRoutes.post("/forgot-password", asyncHandler(forgotPasswordController));
 authRoutes.post("/reset-password", asyncHandler(resetPasswordController));
-authRoutes.post("/logout", requireAuth, asyncHandler(logoutController));
 authRoutes.post(
   "/change-password",
   requireAuth,

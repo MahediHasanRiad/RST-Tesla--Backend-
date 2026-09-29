@@ -52,7 +52,6 @@ export const AnyNull = runtime.AnyNull
 
 export const ModelName = {
   User: 'User',
-  RefreshSession: 'RefreshSession',
   AuthRateLimit: 'AuthRateLimit',
   Driver: 'Driver',
   Vehicle: 'Vehicle',
@@ -90,25 +89,12 @@ export const UserScalarFieldEnum = {
   failedLoginAttempts: 'failedLoginAttempts',
   lockedUntil: 'lockedUntil',
   avatar: 'avatar',
+  avatarPublicId: 'avatarPublicId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
-
-
-export const RefreshSessionScalarFieldEnum = {
-  id: 'id',
-  userId: 'userId',
-  tokenHash: 'tokenHash',
-  expiresAt: 'expiresAt',
-  revokedAt: 'revokedAt',
-  replacedById: 'replacedById',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type RefreshSessionScalarFieldEnum = (typeof RefreshSessionScalarFieldEnum)[keyof typeof RefreshSessionScalarFieldEnum]
 
 
 export const AuthRateLimitScalarFieldEnum = {

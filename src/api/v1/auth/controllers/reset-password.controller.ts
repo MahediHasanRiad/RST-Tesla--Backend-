@@ -18,7 +18,7 @@ async function resetPasswordHandler(
   const user = await authRepository.findUserByEmail(body.email);
   if (!user) return res.status(401).send({ error: "invalid_otp" });
   await redis.del(`auth:otp:${body.email}`);
-  await authRepository.updatePasswordAndRevoke(
+  await authRepository.updatePassword(
     user.id,
     await AuthCredentials.hashPassword(body.password),
   );
