@@ -52,7 +52,6 @@ export const AnyNull = runtime.AnyNull
 
 export const ModelName = {
   User: 'User',
-  OtpChallenge: 'OtpChallenge',
   RefreshSession: 'RefreshSession',
   AuthRateLimit: 'AuthRateLimit',
   Driver: 'Driver',
@@ -96,24 +95,6 @@ export const UserScalarFieldEnum = {
 } as const
 
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
-
-
-export const OtpChallengeScalarFieldEnum = {
-  id: 'id',
-  userId: 'userId',
-  email: 'email',
-  purpose: 'purpose',
-  codeHash: 'codeHash',
-  expiresAt: 'expiresAt',
-  consumedAt: 'consumedAt',
-  attempts: 'attempts',
-  deliveryCount: 'deliveryCount',
-  lastSentAt: 'lastSentAt',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type OtpChallengeScalarFieldEnum = (typeof OtpChallengeScalarFieldEnum)[keyof typeof OtpChallengeScalarFieldEnum]
 
 
 export const RefreshSessionScalarFieldEnum = {

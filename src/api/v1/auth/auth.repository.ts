@@ -1,4 +1,4 @@
-import { OtpPurpose, Prisma, UserRole } from "../../../generated/prisma/client.js";
+import { UserRole } from "../../../generated/prisma/client.js";
 import { prisma } from "../../../lib/prisma.js";
 import { logger } from "../../../lib/logger.js";
 
@@ -13,27 +13,6 @@ export class AuthRepository {
       operation,
       ...context,
       error,
-    });
-  }
-
-  private createOtpChallengeRecord(
-    tx: Prisma.TransactionClient,
-    data: {
-      userId: string;
-      email: string;
-      purpose: "EMAIL_VERIFICATION" | "PASSWORD_RESET";
-      otp: string;
-      expiresAt: Date;
-    },
-  ) {
-    return tx.otpChallenge.create({
-      data: {
-        userId: data.userId,
-        email: data.email,
-        purpose: data.purpose as OtpPurpose,
-        codeHash: data.otp,
-        expiresAt: data.expiresAt,
-      },
     });
   }
 
@@ -62,8 +41,6 @@ export class AuthRepository {
     password: string;
     role: "PASSENGER" | "DRIVER";
     avatar?: string;
-    otp: string;
-    expiresAt: Date;
   }) {
     try {
       return await prisma.$transaction(async (tx) => {
@@ -80,126 +57,10 @@ export class AuthRepository {
         if (data.role === "DRIVER")
           await tx.driver.create({ data: { userId: user.id } });
         
-        const challenge = await this.createOtpChallengeRecord(tx, {
-          userId: user.id,
-          email: user.email,
-          purpose: "EMAIL_VERIFICATION",
-          otp: data.otp,
-          expiresAt: data.expiresAt,
-        });
-        return { user, challengeId: challenge.id };
+        return { user };
       });
     } catch (error) {
       this.fail("createUserWithOtp", error);
-      throw error;
-    }
-  }
-
-  async createOtpChallenge(data: {
-    userId: string;
-    email: string;
-    purpose: "EMAIL_VERIFICATION" | "PASSWORD_RESET";
-    otpHash: string;
-    expiresAt: Date;
-  }) {
-    try {
-      return await prisma.$transaction(async (tx) => {
-        await tx.otpChallenge.updateMany({
-          where: {
-            userId: data.userId,
-            purpose: data.purpose as OtpPurpose,
-            consumedAt: null,
-          },
-          data: { consumedAt: new Date() },
-        });
-        return this.createOtpChallengeRecord(tx, {
-          userId: data.userId,
-          email: data.email,
-          purpose: data.purpose,
-          otp: data.otpHash,
-          expiresAt: data.expiresAt,
-        });
-      });
-    } catch (error) {
-      this.fail("createOtpChallenge", error, { actorId: data.userId });
-      throw error;
-    }
-  }
-
-  async updateVerificationOtpChallenge(data: {
-    email: string;
-    otp: string;
-    expiresAt: Date;
-  }) {
-    try {
-      return await prisma.$transaction(async (tx) => {
-        const challenge = await tx.otpChallenge.findFirst({
-          where: {
-            email: data.email,
-            purpose: OtpPurpose.EMAIL_VERIFICATION,
-            consumedAt: null,
-          },
-          orderBy: { createdAt: "desc" },
-        });
-        if (!challenge) return null;
-        return tx.otpChallenge.update({
-          where: { id: challenge.id },
-          data: {
-            codeHash: data.otp,
-            expiresAt: data.expiresAt,
-            attempts: 0,
-            deliveryCount: { increment: 1 },
-            lastSentAt: new Date(),
-          },
-        });
-      });
-    } catch (error) {
-      this.fail("updateVerificationOtpChallenge", error, { email: data.email });
-      throw error;
-    }
-  }
-
-  async consumeOtp(data: {
-    email: string;
-    purpose: "EMAIL_VERIFICATION" | "PASSWORD_RESET";
-    otp: string;
-    now: Date;
-    maxAttempts: number;
-  }) {
-    try {
-      return await prisma.$transaction(async (tx) => {
-        const row = await tx.otpChallenge.findFirst({
-          where: {
-            email: data.email,
-            purpose: data.purpose as OtpPurpose,
-            consumedAt: null,
-          },
-          orderBy: { createdAt: "desc" },
-        });
-        if (
-          !row ||
-          row.expiresAt <= data.now ||
-          row.attempts >= data.maxAttempts
-        )
-          return null;
-        if (row.codeHash !== data.otp) {
-          await tx.otpChallenge.update({
-            where: { id: row.id },
-            data: { attempts: { increment: 1 } },
-          });
-          return null;
-        }
-        return (
-          await tx.otpChallenge.updateMany({
-            where: { id: row.id, consumedAt: null },
-            data: { consumedAt: data.now },
-          })
-        ).count
-          ? row
-          : null;
-      });
-    } catch (error) {
-      this.fail("consumeOtp", error);
       throw error;
     }
   }

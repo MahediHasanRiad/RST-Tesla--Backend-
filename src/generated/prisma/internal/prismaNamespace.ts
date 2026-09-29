@@ -398,7 +398,6 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 
 export const ModelName = {
   User: 'User',
-  OtpChallenge: 'OtpChallenge',
   RefreshSession: 'RefreshSession',
   AuthRateLimit: 'AuthRateLimit',
   Driver: 'Driver',
@@ -423,7 +422,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "otpChallenge" | "refreshSession" | "authRateLimit" | "driver" | "vehicle" | "serviceZone" | "ridePool" | "rideRequest" | "rideStatusHistory" | "payment"
+    modelProps: "user" | "refreshSession" | "authRateLimit" | "driver" | "vehicle" | "serviceZone" | "ridePool" | "rideRequest" | "rideStatusHistory" | "payment"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -498,80 +497,6 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.UserCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.UserCountAggregateOutputType> | number
-        }
-      }
-    }
-    OtpChallenge: {
-      payload: Prisma.$OtpChallengePayload<ExtArgs>
-      fields: Prisma.OtpChallengeFieldRefs
-      operations: {
-        findUnique: {
-          args: Prisma.OtpChallengeFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$OtpChallengePayload> | null
-        }
-        findUniqueOrThrow: {
-          args: Prisma.OtpChallengeFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$OtpChallengePayload>
-        }
-        findFirst: {
-          args: Prisma.OtpChallengeFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$OtpChallengePayload> | null
-        }
-        findFirstOrThrow: {
-          args: Prisma.OtpChallengeFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$OtpChallengePayload>
-        }
-        findMany: {
-          args: Prisma.OtpChallengeFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$OtpChallengePayload>[]
-        }
-        create: {
-          args: Prisma.OtpChallengeCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$OtpChallengePayload>
-        }
-        createMany: {
-          args: Prisma.OtpChallengeCreateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        createManyAndReturn: {
-          args: Prisma.OtpChallengeCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$OtpChallengePayload>[]
-        }
-        delete: {
-          args: Prisma.OtpChallengeDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$OtpChallengePayload>
-        }
-        update: {
-          args: Prisma.OtpChallengeUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$OtpChallengePayload>
-        }
-        deleteMany: {
-          args: Prisma.OtpChallengeDeleteManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateMany: {
-          args: Prisma.OtpChallengeUpdateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateManyAndReturn: {
-          args: Prisma.OtpChallengeUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$OtpChallengePayload>[]
-        }
-        upsert: {
-          args: Prisma.OtpChallengeUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$OtpChallengePayload>
-        }
-        aggregate: {
-          args: Prisma.OtpChallengeAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateOtpChallenge>
-        }
-        groupBy: {
-          args: Prisma.OtpChallengeGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.OtpChallengeGroupByOutputType>[]
-        }
-        count: {
-          args: Prisma.OtpChallengeCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.OtpChallengeCountAggregateOutputType> | number
         }
       }
     }
@@ -1298,24 +1223,6 @@ export const UserScalarFieldEnum = {
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
 
 
-export const OtpChallengeScalarFieldEnum = {
-  id: 'id',
-  userId: 'userId',
-  email: 'email',
-  purpose: 'purpose',
-  codeHash: 'codeHash',
-  expiresAt: 'expiresAt',
-  consumedAt: 'consumedAt',
-  attempts: 'attempts',
-  deliveryCount: 'deliveryCount',
-  lastSentAt: 'lastSentAt',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type OtpChallengeScalarFieldEnum = (typeof OtpChallengeScalarFieldEnum)[keyof typeof OtpChallengeScalarFieldEnum]
-
-
 export const RefreshSessionScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
@@ -1525,20 +1432,6 @@ export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel
  * Reference to a field of type 'DateTime[]'
  */
 export type ListDateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime[]'>
-    
-
-
-/**
- * Reference to a field of type 'OtpPurpose'
- */
-export type EnumOtpPurposeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'OtpPurpose'>
-    
-
-
-/**
- * Reference to a field of type 'OtpPurpose[]'
- */
-export type ListEnumOtpPurposeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'OtpPurpose[]'>
     
 
 
@@ -1791,7 +1684,6 @@ export interface PrismaClientOptionsWithAdapter extends PrismaClientBaseOptions 
 export type PrismaClientOptions = PrismaClientOptionsWithAccelerateUrl | PrismaClientOptionsWithAdapter
 export type GlobalOmitConfig = {
   user?: Prisma.UserOmit
-  otpChallenge?: Prisma.OtpChallengeOmit
   refreshSession?: Prisma.RefreshSessionOmit
   authRateLimit?: Prisma.AuthRateLimitOmit
   driver?: Prisma.DriverOmit

@@ -6,9 +6,9 @@ const phone = z
   .string()
   .trim()
 
+
 const password = z
   .string()
-  .max(128)
 
 
 const otp = z.string().regex(/^\d{6}$/);

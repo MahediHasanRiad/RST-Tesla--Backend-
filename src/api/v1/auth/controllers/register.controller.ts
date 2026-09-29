@@ -1,8 +1,6 @@
 import type { Request, Response } from "express";
 import { asyncHandler } from "../../../../shared/http/async-handler.js";
-import { env } from "../../../../config/env.js";
 import { logger } from "../../../../lib/logger.js";
-import { redis } from "../../../../lib/redis.js";
 import { sendOtpMail } from "../../../../shared/auth/brevo.js";
 import { authRepository } from "../auth.repository.js";
 import { registerSchema } from "../auth.validation.js";
@@ -12,6 +10,8 @@ import {
 } from "../../../../shared/media/avatar.js";
 import { AuthCredentials } from "../../../../shared/auth/credentials.js";
 import { sendSuccess } from "../../../../shared/http/api-response.js";
+import { ApiError } from "../../../../shared/http/api-error.js";
+import { redis } from "../../../../lib/redis.js";
 
 async function registerHandler(req: Request, res: Response) {
   
@@ -44,24 +44,11 @@ async function registerHandler(req: Request, res: Response) {
       role,
       avatar: uploadedAvatar?.url,
       password: await AuthCredentials.hashPassword(password),
-      otp: otp,
-      expiresAt: new Date(Date.now() + env.OTP_TTL_SECONDS * 1000),
     });
-    try {
-      // set in cache
-      await redis.set(
-        `auth:otp:email-verification:${result.challengeId}`,
-        otp,
-        "EX",
-        300,
-      );
-    } catch (error) {
-      logger.warn("Registration OTP Redis cache write failed", {
-        requestId: req.requestId,
-        challengeId: result.challengeId,
-        error,
-      });
-    }
+
+    // send in redis
+    await redis.set(`auth:otp:${email}`, otp, "EX", 300);
+
     try {
       // send email
       await sendOtpMail({
@@ -72,7 +59,7 @@ async function registerHandler(req: Request, res: Response) {
     } catch (error) {
       logger.warn("Registration OTP email delivery failed", {
         requestId: req.requestId,
-        challengeId: result.challengeId,
+        actorId: result.user.id,
         errorName: error instanceof Error ? error.name : "UnknownError",
         errorMessage: error instanceof Error ? error.message : String(error),
       });
@@ -89,6 +76,7 @@ async function registerHandler(req: Request, res: Response) {
             error: cleanupError,
           }),
       );
+    if (error instanceof ApiError) throw error;
     logger.error("Registration failed", {
       requestId: req.requestId,
       error,

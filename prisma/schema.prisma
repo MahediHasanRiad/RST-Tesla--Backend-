@@ -50,11 +50,6 @@ enum PaymentStatus {
   FAILED
 }
 
-enum OtpPurpose {
-  EMAIL_VERIFICATION
-  PASSWORD_RESET
-}
-
 model User {
   id                  String    @id @default(uuid()) @db.Uuid
   role                UserRole
@@ -73,27 +68,7 @@ model User {
   rideRequests    RideRequest[]       @relation("PassengerRequests")
   statusChanges   RideStatusHistory[] @relation("StatusChangedBy")
   driver          Driver?
-  otpChallenges   OtpChallenge[]
   refreshSessions RefreshSession[]
-}
-
-model OtpChallenge {
-  id            String     @id @default(uuid()) @db.Uuid
-  userId        String     @db.Uuid
-  email         String
-  purpose       OtpPurpose
-  codeHash      String
-  expiresAt     DateTime
-  consumedAt    DateTime?
-  attempts      Int        @default(0)
-  deliveryCount Int        @default(1)
-  lastSentAt    DateTime   @default(now())
-  createdAt     DateTime   @default(now())
-  updatedAt     DateTime   @updatedAt
-  user          User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([email, purpose, createdAt])
-  @@index([userId, purpose, expiresAt])
 }
 
 model RefreshSession {

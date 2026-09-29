@@ -1,6 +1,5 @@
 import type { Request, Response } from "express";
 import { asyncHandler } from "../../../../shared/http/async-handler.js";
-import { env } from "../../../../config/env.js";
 import { authRepository } from "../auth.repository.js";
 import { sendOtpMail } from "../../../../shared/auth/brevo.js";
 import { resendVerificationSchema } from "../auth.validation.js";
@@ -15,14 +14,9 @@ async function resendVerificationHandler(req: Request, res: Response) {
   
   const otp = AuthCredentials.createOtp();
   
+  // set in redis
   if (user && !user.isEmailVerified) {
-    await authRepository.createOtpChallenge({
-      userId: user.id,
-      email: user.email,
-      purpose: "EMAIL_VERIFICATION",
-      otpHash: otp,
-      expiresAt: new Date(Date.now() + env.OTP_TTL_SECONDS * 1000),
-    });
+    await redis.set(`auth:otp:${user.email}`, otp, "EX", 300);
 
     try {
       // send email
@@ -32,23 +26,13 @@ async function resendVerificationHandler(req: Request, res: Response) {
         purpose: "EMAIL_VERIFICATION",
       });
     } catch (error) {
-      logger.warn("Registration OTP email delivery failed", {
+      logger.warn("Verification OTP email delivery failed", {
         requestId: req.requestId,
+        actorId: user.id,
         errorName: error instanceof Error ? error.name : "UnknownError",
         errorMessage: error instanceof Error ? error.message : String(error),
       });
     }
-  }
-
-  try {
-    // set in cache
-    await redis.set(`auth:otp:email-verification:${user?.id}`, otp, "EX", 300);
-  } catch (error) {
-    logger.warn("Registration OTP Redis cache write failed", {
-      requestId: req.requestId,
-      challengeId: user?.id,
-      error,
-    });
   }
 
   return res.status(202).send({ accepted: true });

@@ -275,7 +275,6 @@ export type UserWhereInput = {
   rideRequests?: Prisma.RideRequestListRelationFilter
   statusChanges?: Prisma.RideStatusHistoryListRelationFilter
   driver?: Prisma.XOR<Prisma.DriverNullableScalarRelationFilter, Prisma.DriverWhereInput> | null
-  otpChallenges?: Prisma.OtpChallengeListRelationFilter
   refreshSessions?: Prisma.RefreshSessionListRelationFilter
 }
 
@@ -295,7 +294,6 @@ export type UserOrderByWithRelationInput = {
   rideRequests?: Prisma.RideRequestOrderByRelationAggregateInput
   statusChanges?: Prisma.RideStatusHistoryOrderByRelationAggregateInput
   driver?: Prisma.DriverOrderByWithRelationInput
-  otpChallenges?: Prisma.OtpChallengeOrderByRelationAggregateInput
   refreshSessions?: Prisma.RefreshSessionOrderByRelationAggregateInput
 }
 
@@ -318,7 +316,6 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   rideRequests?: Prisma.RideRequestListRelationFilter
   statusChanges?: Prisma.RideStatusHistoryListRelationFilter
   driver?: Prisma.XOR<Prisma.DriverNullableScalarRelationFilter, Prisma.DriverWhereInput> | null
-  otpChallenges?: Prisma.OtpChallengeListRelationFilter
   refreshSessions?: Prisma.RefreshSessionListRelationFilter
 }, "id" | "email" | "phone">
 
@@ -376,7 +373,6 @@ export type UserCreateInput = {
   rideRequests?: Prisma.RideRequestCreateNestedManyWithoutPassengerInput
   statusChanges?: Prisma.RideStatusHistoryCreateNestedManyWithoutChangedByInput
   driver?: Prisma.DriverCreateNestedOneWithoutUserInput
-  otpChallenges?: Prisma.OtpChallengeCreateNestedManyWithoutUserInput
   refreshSessions?: Prisma.RefreshSessionCreateNestedManyWithoutUserInput
 }
 
@@ -396,7 +392,6 @@ export type UserUncheckedCreateInput = {
   rideRequests?: Prisma.RideRequestUncheckedCreateNestedManyWithoutPassengerInput
   statusChanges?: Prisma.RideStatusHistoryUncheckedCreateNestedManyWithoutChangedByInput
   driver?: Prisma.DriverUncheckedCreateNestedOneWithoutUserInput
-  otpChallenges?: Prisma.OtpChallengeUncheckedCreateNestedManyWithoutUserInput
   refreshSessions?: Prisma.RefreshSessionUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -416,7 +411,6 @@ export type UserUpdateInput = {
   rideRequests?: Prisma.RideRequestUpdateManyWithoutPassengerNestedInput
   statusChanges?: Prisma.RideStatusHistoryUpdateManyWithoutChangedByNestedInput
   driver?: Prisma.DriverUpdateOneWithoutUserNestedInput
-  otpChallenges?: Prisma.OtpChallengeUpdateManyWithoutUserNestedInput
   refreshSessions?: Prisma.RefreshSessionUpdateManyWithoutUserNestedInput
 }
 
@@ -436,7 +430,6 @@ export type UserUncheckedUpdateInput = {
   rideRequests?: Prisma.RideRequestUncheckedUpdateManyWithoutPassengerNestedInput
   statusChanges?: Prisma.RideStatusHistoryUncheckedUpdateManyWithoutChangedByNestedInput
   driver?: Prisma.DriverUncheckedUpdateOneWithoutUserNestedInput
-  otpChallenges?: Prisma.OtpChallengeUncheckedUpdateManyWithoutUserNestedInput
   refreshSessions?: Prisma.RefreshSessionUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -580,20 +573,6 @@ export type DateTimeFieldUpdateOperationsInput = {
   set?: Date | string
 }
 
-export type UserCreateNestedOneWithoutOtpChallengesInput = {
-  create?: Prisma.XOR<Prisma.UserCreateWithoutOtpChallengesInput, Prisma.UserUncheckedCreateWithoutOtpChallengesInput>
-  connectOrCreate?: Prisma.UserCreateOrConnectWithoutOtpChallengesInput
-  connect?: Prisma.UserWhereUniqueInput
-}
-
-export type UserUpdateOneRequiredWithoutOtpChallengesNestedInput = {
-  create?: Prisma.XOR<Prisma.UserCreateWithoutOtpChallengesInput, Prisma.UserUncheckedCreateWithoutOtpChallengesInput>
-  connectOrCreate?: Prisma.UserCreateOrConnectWithoutOtpChallengesInput
-  upsert?: Prisma.UserUpsertWithoutOtpChallengesInput
-  connect?: Prisma.UserWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutOtpChallengesInput, Prisma.UserUpdateWithoutOtpChallengesInput>, Prisma.UserUncheckedUpdateWithoutOtpChallengesInput>
-}
-
 export type UserCreateNestedOneWithoutRefreshSessionsInput = {
   create?: Prisma.XOR<Prisma.UserCreateWithoutRefreshSessionsInput, Prisma.UserUncheckedCreateWithoutRefreshSessionsInput>
   connectOrCreate?: Prisma.UserCreateOrConnectWithoutRefreshSessionsInput
@@ -652,98 +631,6 @@ export type UserUpdateOneWithoutStatusChangesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutStatusChangesInput, Prisma.UserUpdateWithoutStatusChangesInput>, Prisma.UserUncheckedUpdateWithoutStatusChangesInput>
 }
 
-export type UserCreateWithoutOtpChallengesInput = {
-  id?: string
-  role: $Enums.UserRole
-  name: string
-  email: string
-  phone: string
-  password: string
-  isEmailVerified?: boolean
-  failedLoginAttempts?: number
-  lockedUntil?: Date | string | null
-  avatar?: string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  rideRequests?: Prisma.RideRequestCreateNestedManyWithoutPassengerInput
-  statusChanges?: Prisma.RideStatusHistoryCreateNestedManyWithoutChangedByInput
-  driver?: Prisma.DriverCreateNestedOneWithoutUserInput
-  refreshSessions?: Prisma.RefreshSessionCreateNestedManyWithoutUserInput
-}
-
-export type UserUncheckedCreateWithoutOtpChallengesInput = {
-  id?: string
-  role: $Enums.UserRole
-  name: string
-  email: string
-  phone: string
-  password: string
-  isEmailVerified?: boolean
-  failedLoginAttempts?: number
-  lockedUntil?: Date | string | null
-  avatar?: string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  rideRequests?: Prisma.RideRequestUncheckedCreateNestedManyWithoutPassengerInput
-  statusChanges?: Prisma.RideStatusHistoryUncheckedCreateNestedManyWithoutChangedByInput
-  driver?: Prisma.DriverUncheckedCreateNestedOneWithoutUserInput
-  refreshSessions?: Prisma.RefreshSessionUncheckedCreateNestedManyWithoutUserInput
-}
-
-export type UserCreateOrConnectWithoutOtpChallengesInput = {
-  where: Prisma.UserWhereUniqueInput
-  create: Prisma.XOR<Prisma.UserCreateWithoutOtpChallengesInput, Prisma.UserUncheckedCreateWithoutOtpChallengesInput>
-}
-
-export type UserUpsertWithoutOtpChallengesInput = {
-  update: Prisma.XOR<Prisma.UserUpdateWithoutOtpChallengesInput, Prisma.UserUncheckedUpdateWithoutOtpChallengesInput>
-  create: Prisma.XOR<Prisma.UserCreateWithoutOtpChallengesInput, Prisma.UserUncheckedCreateWithoutOtpChallengesInput>
-  where?: Prisma.UserWhereInput
-}
-
-export type UserUpdateToOneWithWhereWithoutOtpChallengesInput = {
-  where?: Prisma.UserWhereInput
-  data: Prisma.XOR<Prisma.UserUpdateWithoutOtpChallengesInput, Prisma.UserUncheckedUpdateWithoutOtpChallengesInput>
-}
-
-export type UserUpdateWithoutOtpChallengesInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
-  phone?: Prisma.StringFieldUpdateOperationsInput | string
-  password?: Prisma.StringFieldUpdateOperationsInput | string
-  isEmailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  failedLoginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
-  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  rideRequests?: Prisma.RideRequestUpdateManyWithoutPassengerNestedInput
-  statusChanges?: Prisma.RideStatusHistoryUpdateManyWithoutChangedByNestedInput
-  driver?: Prisma.DriverUpdateOneWithoutUserNestedInput
-  refreshSessions?: Prisma.RefreshSessionUpdateManyWithoutUserNestedInput
-}
-
-export type UserUncheckedUpdateWithoutOtpChallengesInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
-  phone?: Prisma.StringFieldUpdateOperationsInput | string
-  password?: Prisma.StringFieldUpdateOperationsInput | string
-  isEmailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  failedLoginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
-  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  rideRequests?: Prisma.RideRequestUncheckedUpdateManyWithoutPassengerNestedInput
-  statusChanges?: Prisma.RideStatusHistoryUncheckedUpdateManyWithoutChangedByNestedInput
-  driver?: Prisma.DriverUncheckedUpdateOneWithoutUserNestedInput
-  refreshSessions?: Prisma.RefreshSessionUncheckedUpdateManyWithoutUserNestedInput
-}
-
 export type UserCreateWithoutRefreshSessionsInput = {
   id?: string
   role: $Enums.UserRole
@@ -760,7 +647,6 @@ export type UserCreateWithoutRefreshSessionsInput = {
   rideRequests?: Prisma.RideRequestCreateNestedManyWithoutPassengerInput
   statusChanges?: Prisma.RideStatusHistoryCreateNestedManyWithoutChangedByInput
   driver?: Prisma.DriverCreateNestedOneWithoutUserInput
-  otpChallenges?: Prisma.OtpChallengeCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutRefreshSessionsInput = {
@@ -779,7 +665,6 @@ export type UserUncheckedCreateWithoutRefreshSessionsInput = {
   rideRequests?: Prisma.RideRequestUncheckedCreateNestedManyWithoutPassengerInput
   statusChanges?: Prisma.RideStatusHistoryUncheckedCreateNestedManyWithoutChangedByInput
   driver?: Prisma.DriverUncheckedCreateNestedOneWithoutUserInput
-  otpChallenges?: Prisma.OtpChallengeUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutRefreshSessionsInput = {
@@ -814,7 +699,6 @@ export type UserUpdateWithoutRefreshSessionsInput = {
   rideRequests?: Prisma.RideRequestUpdateManyWithoutPassengerNestedInput
   statusChanges?: Prisma.RideStatusHistoryUpdateManyWithoutChangedByNestedInput
   driver?: Prisma.DriverUpdateOneWithoutUserNestedInput
-  otpChallenges?: Prisma.OtpChallengeUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutRefreshSessionsInput = {
@@ -833,7 +717,6 @@ export type UserUncheckedUpdateWithoutRefreshSessionsInput = {
   rideRequests?: Prisma.RideRequestUncheckedUpdateManyWithoutPassengerNestedInput
   statusChanges?: Prisma.RideStatusHistoryUncheckedUpdateManyWithoutChangedByNestedInput
   driver?: Prisma.DriverUncheckedUpdateOneWithoutUserNestedInput
-  otpChallenges?: Prisma.OtpChallengeUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutDriverInput = {
@@ -851,7 +734,6 @@ export type UserCreateWithoutDriverInput = {
   updatedAt?: Date | string
   rideRequests?: Prisma.RideRequestCreateNestedManyWithoutPassengerInput
   statusChanges?: Prisma.RideStatusHistoryCreateNestedManyWithoutChangedByInput
-  otpChallenges?: Prisma.OtpChallengeCreateNestedManyWithoutUserInput
   refreshSessions?: Prisma.RefreshSessionCreateNestedManyWithoutUserInput
 }
 
@@ -870,7 +752,6 @@ export type UserUncheckedCreateWithoutDriverInput = {
   updatedAt?: Date | string
   rideRequests?: Prisma.RideRequestUncheckedCreateNestedManyWithoutPassengerInput
   statusChanges?: Prisma.RideStatusHistoryUncheckedCreateNestedManyWithoutChangedByInput
-  otpChallenges?: Prisma.OtpChallengeUncheckedCreateNestedManyWithoutUserInput
   refreshSessions?: Prisma.RefreshSessionUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -905,7 +786,6 @@ export type UserUpdateWithoutDriverInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   rideRequests?: Prisma.RideRequestUpdateManyWithoutPassengerNestedInput
   statusChanges?: Prisma.RideStatusHistoryUpdateManyWithoutChangedByNestedInput
-  otpChallenges?: Prisma.OtpChallengeUpdateManyWithoutUserNestedInput
   refreshSessions?: Prisma.RefreshSessionUpdateManyWithoutUserNestedInput
 }
 
@@ -924,7 +804,6 @@ export type UserUncheckedUpdateWithoutDriverInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   rideRequests?: Prisma.RideRequestUncheckedUpdateManyWithoutPassengerNestedInput
   statusChanges?: Prisma.RideStatusHistoryUncheckedUpdateManyWithoutChangedByNestedInput
-  otpChallenges?: Prisma.OtpChallengeUncheckedUpdateManyWithoutUserNestedInput
   refreshSessions?: Prisma.RefreshSessionUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -943,7 +822,6 @@ export type UserCreateWithoutRideRequestsInput = {
   updatedAt?: Date | string
   statusChanges?: Prisma.RideStatusHistoryCreateNestedManyWithoutChangedByInput
   driver?: Prisma.DriverCreateNestedOneWithoutUserInput
-  otpChallenges?: Prisma.OtpChallengeCreateNestedManyWithoutUserInput
   refreshSessions?: Prisma.RefreshSessionCreateNestedManyWithoutUserInput
 }
 
@@ -962,7 +840,6 @@ export type UserUncheckedCreateWithoutRideRequestsInput = {
   updatedAt?: Date | string
   statusChanges?: Prisma.RideStatusHistoryUncheckedCreateNestedManyWithoutChangedByInput
   driver?: Prisma.DriverUncheckedCreateNestedOneWithoutUserInput
-  otpChallenges?: Prisma.OtpChallengeUncheckedCreateNestedManyWithoutUserInput
   refreshSessions?: Prisma.RefreshSessionUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -997,7 +874,6 @@ export type UserUpdateWithoutRideRequestsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   statusChanges?: Prisma.RideStatusHistoryUpdateManyWithoutChangedByNestedInput
   driver?: Prisma.DriverUpdateOneWithoutUserNestedInput
-  otpChallenges?: Prisma.OtpChallengeUpdateManyWithoutUserNestedInput
   refreshSessions?: Prisma.RefreshSessionUpdateManyWithoutUserNestedInput
 }
 
@@ -1016,7 +892,6 @@ export type UserUncheckedUpdateWithoutRideRequestsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   statusChanges?: Prisma.RideStatusHistoryUncheckedUpdateManyWithoutChangedByNestedInput
   driver?: Prisma.DriverUncheckedUpdateOneWithoutUserNestedInput
-  otpChallenges?: Prisma.OtpChallengeUncheckedUpdateManyWithoutUserNestedInput
   refreshSessions?: Prisma.RefreshSessionUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -1035,7 +910,6 @@ export type UserCreateWithoutStatusChangesInput = {
   updatedAt?: Date | string
   rideRequests?: Prisma.RideRequestCreateNestedManyWithoutPassengerInput
   driver?: Prisma.DriverCreateNestedOneWithoutUserInput
-  otpChallenges?: Prisma.OtpChallengeCreateNestedManyWithoutUserInput
   refreshSessions?: Prisma.RefreshSessionCreateNestedManyWithoutUserInput
 }
 
@@ -1054,7 +928,6 @@ export type UserUncheckedCreateWithoutStatusChangesInput = {
   updatedAt?: Date | string
   rideRequests?: Prisma.RideRequestUncheckedCreateNestedManyWithoutPassengerInput
   driver?: Prisma.DriverUncheckedCreateNestedOneWithoutUserInput
-  otpChallenges?: Prisma.OtpChallengeUncheckedCreateNestedManyWithoutUserInput
   refreshSessions?: Prisma.RefreshSessionUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -1089,7 +962,6 @@ export type UserUpdateWithoutStatusChangesInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   rideRequests?: Prisma.RideRequestUpdateManyWithoutPassengerNestedInput
   driver?: Prisma.DriverUpdateOneWithoutUserNestedInput
-  otpChallenges?: Prisma.OtpChallengeUpdateManyWithoutUserNestedInput
   refreshSessions?: Prisma.RefreshSessionUpdateManyWithoutUserNestedInput
 }
 
@@ -1108,7 +980,6 @@ export type UserUncheckedUpdateWithoutStatusChangesInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   rideRequests?: Prisma.RideRequestUncheckedUpdateManyWithoutPassengerNestedInput
   driver?: Prisma.DriverUncheckedUpdateOneWithoutUserNestedInput
-  otpChallenges?: Prisma.OtpChallengeUncheckedUpdateManyWithoutUserNestedInput
   refreshSessions?: Prisma.RefreshSessionUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -1120,14 +991,12 @@ export type UserUncheckedUpdateWithoutStatusChangesInput = {
 export type UserCountOutputType = {
   rideRequests: number
   statusChanges: number
-  otpChallenges: number
   refreshSessions: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   rideRequests?: boolean | UserCountOutputTypeCountRideRequestsArgs
   statusChanges?: boolean | UserCountOutputTypeCountStatusChangesArgs
-  otpChallenges?: boolean | UserCountOutputTypeCountOtpChallengesArgs
   refreshSessions?: boolean | UserCountOutputTypeCountRefreshSessionsArgs
 }
 
@@ -1158,13 +1027,6 @@ export type UserCountOutputTypeCountStatusChangesArgs<ExtArgs extends runtime.Ty
 /**
  * UserCountOutputType without action
  */
-export type UserCountOutputTypeCountOtpChallengesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.OtpChallengeWhereInput
-}
-
-/**
- * UserCountOutputType without action
- */
 export type UserCountOutputTypeCountRefreshSessionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.RefreshSessionWhereInput
 }
@@ -1186,7 +1048,6 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   rideRequests?: boolean | Prisma.User$rideRequestsArgs<ExtArgs>
   statusChanges?: boolean | Prisma.User$statusChangesArgs<ExtArgs>
   driver?: boolean | Prisma.User$driverArgs<ExtArgs>
-  otpChallenges?: boolean | Prisma.User$otpChallengesArgs<ExtArgs>
   refreshSessions?: boolean | Prisma.User$refreshSessionsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
@@ -1241,7 +1102,6 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   rideRequests?: boolean | Prisma.User$rideRequestsArgs<ExtArgs>
   statusChanges?: boolean | Prisma.User$statusChangesArgs<ExtArgs>
   driver?: boolean | Prisma.User$driverArgs<ExtArgs>
-  otpChallenges?: boolean | Prisma.User$otpChallengesArgs<ExtArgs>
   refreshSessions?: boolean | Prisma.User$refreshSessionsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
@@ -1254,7 +1114,6 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     rideRequests: Prisma.$RideRequestPayload<ExtArgs>[]
     statusChanges: Prisma.$RideStatusHistoryPayload<ExtArgs>[]
     driver: Prisma.$DriverPayload<ExtArgs> | null
-    otpChallenges: Prisma.$OtpChallengePayload<ExtArgs>[]
     refreshSessions: Prisma.$RefreshSessionPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
@@ -1667,7 +1526,6 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   rideRequests<T extends Prisma.User$rideRequestsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$rideRequestsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RideRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   statusChanges<T extends Prisma.User$statusChangesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$statusChangesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RideStatusHistoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   driver<T extends Prisma.User$driverArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$driverArgs<ExtArgs>>): Prisma.Prisma__DriverClient<runtime.Types.Result.GetResult<Prisma.$DriverPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-  otpChallenges<T extends Prisma.User$otpChallengesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$otpChallengesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$OtpChallengePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   refreshSessions<T extends Prisma.User$refreshSessionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$refreshSessionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RefreshSessionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -2167,30 +2025,6 @@ export type User$driverArgs<ExtArgs extends runtime.Types.Extensions.InternalArg
    */
   include?: Prisma.DriverInclude<ExtArgs> | null
   where?: Prisma.DriverWhereInput
-}
-
-/**
- * User.otpChallenges
- */
-export type User$otpChallengesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the OtpChallenge
-   */
-  select?: Prisma.OtpChallengeSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the OtpChallenge
-   */
-  omit?: Prisma.OtpChallengeOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.OtpChallengeInclude<ExtArgs> | null
-  where?: Prisma.OtpChallengeWhereInput
-  orderBy?: Prisma.OtpChallengeOrderByWithRelationInput | Prisma.OtpChallengeOrderByWithRelationInput[]
-  cursor?: Prisma.OtpChallengeWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.OtpChallengeScalarFieldEnum | Prisma.OtpChallengeScalarFieldEnum[]
 }
 
 /**

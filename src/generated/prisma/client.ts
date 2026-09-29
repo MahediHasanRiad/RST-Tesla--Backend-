@@ -47,11 +47,6 @@ export { Prisma }
  */
 export type User = Prisma.UserModel
 /**
- * Model OtpChallenge
- * 
- */
-export type OtpChallenge = Prisma.OtpChallengeModel
-/**
  * Model RefreshSession
  * 
  */
