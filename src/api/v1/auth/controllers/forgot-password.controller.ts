@@ -6,6 +6,7 @@ import { AuthCredentials } from "../../../../shared/auth/credentials.js";
 import { sendOtpMail } from "../../../../shared/auth/brevo.js";
 import { logger } from "../../../../lib/logger.js";
 import { redis } from "../../../../lib/redis.js";
+import { env } from "../../../../config/env.js";
 
 async function forgotPasswordHandler(
   req: Request,
@@ -16,7 +17,7 @@ async function forgotPasswordHandler(
   const user = await authRepository.findUserByEmail(body.email);
   if (user?.isEmailVerified) {
     const otp = AuthCredentials.createOtp();
-    await redis.set(`auth:otp:${user.email}`, otp, "EX", 300);
+    await redis.set(`auth:otp:${user.email}`, otp, "EX", env.OTP_TTL_SECONDS);
     try {
       await sendOtpMail({
         email: user.email,

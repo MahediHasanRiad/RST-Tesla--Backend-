@@ -6,6 +6,7 @@ import { resendVerificationSchema } from "../auth.validation.js";
 import { AuthCredentials } from "../../../../shared/auth/credentials.js";
 import { logger } from "../../../../lib/logger.js";
 import { redis } from "../../../../lib/redis.js";
+import { env } from "../../../../config/env.js";
 
 async function resendVerificationHandler(req: Request, res: Response) {
   const { email } = resendVerificationSchema.parse(req.body);
@@ -16,7 +17,7 @@ async function resendVerificationHandler(req: Request, res: Response) {
   
   // set in redis
   if (user && !user.isEmailVerified) {
-    await redis.set(`auth:otp:${user.email}`, otp, "EX", 300);
+    await redis.set(`auth:otp:${user.email}`, otp, "EX", env.OTP_TTL_SECONDS);
 
     try {
       // send email

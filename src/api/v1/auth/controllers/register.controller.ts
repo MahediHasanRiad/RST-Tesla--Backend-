@@ -12,6 +12,7 @@ import { AuthCredentials } from "../../../../shared/auth/credentials.js";
 import { sendSuccess } from "../../../../shared/http/api-response.js";
 import { ApiError } from "../../../../shared/http/api-error.js";
 import { redis } from "../../../../lib/redis.js";
+import { env } from "../../../../config/env.js";
 
 async function registerHandler(req: Request, res: Response) {
   
@@ -47,7 +48,7 @@ async function registerHandler(req: Request, res: Response) {
     });
 
     // send in redis
-    await redis.set(`auth:otp:${email}`, otp, "EX", 300);
+    await redis.set(`auth:otp:${email}`, otp, "EX", env.OTP_TTL_SECONDS);
 
     try {
       // send email
