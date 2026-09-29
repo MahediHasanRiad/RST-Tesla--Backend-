@@ -99,7 +99,7 @@ model Vehicle {
   driverId     String              @unique @db.Uuid
   name         String
   capacity     Int
-  availability VehicleAvailability @default(OFFLINE)
+  availability VehicleAvailability @default(ONLINE)
   images       String[]            @default([])
 
   createdAt DateTime @default(now())

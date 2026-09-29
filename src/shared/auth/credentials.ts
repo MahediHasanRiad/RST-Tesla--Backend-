@@ -14,6 +14,7 @@ const secret = new TextEncoder().encode(env.JWT_SECRET);
 const BCRYPT_COST_FACTOR = 12;
 
 export class AuthCredentials {
+  
   static async hashPassword(value: string) {
     return bcrypt.hash(value, BCRYPT_COST_FACTOR);
   }
@@ -27,6 +28,7 @@ export class AuthCredentials {
       ? argon2.verify(hash, value)
       : bcrypt.compare(value, hash);
   }
+  
   static createOtp() {
     return randomBytes(4).readUInt32BE(0).toString().padStart(6, "0").slice(-6);
   }

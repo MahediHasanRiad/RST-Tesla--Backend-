@@ -3,6 +3,7 @@ import express from "express";
 import helmet from "helmet";
 import { authRoutes } from "./api/v1/auth/auth.routes.js";
 import { userRoutes } from "./api/v1/users/user.routes.js";
+import { vehicleRoutes } from "./api/v1/vehicles/vehicle.routes.js";
 import { errorHandler } from "./middleware/error.middleware.js";
 
 export function buildApp() {
@@ -16,6 +17,7 @@ export function buildApp() {
 
   app.use("/api/v1/auth", authRoutes);
   app.use("/api/v1/users", userRoutes);
+  app.use("/api/v1/vehicles", vehicleRoutes);
   app.get("/health", (_request, response) => response.json({ status: "ok" }));
 
   app.use(errorHandler);
