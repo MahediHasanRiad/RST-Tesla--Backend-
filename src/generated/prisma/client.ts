@@ -81,8 +81,3 @@ export type RideRequest = Prisma.RideRequestModel
  * 
  */
 export type RideStatusHistory = Prisma.RideStatusHistoryModel
-/**
- * Model Payment
- * 
- */
-export type Payment = Prisma.PaymentModel

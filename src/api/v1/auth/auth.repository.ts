@@ -128,37 +128,5 @@ export class AuthRepository {
     }
   }
 
-  async consumeRateLimit(
-    scope: string,
-    keyHash: string,
-    limit: number,
-    windowMs: number,
-  ) {
-    try {
-      return await prisma.$transaction(async (tx) => {
-        const row = await tx.authRateLimit.findUnique({
-          where: { scope_keyHash: { scope, keyHash } },
-        });
-        const now = new Date();
-        if (!row || now.getTime() - row.windowStart.getTime() >= windowMs) {
-          await tx.authRateLimit.upsert({
-            where: { scope_keyHash: { scope, keyHash } },
-            create: { scope, keyHash, windowStart: now, count: 1 },
-            update: { windowStart: now, count: 1 },
-          });
-          return true;
-        }
-        if (row.count >= limit) return false;
-        await tx.authRateLimit.update({
-          where: { id: row.id },
-          data: { count: { increment: 1 } },
-        });
-        return true;
-      });
-    } catch (error) {
-      this.fail("consumeRateLimit", error);
-      throw error;
-    }
-  }
 }
 export const authRepository = new AuthRepository();

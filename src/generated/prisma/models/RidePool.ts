@@ -38,6 +38,7 @@ export type RidePoolMinAggregateOutputType = {
   id: string | null
   vehicleId: string | null
   pickupZoneId: string | null
+  destinationZoneId: string | null
   status: $Enums.PoolStatus | null
   reservedSeats: number | null
   createdAt: Date | null
@@ -48,6 +49,7 @@ export type RidePoolMaxAggregateOutputType = {
   id: string | null
   vehicleId: string | null
   pickupZoneId: string | null
+  destinationZoneId: string | null
   status: $Enums.PoolStatus | null
   reservedSeats: number | null
   createdAt: Date | null
@@ -58,6 +60,7 @@ export type RidePoolCountAggregateOutputType = {
   id: number
   vehicleId: number
   pickupZoneId: number
+  destinationZoneId: number
   status: number
   reservedSeats: number
   createdAt: number
@@ -78,6 +81,7 @@ export type RidePoolMinAggregateInputType = {
   id?: true
   vehicleId?: true
   pickupZoneId?: true
+  destinationZoneId?: true
   status?: true
   reservedSeats?: true
   createdAt?: true
@@ -88,6 +92,7 @@ export type RidePoolMaxAggregateInputType = {
   id?: true
   vehicleId?: true
   pickupZoneId?: true
+  destinationZoneId?: true
   status?: true
   reservedSeats?: true
   createdAt?: true
@@ -98,6 +103,7 @@ export type RidePoolCountAggregateInputType = {
   id?: true
   vehicleId?: true
   pickupZoneId?: true
+  destinationZoneId?: true
   status?: true
   reservedSeats?: true
   createdAt?: true
@@ -195,6 +201,7 @@ export type RidePoolGroupByOutputType = {
   id: string
   vehicleId: string
   pickupZoneId: string
+  destinationZoneId: string
   status: $Enums.PoolStatus
   reservedSeats: number
   createdAt: Date
@@ -228,12 +235,14 @@ export type RidePoolWhereInput = {
   id?: Prisma.UuidFilter<"RidePool"> | string
   vehicleId?: Prisma.UuidFilter<"RidePool"> | string
   pickupZoneId?: Prisma.UuidFilter<"RidePool"> | string
+  destinationZoneId?: Prisma.UuidFilter<"RidePool"> | string
   status?: Prisma.EnumPoolStatusFilter<"RidePool"> | $Enums.PoolStatus
   reservedSeats?: Prisma.IntFilter<"RidePool"> | number
   createdAt?: Prisma.DateTimeFilter<"RidePool"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"RidePool"> | Date | string
   vehicle?: Prisma.XOR<Prisma.VehicleScalarRelationFilter, Prisma.VehicleWhereInput>
   pickupZone?: Prisma.XOR<Prisma.ServiceZoneScalarRelationFilter, Prisma.ServiceZoneWhereInput>
+  destinationZone?: Prisma.XOR<Prisma.ServiceZoneScalarRelationFilter, Prisma.ServiceZoneWhereInput>
   requests?: Prisma.RideRequestListRelationFilter
 }
 
@@ -241,12 +250,14 @@ export type RidePoolOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   vehicleId?: Prisma.SortOrder
   pickupZoneId?: Prisma.SortOrder
+  destinationZoneId?: Prisma.SortOrder
   status?: Prisma.SortOrder
   reservedSeats?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   vehicle?: Prisma.VehicleOrderByWithRelationInput
   pickupZone?: Prisma.ServiceZoneOrderByWithRelationInput
+  destinationZone?: Prisma.ServiceZoneOrderByWithRelationInput
   requests?: Prisma.RideRequestOrderByRelationAggregateInput
 }
 
@@ -257,12 +268,14 @@ export type RidePoolWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.RidePoolWhereInput | Prisma.RidePoolWhereInput[]
   vehicleId?: Prisma.UuidFilter<"RidePool"> | string
   pickupZoneId?: Prisma.UuidFilter<"RidePool"> | string
+  destinationZoneId?: Prisma.UuidFilter<"RidePool"> | string
   status?: Prisma.EnumPoolStatusFilter<"RidePool"> | $Enums.PoolStatus
   reservedSeats?: Prisma.IntFilter<"RidePool"> | number
   createdAt?: Prisma.DateTimeFilter<"RidePool"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"RidePool"> | Date | string
   vehicle?: Prisma.XOR<Prisma.VehicleScalarRelationFilter, Prisma.VehicleWhereInput>
   pickupZone?: Prisma.XOR<Prisma.ServiceZoneScalarRelationFilter, Prisma.ServiceZoneWhereInput>
+  destinationZone?: Prisma.XOR<Prisma.ServiceZoneScalarRelationFilter, Prisma.ServiceZoneWhereInput>
   requests?: Prisma.RideRequestListRelationFilter
 }, "id">
 
@@ -270,6 +283,7 @@ export type RidePoolOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   vehicleId?: Prisma.SortOrder
   pickupZoneId?: Prisma.SortOrder
+  destinationZoneId?: Prisma.SortOrder
   status?: Prisma.SortOrder
   reservedSeats?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -288,6 +302,7 @@ export type RidePoolScalarWhereWithAggregatesInput = {
   id?: Prisma.UuidWithAggregatesFilter<"RidePool"> | string
   vehicleId?: Prisma.UuidWithAggregatesFilter<"RidePool"> | string
   pickupZoneId?: Prisma.UuidWithAggregatesFilter<"RidePool"> | string
+  destinationZoneId?: Prisma.UuidWithAggregatesFilter<"RidePool"> | string
   status?: Prisma.EnumPoolStatusWithAggregatesFilter<"RidePool"> | $Enums.PoolStatus
   reservedSeats?: Prisma.IntWithAggregatesFilter<"RidePool"> | number
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"RidePool"> | Date | string
@@ -302,6 +317,7 @@ export type RidePoolCreateInput = {
   updatedAt?: Date | string
   vehicle: Prisma.VehicleCreateNestedOneWithoutPoolsInput
   pickupZone: Prisma.ServiceZoneCreateNestedOneWithoutPickupPoolsInput
+  destinationZone: Prisma.ServiceZoneCreateNestedOneWithoutDestinationPoolsInput
   requests?: Prisma.RideRequestCreateNestedManyWithoutPoolInput
 }
 
@@ -309,6 +325,7 @@ export type RidePoolUncheckedCreateInput = {
   id?: string
   vehicleId: string
   pickupZoneId: string
+  destinationZoneId: string
   status?: $Enums.PoolStatus
   reservedSeats?: number
   createdAt?: Date | string
@@ -324,6 +341,7 @@ export type RidePoolUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   vehicle?: Prisma.VehicleUpdateOneRequiredWithoutPoolsNestedInput
   pickupZone?: Prisma.ServiceZoneUpdateOneRequiredWithoutPickupPoolsNestedInput
+  destinationZone?: Prisma.ServiceZoneUpdateOneRequiredWithoutDestinationPoolsNestedInput
   requests?: Prisma.RideRequestUpdateManyWithoutPoolNestedInput
 }
 
@@ -331,6 +349,7 @@ export type RidePoolUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   vehicleId?: Prisma.StringFieldUpdateOperationsInput | string
   pickupZoneId?: Prisma.StringFieldUpdateOperationsInput | string
+  destinationZoneId?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumPoolStatusFieldUpdateOperationsInput | $Enums.PoolStatus
   reservedSeats?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -342,6 +361,7 @@ export type RidePoolCreateManyInput = {
   id?: string
   vehicleId: string
   pickupZoneId: string
+  destinationZoneId: string
   status?: $Enums.PoolStatus
   reservedSeats?: number
   createdAt?: Date | string
@@ -360,6 +380,7 @@ export type RidePoolUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   vehicleId?: Prisma.StringFieldUpdateOperationsInput | string
   pickupZoneId?: Prisma.StringFieldUpdateOperationsInput | string
+  destinationZoneId?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumPoolStatusFieldUpdateOperationsInput | $Enums.PoolStatus
   reservedSeats?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -380,6 +401,7 @@ export type RidePoolCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   vehicleId?: Prisma.SortOrder
   pickupZoneId?: Prisma.SortOrder
+  destinationZoneId?: Prisma.SortOrder
   status?: Prisma.SortOrder
   reservedSeats?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -394,6 +416,7 @@ export type RidePoolMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   vehicleId?: Prisma.SortOrder
   pickupZoneId?: Prisma.SortOrder
+  destinationZoneId?: Prisma.SortOrder
   status?: Prisma.SortOrder
   reservedSeats?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -404,6 +427,7 @@ export type RidePoolMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   vehicleId?: Prisma.SortOrder
   pickupZoneId?: Prisma.SortOrder
+  destinationZoneId?: Prisma.SortOrder
   status?: Prisma.SortOrder
   reservedSeats?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -468,10 +492,24 @@ export type RidePoolCreateNestedManyWithoutPickupZoneInput = {
   connect?: Prisma.RidePoolWhereUniqueInput | Prisma.RidePoolWhereUniqueInput[]
 }
 
+export type RidePoolCreateNestedManyWithoutDestinationZoneInput = {
+  create?: Prisma.XOR<Prisma.RidePoolCreateWithoutDestinationZoneInput, Prisma.RidePoolUncheckedCreateWithoutDestinationZoneInput> | Prisma.RidePoolCreateWithoutDestinationZoneInput[] | Prisma.RidePoolUncheckedCreateWithoutDestinationZoneInput[]
+  connectOrCreate?: Prisma.RidePoolCreateOrConnectWithoutDestinationZoneInput | Prisma.RidePoolCreateOrConnectWithoutDestinationZoneInput[]
+  createMany?: Prisma.RidePoolCreateManyDestinationZoneInputEnvelope
+  connect?: Prisma.RidePoolWhereUniqueInput | Prisma.RidePoolWhereUniqueInput[]
+}
+
 export type RidePoolUncheckedCreateNestedManyWithoutPickupZoneInput = {
   create?: Prisma.XOR<Prisma.RidePoolCreateWithoutPickupZoneInput, Prisma.RidePoolUncheckedCreateWithoutPickupZoneInput> | Prisma.RidePoolCreateWithoutPickupZoneInput[] | Prisma.RidePoolUncheckedCreateWithoutPickupZoneInput[]
   connectOrCreate?: Prisma.RidePoolCreateOrConnectWithoutPickupZoneInput | Prisma.RidePoolCreateOrConnectWithoutPickupZoneInput[]
   createMany?: Prisma.RidePoolCreateManyPickupZoneInputEnvelope
+  connect?: Prisma.RidePoolWhereUniqueInput | Prisma.RidePoolWhereUniqueInput[]
+}
+
+export type RidePoolUncheckedCreateNestedManyWithoutDestinationZoneInput = {
+  create?: Prisma.XOR<Prisma.RidePoolCreateWithoutDestinationZoneInput, Prisma.RidePoolUncheckedCreateWithoutDestinationZoneInput> | Prisma.RidePoolCreateWithoutDestinationZoneInput[] | Prisma.RidePoolUncheckedCreateWithoutDestinationZoneInput[]
+  connectOrCreate?: Prisma.RidePoolCreateOrConnectWithoutDestinationZoneInput | Prisma.RidePoolCreateOrConnectWithoutDestinationZoneInput[]
+  createMany?: Prisma.RidePoolCreateManyDestinationZoneInputEnvelope
   connect?: Prisma.RidePoolWhereUniqueInput | Prisma.RidePoolWhereUniqueInput[]
 }
 
@@ -489,6 +527,20 @@ export type RidePoolUpdateManyWithoutPickupZoneNestedInput = {
   deleteMany?: Prisma.RidePoolScalarWhereInput | Prisma.RidePoolScalarWhereInput[]
 }
 
+export type RidePoolUpdateManyWithoutDestinationZoneNestedInput = {
+  create?: Prisma.XOR<Prisma.RidePoolCreateWithoutDestinationZoneInput, Prisma.RidePoolUncheckedCreateWithoutDestinationZoneInput> | Prisma.RidePoolCreateWithoutDestinationZoneInput[] | Prisma.RidePoolUncheckedCreateWithoutDestinationZoneInput[]
+  connectOrCreate?: Prisma.RidePoolCreateOrConnectWithoutDestinationZoneInput | Prisma.RidePoolCreateOrConnectWithoutDestinationZoneInput[]
+  upsert?: Prisma.RidePoolUpsertWithWhereUniqueWithoutDestinationZoneInput | Prisma.RidePoolUpsertWithWhereUniqueWithoutDestinationZoneInput[]
+  createMany?: Prisma.RidePoolCreateManyDestinationZoneInputEnvelope
+  set?: Prisma.RidePoolWhereUniqueInput | Prisma.RidePoolWhereUniqueInput[]
+  disconnect?: Prisma.RidePoolWhereUniqueInput | Prisma.RidePoolWhereUniqueInput[]
+  delete?: Prisma.RidePoolWhereUniqueInput | Prisma.RidePoolWhereUniqueInput[]
+  connect?: Prisma.RidePoolWhereUniqueInput | Prisma.RidePoolWhereUniqueInput[]
+  update?: Prisma.RidePoolUpdateWithWhereUniqueWithoutDestinationZoneInput | Prisma.RidePoolUpdateWithWhereUniqueWithoutDestinationZoneInput[]
+  updateMany?: Prisma.RidePoolUpdateManyWithWhereWithoutDestinationZoneInput | Prisma.RidePoolUpdateManyWithWhereWithoutDestinationZoneInput[]
+  deleteMany?: Prisma.RidePoolScalarWhereInput | Prisma.RidePoolScalarWhereInput[]
+}
+
 export type RidePoolUncheckedUpdateManyWithoutPickupZoneNestedInput = {
   create?: Prisma.XOR<Prisma.RidePoolCreateWithoutPickupZoneInput, Prisma.RidePoolUncheckedCreateWithoutPickupZoneInput> | Prisma.RidePoolCreateWithoutPickupZoneInput[] | Prisma.RidePoolUncheckedCreateWithoutPickupZoneInput[]
   connectOrCreate?: Prisma.RidePoolCreateOrConnectWithoutPickupZoneInput | Prisma.RidePoolCreateOrConnectWithoutPickupZoneInput[]
@@ -500,6 +552,20 @@ export type RidePoolUncheckedUpdateManyWithoutPickupZoneNestedInput = {
   connect?: Prisma.RidePoolWhereUniqueInput | Prisma.RidePoolWhereUniqueInput[]
   update?: Prisma.RidePoolUpdateWithWhereUniqueWithoutPickupZoneInput | Prisma.RidePoolUpdateWithWhereUniqueWithoutPickupZoneInput[]
   updateMany?: Prisma.RidePoolUpdateManyWithWhereWithoutPickupZoneInput | Prisma.RidePoolUpdateManyWithWhereWithoutPickupZoneInput[]
+  deleteMany?: Prisma.RidePoolScalarWhereInput | Prisma.RidePoolScalarWhereInput[]
+}
+
+export type RidePoolUncheckedUpdateManyWithoutDestinationZoneNestedInput = {
+  create?: Prisma.XOR<Prisma.RidePoolCreateWithoutDestinationZoneInput, Prisma.RidePoolUncheckedCreateWithoutDestinationZoneInput> | Prisma.RidePoolCreateWithoutDestinationZoneInput[] | Prisma.RidePoolUncheckedCreateWithoutDestinationZoneInput[]
+  connectOrCreate?: Prisma.RidePoolCreateOrConnectWithoutDestinationZoneInput | Prisma.RidePoolCreateOrConnectWithoutDestinationZoneInput[]
+  upsert?: Prisma.RidePoolUpsertWithWhereUniqueWithoutDestinationZoneInput | Prisma.RidePoolUpsertWithWhereUniqueWithoutDestinationZoneInput[]
+  createMany?: Prisma.RidePoolCreateManyDestinationZoneInputEnvelope
+  set?: Prisma.RidePoolWhereUniqueInput | Prisma.RidePoolWhereUniqueInput[]
+  disconnect?: Prisma.RidePoolWhereUniqueInput | Prisma.RidePoolWhereUniqueInput[]
+  delete?: Prisma.RidePoolWhereUniqueInput | Prisma.RidePoolWhereUniqueInput[]
+  connect?: Prisma.RidePoolWhereUniqueInput | Prisma.RidePoolWhereUniqueInput[]
+  update?: Prisma.RidePoolUpdateWithWhereUniqueWithoutDestinationZoneInput | Prisma.RidePoolUpdateWithWhereUniqueWithoutDestinationZoneInput[]
+  updateMany?: Prisma.RidePoolUpdateManyWithWhereWithoutDestinationZoneInput | Prisma.RidePoolUpdateManyWithWhereWithoutDestinationZoneInput[]
   deleteMany?: Prisma.RidePoolScalarWhereInput | Prisma.RidePoolScalarWhereInput[]
 }
 
@@ -530,12 +596,14 @@ export type RidePoolCreateWithoutVehicleInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   pickupZone: Prisma.ServiceZoneCreateNestedOneWithoutPickupPoolsInput
+  destinationZone: Prisma.ServiceZoneCreateNestedOneWithoutDestinationPoolsInput
   requests?: Prisma.RideRequestCreateNestedManyWithoutPoolInput
 }
 
 export type RidePoolUncheckedCreateWithoutVehicleInput = {
   id?: string
   pickupZoneId: string
+  destinationZoneId: string
   status?: $Enums.PoolStatus
   reservedSeats?: number
   createdAt?: Date | string
@@ -576,6 +644,7 @@ export type RidePoolScalarWhereInput = {
   id?: Prisma.UuidFilter<"RidePool"> | string
   vehicleId?: Prisma.UuidFilter<"RidePool"> | string
   pickupZoneId?: Prisma.UuidFilter<"RidePool"> | string
+  destinationZoneId?: Prisma.UuidFilter<"RidePool"> | string
   status?: Prisma.EnumPoolStatusFilter<"RidePool"> | $Enums.PoolStatus
   reservedSeats?: Prisma.IntFilter<"RidePool"> | number
   createdAt?: Prisma.DateTimeFilter<"RidePool"> | Date | string
@@ -589,12 +658,14 @@ export type RidePoolCreateWithoutPickupZoneInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   vehicle: Prisma.VehicleCreateNestedOneWithoutPoolsInput
+  destinationZone: Prisma.ServiceZoneCreateNestedOneWithoutDestinationPoolsInput
   requests?: Prisma.RideRequestCreateNestedManyWithoutPoolInput
 }
 
 export type RidePoolUncheckedCreateWithoutPickupZoneInput = {
   id?: string
   vehicleId: string
+  destinationZoneId: string
   status?: $Enums.PoolStatus
   reservedSeats?: number
   createdAt?: Date | string
@@ -609,6 +680,38 @@ export type RidePoolCreateOrConnectWithoutPickupZoneInput = {
 
 export type RidePoolCreateManyPickupZoneInputEnvelope = {
   data: Prisma.RidePoolCreateManyPickupZoneInput | Prisma.RidePoolCreateManyPickupZoneInput[]
+  skipDuplicates?: boolean
+}
+
+export type RidePoolCreateWithoutDestinationZoneInput = {
+  id?: string
+  status?: $Enums.PoolStatus
+  reservedSeats?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  vehicle: Prisma.VehicleCreateNestedOneWithoutPoolsInput
+  pickupZone: Prisma.ServiceZoneCreateNestedOneWithoutPickupPoolsInput
+  requests?: Prisma.RideRequestCreateNestedManyWithoutPoolInput
+}
+
+export type RidePoolUncheckedCreateWithoutDestinationZoneInput = {
+  id?: string
+  vehicleId: string
+  pickupZoneId: string
+  status?: $Enums.PoolStatus
+  reservedSeats?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  requests?: Prisma.RideRequestUncheckedCreateNestedManyWithoutPoolInput
+}
+
+export type RidePoolCreateOrConnectWithoutDestinationZoneInput = {
+  where: Prisma.RidePoolWhereUniqueInput
+  create: Prisma.XOR<Prisma.RidePoolCreateWithoutDestinationZoneInput, Prisma.RidePoolUncheckedCreateWithoutDestinationZoneInput>
+}
+
+export type RidePoolCreateManyDestinationZoneInputEnvelope = {
+  data: Prisma.RidePoolCreateManyDestinationZoneInput | Prisma.RidePoolCreateManyDestinationZoneInput[]
   skipDuplicates?: boolean
 }
 
@@ -628,6 +731,22 @@ export type RidePoolUpdateManyWithWhereWithoutPickupZoneInput = {
   data: Prisma.XOR<Prisma.RidePoolUpdateManyMutationInput, Prisma.RidePoolUncheckedUpdateManyWithoutPickupZoneInput>
 }
 
+export type RidePoolUpsertWithWhereUniqueWithoutDestinationZoneInput = {
+  where: Prisma.RidePoolWhereUniqueInput
+  update: Prisma.XOR<Prisma.RidePoolUpdateWithoutDestinationZoneInput, Prisma.RidePoolUncheckedUpdateWithoutDestinationZoneInput>
+  create: Prisma.XOR<Prisma.RidePoolCreateWithoutDestinationZoneInput, Prisma.RidePoolUncheckedCreateWithoutDestinationZoneInput>
+}
+
+export type RidePoolUpdateWithWhereUniqueWithoutDestinationZoneInput = {
+  where: Prisma.RidePoolWhereUniqueInput
+  data: Prisma.XOR<Prisma.RidePoolUpdateWithoutDestinationZoneInput, Prisma.RidePoolUncheckedUpdateWithoutDestinationZoneInput>
+}
+
+export type RidePoolUpdateManyWithWhereWithoutDestinationZoneInput = {
+  where: Prisma.RidePoolScalarWhereInput
+  data: Prisma.XOR<Prisma.RidePoolUpdateManyMutationInput, Prisma.RidePoolUncheckedUpdateManyWithoutDestinationZoneInput>
+}
+
 export type RidePoolCreateWithoutRequestsInput = {
   id?: string
   status?: $Enums.PoolStatus
@@ -636,12 +755,14 @@ export type RidePoolCreateWithoutRequestsInput = {
   updatedAt?: Date | string
   vehicle: Prisma.VehicleCreateNestedOneWithoutPoolsInput
   pickupZone: Prisma.ServiceZoneCreateNestedOneWithoutPickupPoolsInput
+  destinationZone: Prisma.ServiceZoneCreateNestedOneWithoutDestinationPoolsInput
 }
 
 export type RidePoolUncheckedCreateWithoutRequestsInput = {
   id?: string
   vehicleId: string
   pickupZoneId: string
+  destinationZoneId: string
   status?: $Enums.PoolStatus
   reservedSeats?: number
   createdAt?: Date | string
@@ -672,12 +793,14 @@ export type RidePoolUpdateWithoutRequestsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   vehicle?: Prisma.VehicleUpdateOneRequiredWithoutPoolsNestedInput
   pickupZone?: Prisma.ServiceZoneUpdateOneRequiredWithoutPickupPoolsNestedInput
+  destinationZone?: Prisma.ServiceZoneUpdateOneRequiredWithoutDestinationPoolsNestedInput
 }
 
 export type RidePoolUncheckedUpdateWithoutRequestsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   vehicleId?: Prisma.StringFieldUpdateOperationsInput | string
   pickupZoneId?: Prisma.StringFieldUpdateOperationsInput | string
+  destinationZoneId?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumPoolStatusFieldUpdateOperationsInput | $Enums.PoolStatus
   reservedSeats?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -687,6 +810,7 @@ export type RidePoolUncheckedUpdateWithoutRequestsInput = {
 export type RidePoolCreateManyVehicleInput = {
   id?: string
   pickupZoneId: string
+  destinationZoneId: string
   status?: $Enums.PoolStatus
   reservedSeats?: number
   createdAt?: Date | string
@@ -700,12 +824,14 @@ export type RidePoolUpdateWithoutVehicleInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   pickupZone?: Prisma.ServiceZoneUpdateOneRequiredWithoutPickupPoolsNestedInput
+  destinationZone?: Prisma.ServiceZoneUpdateOneRequiredWithoutDestinationPoolsNestedInput
   requests?: Prisma.RideRequestUpdateManyWithoutPoolNestedInput
 }
 
 export type RidePoolUncheckedUpdateWithoutVehicleInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   pickupZoneId?: Prisma.StringFieldUpdateOperationsInput | string
+  destinationZoneId?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumPoolStatusFieldUpdateOperationsInput | $Enums.PoolStatus
   reservedSeats?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -716,6 +842,7 @@ export type RidePoolUncheckedUpdateWithoutVehicleInput = {
 export type RidePoolUncheckedUpdateManyWithoutVehicleInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   pickupZoneId?: Prisma.StringFieldUpdateOperationsInput | string
+  destinationZoneId?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumPoolStatusFieldUpdateOperationsInput | $Enums.PoolStatus
   reservedSeats?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -725,6 +852,17 @@ export type RidePoolUncheckedUpdateManyWithoutVehicleInput = {
 export type RidePoolCreateManyPickupZoneInput = {
   id?: string
   vehicleId: string
+  destinationZoneId: string
+  status?: $Enums.PoolStatus
+  reservedSeats?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type RidePoolCreateManyDestinationZoneInput = {
+  id?: string
+  vehicleId: string
+  pickupZoneId: string
   status?: $Enums.PoolStatus
   reservedSeats?: number
   createdAt?: Date | string
@@ -738,12 +876,14 @@ export type RidePoolUpdateWithoutPickupZoneInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   vehicle?: Prisma.VehicleUpdateOneRequiredWithoutPoolsNestedInput
+  destinationZone?: Prisma.ServiceZoneUpdateOneRequiredWithoutDestinationPoolsNestedInput
   requests?: Prisma.RideRequestUpdateManyWithoutPoolNestedInput
 }
 
 export type RidePoolUncheckedUpdateWithoutPickupZoneInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   vehicleId?: Prisma.StringFieldUpdateOperationsInput | string
+  destinationZoneId?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumPoolStatusFieldUpdateOperationsInput | $Enums.PoolStatus
   reservedSeats?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -754,6 +894,39 @@ export type RidePoolUncheckedUpdateWithoutPickupZoneInput = {
 export type RidePoolUncheckedUpdateManyWithoutPickupZoneInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   vehicleId?: Prisma.StringFieldUpdateOperationsInput | string
+  destinationZoneId?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumPoolStatusFieldUpdateOperationsInput | $Enums.PoolStatus
+  reservedSeats?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type RidePoolUpdateWithoutDestinationZoneInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumPoolStatusFieldUpdateOperationsInput | $Enums.PoolStatus
+  reservedSeats?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  vehicle?: Prisma.VehicleUpdateOneRequiredWithoutPoolsNestedInput
+  pickupZone?: Prisma.ServiceZoneUpdateOneRequiredWithoutPickupPoolsNestedInput
+  requests?: Prisma.RideRequestUpdateManyWithoutPoolNestedInput
+}
+
+export type RidePoolUncheckedUpdateWithoutDestinationZoneInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  vehicleId?: Prisma.StringFieldUpdateOperationsInput | string
+  pickupZoneId?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumPoolStatusFieldUpdateOperationsInput | $Enums.PoolStatus
+  reservedSeats?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  requests?: Prisma.RideRequestUncheckedUpdateManyWithoutPoolNestedInput
+}
+
+export type RidePoolUncheckedUpdateManyWithoutDestinationZoneInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  vehicleId?: Prisma.StringFieldUpdateOperationsInput | string
+  pickupZoneId?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumPoolStatusFieldUpdateOperationsInput | $Enums.PoolStatus
   reservedSeats?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -795,12 +968,14 @@ export type RidePoolSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   id?: boolean
   vehicleId?: boolean
   pickupZoneId?: boolean
+  destinationZoneId?: boolean
   status?: boolean
   reservedSeats?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   vehicle?: boolean | Prisma.VehicleDefaultArgs<ExtArgs>
   pickupZone?: boolean | Prisma.ServiceZoneDefaultArgs<ExtArgs>
+  destinationZone?: boolean | Prisma.ServiceZoneDefaultArgs<ExtArgs>
   requests?: boolean | Prisma.RidePool$requestsArgs<ExtArgs>
   _count?: boolean | Prisma.RidePoolCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["ridePool"]>
@@ -809,50 +984,58 @@ export type RidePoolSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   id?: boolean
   vehicleId?: boolean
   pickupZoneId?: boolean
+  destinationZoneId?: boolean
   status?: boolean
   reservedSeats?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   vehicle?: boolean | Prisma.VehicleDefaultArgs<ExtArgs>
   pickupZone?: boolean | Prisma.ServiceZoneDefaultArgs<ExtArgs>
+  destinationZone?: boolean | Prisma.ServiceZoneDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["ridePool"]>
 
 export type RidePoolSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   vehicleId?: boolean
   pickupZoneId?: boolean
+  destinationZoneId?: boolean
   status?: boolean
   reservedSeats?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   vehicle?: boolean | Prisma.VehicleDefaultArgs<ExtArgs>
   pickupZone?: boolean | Prisma.ServiceZoneDefaultArgs<ExtArgs>
+  destinationZone?: boolean | Prisma.ServiceZoneDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["ridePool"]>
 
 export type RidePoolSelectScalar = {
   id?: boolean
   vehicleId?: boolean
   pickupZoneId?: boolean
+  destinationZoneId?: boolean
   status?: boolean
   reservedSeats?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type RidePoolOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "vehicleId" | "pickupZoneId" | "status" | "reservedSeats" | "createdAt" | "updatedAt", ExtArgs["result"]["ridePool"]>
+export type RidePoolOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "vehicleId" | "pickupZoneId" | "destinationZoneId" | "status" | "reservedSeats" | "createdAt" | "updatedAt", ExtArgs["result"]["ridePool"]>
 export type RidePoolInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   vehicle?: boolean | Prisma.VehicleDefaultArgs<ExtArgs>
   pickupZone?: boolean | Prisma.ServiceZoneDefaultArgs<ExtArgs>
+  destinationZone?: boolean | Prisma.ServiceZoneDefaultArgs<ExtArgs>
   requests?: boolean | Prisma.RidePool$requestsArgs<ExtArgs>
   _count?: boolean | Prisma.RidePoolCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type RidePoolIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   vehicle?: boolean | Prisma.VehicleDefaultArgs<ExtArgs>
   pickupZone?: boolean | Prisma.ServiceZoneDefaultArgs<ExtArgs>
+  destinationZone?: boolean | Prisma.ServiceZoneDefaultArgs<ExtArgs>
 }
 export type RidePoolIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   vehicle?: boolean | Prisma.VehicleDefaultArgs<ExtArgs>
   pickupZone?: boolean | Prisma.ServiceZoneDefaultArgs<ExtArgs>
+  destinationZone?: boolean | Prisma.ServiceZoneDefaultArgs<ExtArgs>
 }
 
 export type $RidePoolPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -860,12 +1043,14 @@ export type $RidePoolPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
   objects: {
     vehicle: Prisma.$VehiclePayload<ExtArgs>
     pickupZone: Prisma.$ServiceZonePayload<ExtArgs>
+    destinationZone: Prisma.$ServiceZonePayload<ExtArgs>
     requests: Prisma.$RideRequestPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     vehicleId: string
     pickupZoneId: string
+    destinationZoneId: string
     status: $Enums.PoolStatus
     reservedSeats: number
     createdAt: Date
@@ -1266,6 +1451,7 @@ export interface Prisma__RidePoolClient<T, Null = never, ExtArgs extends runtime
   readonly [Symbol.toStringTag]: "PrismaPromise"
   vehicle<T extends Prisma.VehicleDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.VehicleDefaultArgs<ExtArgs>>): Prisma.Prisma__VehicleClient<runtime.Types.Result.GetResult<Prisma.$VehiclePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   pickupZone<T extends Prisma.ServiceZoneDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ServiceZoneDefaultArgs<ExtArgs>>): Prisma.Prisma__ServiceZoneClient<runtime.Types.Result.GetResult<Prisma.$ServiceZonePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  destinationZone<T extends Prisma.ServiceZoneDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ServiceZoneDefaultArgs<ExtArgs>>): Prisma.Prisma__ServiceZoneClient<runtime.Types.Result.GetResult<Prisma.$ServiceZonePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   requests<T extends Prisma.RidePool$requestsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.RidePool$requestsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RideRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -1299,6 +1485,7 @@ export interface RidePoolFieldRefs {
   readonly id: Prisma.FieldRef<"RidePool", 'String'>
   readonly vehicleId: Prisma.FieldRef<"RidePool", 'String'>
   readonly pickupZoneId: Prisma.FieldRef<"RidePool", 'String'>
+  readonly destinationZoneId: Prisma.FieldRef<"RidePool", 'String'>
   readonly status: Prisma.FieldRef<"RidePool", 'PoolStatus'>
   readonly reservedSeats: Prisma.FieldRef<"RidePool", 'Int'>
   readonly createdAt: Prisma.FieldRef<"RidePool", 'DateTime'>

@@ -43,6 +43,7 @@ export type RideRequestMinAggregateOutputType = {
   pickupZoneId: string | null
   destinationZoneId: string | null
   requestedSeats: number | null
+  enableRidePool: boolean | null
   status: $Enums.RideRequestStatus | null
   farePaisa: number | null
   createdAt: Date | null
@@ -56,6 +57,7 @@ export type RideRequestMaxAggregateOutputType = {
   pickupZoneId: string | null
   destinationZoneId: string | null
   requestedSeats: number | null
+  enableRidePool: boolean | null
   status: $Enums.RideRequestStatus | null
   farePaisa: number | null
   createdAt: Date | null
@@ -69,6 +71,7 @@ export type RideRequestCountAggregateOutputType = {
   pickupZoneId: number
   destinationZoneId: number
   requestedSeats: number
+  enableRidePool: number
   status: number
   farePaisa: number
   createdAt: number
@@ -94,6 +97,7 @@ export type RideRequestMinAggregateInputType = {
   pickupZoneId?: true
   destinationZoneId?: true
   requestedSeats?: true
+  enableRidePool?: true
   status?: true
   farePaisa?: true
   createdAt?: true
@@ -107,6 +111,7 @@ export type RideRequestMaxAggregateInputType = {
   pickupZoneId?: true
   destinationZoneId?: true
   requestedSeats?: true
+  enableRidePool?: true
   status?: true
   farePaisa?: true
   createdAt?: true
@@ -120,6 +125,7 @@ export type RideRequestCountAggregateInputType = {
   pickupZoneId?: true
   destinationZoneId?: true
   requestedSeats?: true
+  enableRidePool?: true
   status?: true
   farePaisa?: true
   createdAt?: true
@@ -220,6 +226,7 @@ export type RideRequestGroupByOutputType = {
   pickupZoneId: string
   destinationZoneId: string
   requestedSeats: number
+  enableRidePool: boolean
   status: $Enums.RideRequestStatus
   farePaisa: number | null
   createdAt: Date
@@ -256,6 +263,7 @@ export type RideRequestWhereInput = {
   pickupZoneId?: Prisma.UuidFilter<"RideRequest"> | string
   destinationZoneId?: Prisma.UuidFilter<"RideRequest"> | string
   requestedSeats?: Prisma.IntFilter<"RideRequest"> | number
+  enableRidePool?: Prisma.BoolFilter<"RideRequest"> | boolean
   status?: Prisma.EnumRideRequestStatusFilter<"RideRequest"> | $Enums.RideRequestStatus
   farePaisa?: Prisma.IntNullableFilter<"RideRequest"> | number | null
   createdAt?: Prisma.DateTimeFilter<"RideRequest"> | Date | string
@@ -265,7 +273,6 @@ export type RideRequestWhereInput = {
   pickupZone?: Prisma.XOR<Prisma.ServiceZoneScalarRelationFilter, Prisma.ServiceZoneWhereInput>
   destinationZone?: Prisma.XOR<Prisma.ServiceZoneScalarRelationFilter, Prisma.ServiceZoneWhereInput>
   statusHistory?: Prisma.RideStatusHistoryListRelationFilter
-  payment?: Prisma.XOR<Prisma.PaymentNullableScalarRelationFilter, Prisma.PaymentWhereInput> | null
 }
 
 export type RideRequestOrderByWithRelationInput = {
@@ -275,6 +282,7 @@ export type RideRequestOrderByWithRelationInput = {
   pickupZoneId?: Prisma.SortOrder
   destinationZoneId?: Prisma.SortOrder
   requestedSeats?: Prisma.SortOrder
+  enableRidePool?: Prisma.SortOrder
   status?: Prisma.SortOrder
   farePaisa?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -284,7 +292,6 @@ export type RideRequestOrderByWithRelationInput = {
   pickupZone?: Prisma.ServiceZoneOrderByWithRelationInput
   destinationZone?: Prisma.ServiceZoneOrderByWithRelationInput
   statusHistory?: Prisma.RideStatusHistoryOrderByRelationAggregateInput
-  payment?: Prisma.PaymentOrderByWithRelationInput
 }
 
 export type RideRequestWhereUniqueInput = Prisma.AtLeast<{
@@ -297,6 +304,7 @@ export type RideRequestWhereUniqueInput = Prisma.AtLeast<{
   pickupZoneId?: Prisma.UuidFilter<"RideRequest"> | string
   destinationZoneId?: Prisma.UuidFilter<"RideRequest"> | string
   requestedSeats?: Prisma.IntFilter<"RideRequest"> | number
+  enableRidePool?: Prisma.BoolFilter<"RideRequest"> | boolean
   status?: Prisma.EnumRideRequestStatusFilter<"RideRequest"> | $Enums.RideRequestStatus
   farePaisa?: Prisma.IntNullableFilter<"RideRequest"> | number | null
   createdAt?: Prisma.DateTimeFilter<"RideRequest"> | Date | string
@@ -306,7 +314,6 @@ export type RideRequestWhereUniqueInput = Prisma.AtLeast<{
   pickupZone?: Prisma.XOR<Prisma.ServiceZoneScalarRelationFilter, Prisma.ServiceZoneWhereInput>
   destinationZone?: Prisma.XOR<Prisma.ServiceZoneScalarRelationFilter, Prisma.ServiceZoneWhereInput>
   statusHistory?: Prisma.RideStatusHistoryListRelationFilter
-  payment?: Prisma.XOR<Prisma.PaymentNullableScalarRelationFilter, Prisma.PaymentWhereInput> | null
 }, "id">
 
 export type RideRequestOrderByWithAggregationInput = {
@@ -316,6 +323,7 @@ export type RideRequestOrderByWithAggregationInput = {
   pickupZoneId?: Prisma.SortOrder
   destinationZoneId?: Prisma.SortOrder
   requestedSeats?: Prisma.SortOrder
+  enableRidePool?: Prisma.SortOrder
   status?: Prisma.SortOrder
   farePaisa?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -337,6 +345,7 @@ export type RideRequestScalarWhereWithAggregatesInput = {
   pickupZoneId?: Prisma.UuidWithAggregatesFilter<"RideRequest"> | string
   destinationZoneId?: Prisma.UuidWithAggregatesFilter<"RideRequest"> | string
   requestedSeats?: Prisma.IntWithAggregatesFilter<"RideRequest"> | number
+  enableRidePool?: Prisma.BoolWithAggregatesFilter<"RideRequest"> | boolean
   status?: Prisma.EnumRideRequestStatusWithAggregatesFilter<"RideRequest"> | $Enums.RideRequestStatus
   farePaisa?: Prisma.IntNullableWithAggregatesFilter<"RideRequest"> | number | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"RideRequest"> | Date | string
@@ -346,6 +355,7 @@ export type RideRequestScalarWhereWithAggregatesInput = {
 export type RideRequestCreateInput = {
   id?: string
   requestedSeats: number
+  enableRidePool?: boolean
   status?: $Enums.RideRequestStatus
   farePaisa?: number | null
   createdAt?: Date | string
@@ -355,7 +365,6 @@ export type RideRequestCreateInput = {
   pickupZone: Prisma.ServiceZoneCreateNestedOneWithoutPickupRequestsInput
   destinationZone: Prisma.ServiceZoneCreateNestedOneWithoutDestinationRequestsInput
   statusHistory?: Prisma.RideStatusHistoryCreateNestedManyWithoutRequestInput
-  payment?: Prisma.PaymentCreateNestedOneWithoutRequestInput
 }
 
 export type RideRequestUncheckedCreateInput = {
@@ -365,17 +374,18 @@ export type RideRequestUncheckedCreateInput = {
   pickupZoneId: string
   destinationZoneId: string
   requestedSeats: number
+  enableRidePool?: boolean
   status?: $Enums.RideRequestStatus
   farePaisa?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   statusHistory?: Prisma.RideStatusHistoryUncheckedCreateNestedManyWithoutRequestInput
-  payment?: Prisma.PaymentUncheckedCreateNestedOneWithoutRequestInput
 }
 
 export type RideRequestUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   requestedSeats?: Prisma.IntFieldUpdateOperationsInput | number
+  enableRidePool?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.EnumRideRequestStatusFieldUpdateOperationsInput | $Enums.RideRequestStatus
   farePaisa?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -385,7 +395,6 @@ export type RideRequestUpdateInput = {
   pickupZone?: Prisma.ServiceZoneUpdateOneRequiredWithoutPickupRequestsNestedInput
   destinationZone?: Prisma.ServiceZoneUpdateOneRequiredWithoutDestinationRequestsNestedInput
   statusHistory?: Prisma.RideStatusHistoryUpdateManyWithoutRequestNestedInput
-  payment?: Prisma.PaymentUpdateOneWithoutRequestNestedInput
 }
 
 export type RideRequestUncheckedUpdateInput = {
@@ -395,12 +404,12 @@ export type RideRequestUncheckedUpdateInput = {
   pickupZoneId?: Prisma.StringFieldUpdateOperationsInput | string
   destinationZoneId?: Prisma.StringFieldUpdateOperationsInput | string
   requestedSeats?: Prisma.IntFieldUpdateOperationsInput | number
+  enableRidePool?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.EnumRideRequestStatusFieldUpdateOperationsInput | $Enums.RideRequestStatus
   farePaisa?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   statusHistory?: Prisma.RideStatusHistoryUncheckedUpdateManyWithoutRequestNestedInput
-  payment?: Prisma.PaymentUncheckedUpdateOneWithoutRequestNestedInput
 }
 
 export type RideRequestCreateManyInput = {
@@ -410,6 +419,7 @@ export type RideRequestCreateManyInput = {
   pickupZoneId: string
   destinationZoneId: string
   requestedSeats: number
+  enableRidePool?: boolean
   status?: $Enums.RideRequestStatus
   farePaisa?: number | null
   createdAt?: Date | string
@@ -419,6 +429,7 @@ export type RideRequestCreateManyInput = {
 export type RideRequestUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   requestedSeats?: Prisma.IntFieldUpdateOperationsInput | number
+  enableRidePool?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.EnumRideRequestStatusFieldUpdateOperationsInput | $Enums.RideRequestStatus
   farePaisa?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -432,6 +443,7 @@ export type RideRequestUncheckedUpdateManyInput = {
   pickupZoneId?: Prisma.StringFieldUpdateOperationsInput | string
   destinationZoneId?: Prisma.StringFieldUpdateOperationsInput | string
   requestedSeats?: Prisma.IntFieldUpdateOperationsInput | number
+  enableRidePool?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.EnumRideRequestStatusFieldUpdateOperationsInput | $Enums.RideRequestStatus
   farePaisa?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -455,6 +467,7 @@ export type RideRequestCountOrderByAggregateInput = {
   pickupZoneId?: Prisma.SortOrder
   destinationZoneId?: Prisma.SortOrder
   requestedSeats?: Prisma.SortOrder
+  enableRidePool?: Prisma.SortOrder
   status?: Prisma.SortOrder
   farePaisa?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -473,6 +486,7 @@ export type RideRequestMaxOrderByAggregateInput = {
   pickupZoneId?: Prisma.SortOrder
   destinationZoneId?: Prisma.SortOrder
   requestedSeats?: Prisma.SortOrder
+  enableRidePool?: Prisma.SortOrder
   status?: Prisma.SortOrder
   farePaisa?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -486,6 +500,7 @@ export type RideRequestMinOrderByAggregateInput = {
   pickupZoneId?: Prisma.SortOrder
   destinationZoneId?: Prisma.SortOrder
   requestedSeats?: Prisma.SortOrder
+  enableRidePool?: Prisma.SortOrder
   status?: Prisma.SortOrder
   farePaisa?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -688,23 +703,10 @@ export type RideRequestUpdateOneRequiredWithoutStatusHistoryNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.RideRequestUpdateToOneWithWhereWithoutStatusHistoryInput, Prisma.RideRequestUpdateWithoutStatusHistoryInput>, Prisma.RideRequestUncheckedUpdateWithoutStatusHistoryInput>
 }
 
-export type RideRequestCreateNestedOneWithoutPaymentInput = {
-  create?: Prisma.XOR<Prisma.RideRequestCreateWithoutPaymentInput, Prisma.RideRequestUncheckedCreateWithoutPaymentInput>
-  connectOrCreate?: Prisma.RideRequestCreateOrConnectWithoutPaymentInput
-  connect?: Prisma.RideRequestWhereUniqueInput
-}
-
-export type RideRequestUpdateOneRequiredWithoutPaymentNestedInput = {
-  create?: Prisma.XOR<Prisma.RideRequestCreateWithoutPaymentInput, Prisma.RideRequestUncheckedCreateWithoutPaymentInput>
-  connectOrCreate?: Prisma.RideRequestCreateOrConnectWithoutPaymentInput
-  upsert?: Prisma.RideRequestUpsertWithoutPaymentInput
-  connect?: Prisma.RideRequestWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.RideRequestUpdateToOneWithWhereWithoutPaymentInput, Prisma.RideRequestUpdateWithoutPaymentInput>, Prisma.RideRequestUncheckedUpdateWithoutPaymentInput>
-}
-
 export type RideRequestCreateWithoutPassengerInput = {
   id?: string
   requestedSeats: number
+  enableRidePool?: boolean
   status?: $Enums.RideRequestStatus
   farePaisa?: number | null
   createdAt?: Date | string
@@ -713,7 +715,6 @@ export type RideRequestCreateWithoutPassengerInput = {
   pickupZone: Prisma.ServiceZoneCreateNestedOneWithoutPickupRequestsInput
   destinationZone: Prisma.ServiceZoneCreateNestedOneWithoutDestinationRequestsInput
   statusHistory?: Prisma.RideStatusHistoryCreateNestedManyWithoutRequestInput
-  payment?: Prisma.PaymentCreateNestedOneWithoutRequestInput
 }
 
 export type RideRequestUncheckedCreateWithoutPassengerInput = {
@@ -722,12 +723,12 @@ export type RideRequestUncheckedCreateWithoutPassengerInput = {
   pickupZoneId: string
   destinationZoneId: string
   requestedSeats: number
+  enableRidePool?: boolean
   status?: $Enums.RideRequestStatus
   farePaisa?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   statusHistory?: Prisma.RideStatusHistoryUncheckedCreateNestedManyWithoutRequestInput
-  payment?: Prisma.PaymentUncheckedCreateNestedOneWithoutRequestInput
 }
 
 export type RideRequestCreateOrConnectWithoutPassengerInput = {
@@ -766,6 +767,7 @@ export type RideRequestScalarWhereInput = {
   pickupZoneId?: Prisma.UuidFilter<"RideRequest"> | string
   destinationZoneId?: Prisma.UuidFilter<"RideRequest"> | string
   requestedSeats?: Prisma.IntFilter<"RideRequest"> | number
+  enableRidePool?: Prisma.BoolFilter<"RideRequest"> | boolean
   status?: Prisma.EnumRideRequestStatusFilter<"RideRequest"> | $Enums.RideRequestStatus
   farePaisa?: Prisma.IntNullableFilter<"RideRequest"> | number | null
   createdAt?: Prisma.DateTimeFilter<"RideRequest"> | Date | string
@@ -775,6 +777,7 @@ export type RideRequestScalarWhereInput = {
 export type RideRequestCreateWithoutPickupZoneInput = {
   id?: string
   requestedSeats: number
+  enableRidePool?: boolean
   status?: $Enums.RideRequestStatus
   farePaisa?: number | null
   createdAt?: Date | string
@@ -783,7 +786,6 @@ export type RideRequestCreateWithoutPickupZoneInput = {
   pool?: Prisma.RidePoolCreateNestedOneWithoutRequestsInput
   destinationZone: Prisma.ServiceZoneCreateNestedOneWithoutDestinationRequestsInput
   statusHistory?: Prisma.RideStatusHistoryCreateNestedManyWithoutRequestInput
-  payment?: Prisma.PaymentCreateNestedOneWithoutRequestInput
 }
 
 export type RideRequestUncheckedCreateWithoutPickupZoneInput = {
@@ -792,12 +794,12 @@ export type RideRequestUncheckedCreateWithoutPickupZoneInput = {
   poolId?: string | null
   destinationZoneId: string
   requestedSeats: number
+  enableRidePool?: boolean
   status?: $Enums.RideRequestStatus
   farePaisa?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   statusHistory?: Prisma.RideStatusHistoryUncheckedCreateNestedManyWithoutRequestInput
-  payment?: Prisma.PaymentUncheckedCreateNestedOneWithoutRequestInput
 }
 
 export type RideRequestCreateOrConnectWithoutPickupZoneInput = {
@@ -813,6 +815,7 @@ export type RideRequestCreateManyPickupZoneInputEnvelope = {
 export type RideRequestCreateWithoutDestinationZoneInput = {
   id?: string
   requestedSeats: number
+  enableRidePool?: boolean
   status?: $Enums.RideRequestStatus
   farePaisa?: number | null
   createdAt?: Date | string
@@ -821,7 +824,6 @@ export type RideRequestCreateWithoutDestinationZoneInput = {
   pool?: Prisma.RidePoolCreateNestedOneWithoutRequestsInput
   pickupZone: Prisma.ServiceZoneCreateNestedOneWithoutPickupRequestsInput
   statusHistory?: Prisma.RideStatusHistoryCreateNestedManyWithoutRequestInput
-  payment?: Prisma.PaymentCreateNestedOneWithoutRequestInput
 }
 
 export type RideRequestUncheckedCreateWithoutDestinationZoneInput = {
@@ -830,12 +832,12 @@ export type RideRequestUncheckedCreateWithoutDestinationZoneInput = {
   poolId?: string | null
   pickupZoneId: string
   requestedSeats: number
+  enableRidePool?: boolean
   status?: $Enums.RideRequestStatus
   farePaisa?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   statusHistory?: Prisma.RideStatusHistoryUncheckedCreateNestedManyWithoutRequestInput
-  payment?: Prisma.PaymentUncheckedCreateNestedOneWithoutRequestInput
 }
 
 export type RideRequestCreateOrConnectWithoutDestinationZoneInput = {
@@ -883,6 +885,7 @@ export type RideRequestUpdateManyWithWhereWithoutDestinationZoneInput = {
 export type RideRequestCreateWithoutPoolInput = {
   id?: string
   requestedSeats: number
+  enableRidePool?: boolean
   status?: $Enums.RideRequestStatus
   farePaisa?: number | null
   createdAt?: Date | string
@@ -891,7 +894,6 @@ export type RideRequestCreateWithoutPoolInput = {
   pickupZone: Prisma.ServiceZoneCreateNestedOneWithoutPickupRequestsInput
   destinationZone: Prisma.ServiceZoneCreateNestedOneWithoutDestinationRequestsInput
   statusHistory?: Prisma.RideStatusHistoryCreateNestedManyWithoutRequestInput
-  payment?: Prisma.PaymentCreateNestedOneWithoutRequestInput
 }
 
 export type RideRequestUncheckedCreateWithoutPoolInput = {
@@ -900,12 +902,12 @@ export type RideRequestUncheckedCreateWithoutPoolInput = {
   pickupZoneId: string
   destinationZoneId: string
   requestedSeats: number
+  enableRidePool?: boolean
   status?: $Enums.RideRequestStatus
   farePaisa?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   statusHistory?: Prisma.RideStatusHistoryUncheckedCreateNestedManyWithoutRequestInput
-  payment?: Prisma.PaymentUncheckedCreateNestedOneWithoutRequestInput
 }
 
 export type RideRequestCreateOrConnectWithoutPoolInput = {
@@ -937,6 +939,7 @@ export type RideRequestUpdateManyWithWhereWithoutPoolInput = {
 export type RideRequestCreateWithoutStatusHistoryInput = {
   id?: string
   requestedSeats: number
+  enableRidePool?: boolean
   status?: $Enums.RideRequestStatus
   farePaisa?: number | null
   createdAt?: Date | string
@@ -945,7 +948,6 @@ export type RideRequestCreateWithoutStatusHistoryInput = {
   pool?: Prisma.RidePoolCreateNestedOneWithoutRequestsInput
   pickupZone: Prisma.ServiceZoneCreateNestedOneWithoutPickupRequestsInput
   destinationZone: Prisma.ServiceZoneCreateNestedOneWithoutDestinationRequestsInput
-  payment?: Prisma.PaymentCreateNestedOneWithoutRequestInput
 }
 
 export type RideRequestUncheckedCreateWithoutStatusHistoryInput = {
@@ -955,11 +957,11 @@ export type RideRequestUncheckedCreateWithoutStatusHistoryInput = {
   pickupZoneId: string
   destinationZoneId: string
   requestedSeats: number
+  enableRidePool?: boolean
   status?: $Enums.RideRequestStatus
   farePaisa?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  payment?: Prisma.PaymentUncheckedCreateNestedOneWithoutRequestInput
 }
 
 export type RideRequestCreateOrConnectWithoutStatusHistoryInput = {
@@ -981,6 +983,7 @@ export type RideRequestUpdateToOneWithWhereWithoutStatusHistoryInput = {
 export type RideRequestUpdateWithoutStatusHistoryInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   requestedSeats?: Prisma.IntFieldUpdateOperationsInput | number
+  enableRidePool?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.EnumRideRequestStatusFieldUpdateOperationsInput | $Enums.RideRequestStatus
   farePaisa?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -989,7 +992,6 @@ export type RideRequestUpdateWithoutStatusHistoryInput = {
   pool?: Prisma.RidePoolUpdateOneWithoutRequestsNestedInput
   pickupZone?: Prisma.ServiceZoneUpdateOneRequiredWithoutPickupRequestsNestedInput
   destinationZone?: Prisma.ServiceZoneUpdateOneRequiredWithoutDestinationRequestsNestedInput
-  payment?: Prisma.PaymentUpdateOneWithoutRequestNestedInput
 }
 
 export type RideRequestUncheckedUpdateWithoutStatusHistoryInput = {
@@ -999,83 +1001,11 @@ export type RideRequestUncheckedUpdateWithoutStatusHistoryInput = {
   pickupZoneId?: Prisma.StringFieldUpdateOperationsInput | string
   destinationZoneId?: Prisma.StringFieldUpdateOperationsInput | string
   requestedSeats?: Prisma.IntFieldUpdateOperationsInput | number
+  enableRidePool?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.EnumRideRequestStatusFieldUpdateOperationsInput | $Enums.RideRequestStatus
   farePaisa?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  payment?: Prisma.PaymentUncheckedUpdateOneWithoutRequestNestedInput
-}
-
-export type RideRequestCreateWithoutPaymentInput = {
-  id?: string
-  requestedSeats: number
-  status?: $Enums.RideRequestStatus
-  farePaisa?: number | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  passenger?: Prisma.UserCreateNestedOneWithoutRideRequestsInput
-  pool?: Prisma.RidePoolCreateNestedOneWithoutRequestsInput
-  pickupZone: Prisma.ServiceZoneCreateNestedOneWithoutPickupRequestsInput
-  destinationZone: Prisma.ServiceZoneCreateNestedOneWithoutDestinationRequestsInput
-  statusHistory?: Prisma.RideStatusHistoryCreateNestedManyWithoutRequestInput
-}
-
-export type RideRequestUncheckedCreateWithoutPaymentInput = {
-  id?: string
-  passengerId?: string | null
-  poolId?: string | null
-  pickupZoneId: string
-  destinationZoneId: string
-  requestedSeats: number
-  status?: $Enums.RideRequestStatus
-  farePaisa?: number | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  statusHistory?: Prisma.RideStatusHistoryUncheckedCreateNestedManyWithoutRequestInput
-}
-
-export type RideRequestCreateOrConnectWithoutPaymentInput = {
-  where: Prisma.RideRequestWhereUniqueInput
-  create: Prisma.XOR<Prisma.RideRequestCreateWithoutPaymentInput, Prisma.RideRequestUncheckedCreateWithoutPaymentInput>
-}
-
-export type RideRequestUpsertWithoutPaymentInput = {
-  update: Prisma.XOR<Prisma.RideRequestUpdateWithoutPaymentInput, Prisma.RideRequestUncheckedUpdateWithoutPaymentInput>
-  create: Prisma.XOR<Prisma.RideRequestCreateWithoutPaymentInput, Prisma.RideRequestUncheckedCreateWithoutPaymentInput>
-  where?: Prisma.RideRequestWhereInput
-}
-
-export type RideRequestUpdateToOneWithWhereWithoutPaymentInput = {
-  where?: Prisma.RideRequestWhereInput
-  data: Prisma.XOR<Prisma.RideRequestUpdateWithoutPaymentInput, Prisma.RideRequestUncheckedUpdateWithoutPaymentInput>
-}
-
-export type RideRequestUpdateWithoutPaymentInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  requestedSeats?: Prisma.IntFieldUpdateOperationsInput | number
-  status?: Prisma.EnumRideRequestStatusFieldUpdateOperationsInput | $Enums.RideRequestStatus
-  farePaisa?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  passenger?: Prisma.UserUpdateOneWithoutRideRequestsNestedInput
-  pool?: Prisma.RidePoolUpdateOneWithoutRequestsNestedInput
-  pickupZone?: Prisma.ServiceZoneUpdateOneRequiredWithoutPickupRequestsNestedInput
-  destinationZone?: Prisma.ServiceZoneUpdateOneRequiredWithoutDestinationRequestsNestedInput
-  statusHistory?: Prisma.RideStatusHistoryUpdateManyWithoutRequestNestedInput
-}
-
-export type RideRequestUncheckedUpdateWithoutPaymentInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  passengerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  poolId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  pickupZoneId?: Prisma.StringFieldUpdateOperationsInput | string
-  destinationZoneId?: Prisma.StringFieldUpdateOperationsInput | string
-  requestedSeats?: Prisma.IntFieldUpdateOperationsInput | number
-  status?: Prisma.EnumRideRequestStatusFieldUpdateOperationsInput | $Enums.RideRequestStatus
-  farePaisa?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  statusHistory?: Prisma.RideStatusHistoryUncheckedUpdateManyWithoutRequestNestedInput
 }
 
 export type RideRequestCreateManyPassengerInput = {
@@ -1084,6 +1014,7 @@ export type RideRequestCreateManyPassengerInput = {
   pickupZoneId: string
   destinationZoneId: string
   requestedSeats: number
+  enableRidePool?: boolean
   status?: $Enums.RideRequestStatus
   farePaisa?: number | null
   createdAt?: Date | string
@@ -1093,6 +1024,7 @@ export type RideRequestCreateManyPassengerInput = {
 export type RideRequestUpdateWithoutPassengerInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   requestedSeats?: Prisma.IntFieldUpdateOperationsInput | number
+  enableRidePool?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.EnumRideRequestStatusFieldUpdateOperationsInput | $Enums.RideRequestStatus
   farePaisa?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1101,7 +1033,6 @@ export type RideRequestUpdateWithoutPassengerInput = {
   pickupZone?: Prisma.ServiceZoneUpdateOneRequiredWithoutPickupRequestsNestedInput
   destinationZone?: Prisma.ServiceZoneUpdateOneRequiredWithoutDestinationRequestsNestedInput
   statusHistory?: Prisma.RideStatusHistoryUpdateManyWithoutRequestNestedInput
-  payment?: Prisma.PaymentUpdateOneWithoutRequestNestedInput
 }
 
 export type RideRequestUncheckedUpdateWithoutPassengerInput = {
@@ -1110,12 +1041,12 @@ export type RideRequestUncheckedUpdateWithoutPassengerInput = {
   pickupZoneId?: Prisma.StringFieldUpdateOperationsInput | string
   destinationZoneId?: Prisma.StringFieldUpdateOperationsInput | string
   requestedSeats?: Prisma.IntFieldUpdateOperationsInput | number
+  enableRidePool?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.EnumRideRequestStatusFieldUpdateOperationsInput | $Enums.RideRequestStatus
   farePaisa?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   statusHistory?: Prisma.RideStatusHistoryUncheckedUpdateManyWithoutRequestNestedInput
-  payment?: Prisma.PaymentUncheckedUpdateOneWithoutRequestNestedInput
 }
 
 export type RideRequestUncheckedUpdateManyWithoutPassengerInput = {
@@ -1124,6 +1055,7 @@ export type RideRequestUncheckedUpdateManyWithoutPassengerInput = {
   pickupZoneId?: Prisma.StringFieldUpdateOperationsInput | string
   destinationZoneId?: Prisma.StringFieldUpdateOperationsInput | string
   requestedSeats?: Prisma.IntFieldUpdateOperationsInput | number
+  enableRidePool?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.EnumRideRequestStatusFieldUpdateOperationsInput | $Enums.RideRequestStatus
   farePaisa?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1136,6 +1068,7 @@ export type RideRequestCreateManyPickupZoneInput = {
   poolId?: string | null
   destinationZoneId: string
   requestedSeats: number
+  enableRidePool?: boolean
   status?: $Enums.RideRequestStatus
   farePaisa?: number | null
   createdAt?: Date | string
@@ -1148,6 +1081,7 @@ export type RideRequestCreateManyDestinationZoneInput = {
   poolId?: string | null
   pickupZoneId: string
   requestedSeats: number
+  enableRidePool?: boolean
   status?: $Enums.RideRequestStatus
   farePaisa?: number | null
   createdAt?: Date | string
@@ -1157,6 +1091,7 @@ export type RideRequestCreateManyDestinationZoneInput = {
 export type RideRequestUpdateWithoutPickupZoneInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   requestedSeats?: Prisma.IntFieldUpdateOperationsInput | number
+  enableRidePool?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.EnumRideRequestStatusFieldUpdateOperationsInput | $Enums.RideRequestStatus
   farePaisa?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1165,7 +1100,6 @@ export type RideRequestUpdateWithoutPickupZoneInput = {
   pool?: Prisma.RidePoolUpdateOneWithoutRequestsNestedInput
   destinationZone?: Prisma.ServiceZoneUpdateOneRequiredWithoutDestinationRequestsNestedInput
   statusHistory?: Prisma.RideStatusHistoryUpdateManyWithoutRequestNestedInput
-  payment?: Prisma.PaymentUpdateOneWithoutRequestNestedInput
 }
 
 export type RideRequestUncheckedUpdateWithoutPickupZoneInput = {
@@ -1174,12 +1108,12 @@ export type RideRequestUncheckedUpdateWithoutPickupZoneInput = {
   poolId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   destinationZoneId?: Prisma.StringFieldUpdateOperationsInput | string
   requestedSeats?: Prisma.IntFieldUpdateOperationsInput | number
+  enableRidePool?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.EnumRideRequestStatusFieldUpdateOperationsInput | $Enums.RideRequestStatus
   farePaisa?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   statusHistory?: Prisma.RideStatusHistoryUncheckedUpdateManyWithoutRequestNestedInput
-  payment?: Prisma.PaymentUncheckedUpdateOneWithoutRequestNestedInput
 }
 
 export type RideRequestUncheckedUpdateManyWithoutPickupZoneInput = {
@@ -1188,6 +1122,7 @@ export type RideRequestUncheckedUpdateManyWithoutPickupZoneInput = {
   poolId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   destinationZoneId?: Prisma.StringFieldUpdateOperationsInput | string
   requestedSeats?: Prisma.IntFieldUpdateOperationsInput | number
+  enableRidePool?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.EnumRideRequestStatusFieldUpdateOperationsInput | $Enums.RideRequestStatus
   farePaisa?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1197,6 +1132,7 @@ export type RideRequestUncheckedUpdateManyWithoutPickupZoneInput = {
 export type RideRequestUpdateWithoutDestinationZoneInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   requestedSeats?: Prisma.IntFieldUpdateOperationsInput | number
+  enableRidePool?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.EnumRideRequestStatusFieldUpdateOperationsInput | $Enums.RideRequestStatus
   farePaisa?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1205,7 +1141,6 @@ export type RideRequestUpdateWithoutDestinationZoneInput = {
   pool?: Prisma.RidePoolUpdateOneWithoutRequestsNestedInput
   pickupZone?: Prisma.ServiceZoneUpdateOneRequiredWithoutPickupRequestsNestedInput
   statusHistory?: Prisma.RideStatusHistoryUpdateManyWithoutRequestNestedInput
-  payment?: Prisma.PaymentUpdateOneWithoutRequestNestedInput
 }
 
 export type RideRequestUncheckedUpdateWithoutDestinationZoneInput = {
@@ -1214,12 +1149,12 @@ export type RideRequestUncheckedUpdateWithoutDestinationZoneInput = {
   poolId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pickupZoneId?: Prisma.StringFieldUpdateOperationsInput | string
   requestedSeats?: Prisma.IntFieldUpdateOperationsInput | number
+  enableRidePool?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.EnumRideRequestStatusFieldUpdateOperationsInput | $Enums.RideRequestStatus
   farePaisa?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   statusHistory?: Prisma.RideStatusHistoryUncheckedUpdateManyWithoutRequestNestedInput
-  payment?: Prisma.PaymentUncheckedUpdateOneWithoutRequestNestedInput
 }
 
 export type RideRequestUncheckedUpdateManyWithoutDestinationZoneInput = {
@@ -1228,6 +1163,7 @@ export type RideRequestUncheckedUpdateManyWithoutDestinationZoneInput = {
   poolId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pickupZoneId?: Prisma.StringFieldUpdateOperationsInput | string
   requestedSeats?: Prisma.IntFieldUpdateOperationsInput | number
+  enableRidePool?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.EnumRideRequestStatusFieldUpdateOperationsInput | $Enums.RideRequestStatus
   farePaisa?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1240,6 +1176,7 @@ export type RideRequestCreateManyPoolInput = {
   pickupZoneId: string
   destinationZoneId: string
   requestedSeats: number
+  enableRidePool?: boolean
   status?: $Enums.RideRequestStatus
   farePaisa?: number | null
   createdAt?: Date | string
@@ -1249,6 +1186,7 @@ export type RideRequestCreateManyPoolInput = {
 export type RideRequestUpdateWithoutPoolInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   requestedSeats?: Prisma.IntFieldUpdateOperationsInput | number
+  enableRidePool?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.EnumRideRequestStatusFieldUpdateOperationsInput | $Enums.RideRequestStatus
   farePaisa?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1257,7 +1195,6 @@ export type RideRequestUpdateWithoutPoolInput = {
   pickupZone?: Prisma.ServiceZoneUpdateOneRequiredWithoutPickupRequestsNestedInput
   destinationZone?: Prisma.ServiceZoneUpdateOneRequiredWithoutDestinationRequestsNestedInput
   statusHistory?: Prisma.RideStatusHistoryUpdateManyWithoutRequestNestedInput
-  payment?: Prisma.PaymentUpdateOneWithoutRequestNestedInput
 }
 
 export type RideRequestUncheckedUpdateWithoutPoolInput = {
@@ -1266,12 +1203,12 @@ export type RideRequestUncheckedUpdateWithoutPoolInput = {
   pickupZoneId?: Prisma.StringFieldUpdateOperationsInput | string
   destinationZoneId?: Prisma.StringFieldUpdateOperationsInput | string
   requestedSeats?: Prisma.IntFieldUpdateOperationsInput | number
+  enableRidePool?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.EnumRideRequestStatusFieldUpdateOperationsInput | $Enums.RideRequestStatus
   farePaisa?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   statusHistory?: Prisma.RideStatusHistoryUncheckedUpdateManyWithoutRequestNestedInput
-  payment?: Prisma.PaymentUncheckedUpdateOneWithoutRequestNestedInput
 }
 
 export type RideRequestUncheckedUpdateManyWithoutPoolInput = {
@@ -1280,6 +1217,7 @@ export type RideRequestUncheckedUpdateManyWithoutPoolInput = {
   pickupZoneId?: Prisma.StringFieldUpdateOperationsInput | string
   destinationZoneId?: Prisma.StringFieldUpdateOperationsInput | string
   requestedSeats?: Prisma.IntFieldUpdateOperationsInput | number
+  enableRidePool?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.EnumRideRequestStatusFieldUpdateOperationsInput | $Enums.RideRequestStatus
   farePaisa?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1324,6 +1262,7 @@ export type RideRequestSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   pickupZoneId?: boolean
   destinationZoneId?: boolean
   requestedSeats?: boolean
+  enableRidePool?: boolean
   status?: boolean
   farePaisa?: boolean
   createdAt?: boolean
@@ -1333,7 +1272,6 @@ export type RideRequestSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   pickupZone?: boolean | Prisma.ServiceZoneDefaultArgs<ExtArgs>
   destinationZone?: boolean | Prisma.ServiceZoneDefaultArgs<ExtArgs>
   statusHistory?: boolean | Prisma.RideRequest$statusHistoryArgs<ExtArgs>
-  payment?: boolean | Prisma.RideRequest$paymentArgs<ExtArgs>
   _count?: boolean | Prisma.RideRequestCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["rideRequest"]>
 
@@ -1344,6 +1282,7 @@ export type RideRequestSelectCreateManyAndReturn<ExtArgs extends runtime.Types.E
   pickupZoneId?: boolean
   destinationZoneId?: boolean
   requestedSeats?: boolean
+  enableRidePool?: boolean
   status?: boolean
   farePaisa?: boolean
   createdAt?: boolean
@@ -1361,6 +1300,7 @@ export type RideRequestSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.E
   pickupZoneId?: boolean
   destinationZoneId?: boolean
   requestedSeats?: boolean
+  enableRidePool?: boolean
   status?: boolean
   farePaisa?: boolean
   createdAt?: boolean
@@ -1378,20 +1318,20 @@ export type RideRequestSelectScalar = {
   pickupZoneId?: boolean
   destinationZoneId?: boolean
   requestedSeats?: boolean
+  enableRidePool?: boolean
   status?: boolean
   farePaisa?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type RideRequestOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "passengerId" | "poolId" | "pickupZoneId" | "destinationZoneId" | "requestedSeats" | "status" | "farePaisa" | "createdAt" | "updatedAt", ExtArgs["result"]["rideRequest"]>
+export type RideRequestOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "passengerId" | "poolId" | "pickupZoneId" | "destinationZoneId" | "requestedSeats" | "enableRidePool" | "status" | "farePaisa" | "createdAt" | "updatedAt", ExtArgs["result"]["rideRequest"]>
 export type RideRequestInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   passenger?: boolean | Prisma.RideRequest$passengerArgs<ExtArgs>
   pool?: boolean | Prisma.RideRequest$poolArgs<ExtArgs>
   pickupZone?: boolean | Prisma.ServiceZoneDefaultArgs<ExtArgs>
   destinationZone?: boolean | Prisma.ServiceZoneDefaultArgs<ExtArgs>
   statusHistory?: boolean | Prisma.RideRequest$statusHistoryArgs<ExtArgs>
-  payment?: boolean | Prisma.RideRequest$paymentArgs<ExtArgs>
   _count?: boolean | Prisma.RideRequestCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type RideRequestIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1415,7 +1355,6 @@ export type $RideRequestPayload<ExtArgs extends runtime.Types.Extensions.Interna
     pickupZone: Prisma.$ServiceZonePayload<ExtArgs>
     destinationZone: Prisma.$ServiceZonePayload<ExtArgs>
     statusHistory: Prisma.$RideStatusHistoryPayload<ExtArgs>[]
-    payment: Prisma.$PaymentPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1424,6 +1363,7 @@ export type $RideRequestPayload<ExtArgs extends runtime.Types.Extensions.Interna
     pickupZoneId: string
     destinationZoneId: string
     requestedSeats: number
+    enableRidePool: boolean
     status: $Enums.RideRequestStatus
     farePaisa: number | null
     createdAt: Date
@@ -1827,7 +1767,6 @@ export interface Prisma__RideRequestClient<T, Null = never, ExtArgs extends runt
   pickupZone<T extends Prisma.ServiceZoneDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ServiceZoneDefaultArgs<ExtArgs>>): Prisma.Prisma__ServiceZoneClient<runtime.Types.Result.GetResult<Prisma.$ServiceZonePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   destinationZone<T extends Prisma.ServiceZoneDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ServiceZoneDefaultArgs<ExtArgs>>): Prisma.Prisma__ServiceZoneClient<runtime.Types.Result.GetResult<Prisma.$ServiceZonePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   statusHistory<T extends Prisma.RideRequest$statusHistoryArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.RideRequest$statusHistoryArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RideStatusHistoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  payment<T extends Prisma.RideRequest$paymentArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.RideRequest$paymentArgs<ExtArgs>>): Prisma.Prisma__PaymentClient<runtime.Types.Result.GetResult<Prisma.$PaymentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1863,6 +1802,7 @@ export interface RideRequestFieldRefs {
   readonly pickupZoneId: Prisma.FieldRef<"RideRequest", 'String'>
   readonly destinationZoneId: Prisma.FieldRef<"RideRequest", 'String'>
   readonly requestedSeats: Prisma.FieldRef<"RideRequest", 'Int'>
+  readonly enableRidePool: Prisma.FieldRef<"RideRequest", 'Boolean'>
   readonly status: Prisma.FieldRef<"RideRequest", 'RideRequestStatus'>
   readonly farePaisa: Prisma.FieldRef<"RideRequest", 'Int'>
   readonly createdAt: Prisma.FieldRef<"RideRequest", 'DateTime'>
@@ -2327,25 +2267,6 @@ export type RideRequest$statusHistoryArgs<ExtArgs extends runtime.Types.Extensio
   take?: number
   skip?: number
   distinct?: Prisma.RideStatusHistoryScalarFieldEnum | Prisma.RideStatusHistoryScalarFieldEnum[]
-}
-
-/**
- * RideRequest.payment
- */
-export type RideRequest$paymentArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the Payment
-   */
-  select?: Prisma.PaymentSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the Payment
-   */
-  omit?: Prisma.PaymentOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.PaymentInclude<ExtArgs> | null
-  where?: Prisma.PaymentWhereInput
 }
 
 /**

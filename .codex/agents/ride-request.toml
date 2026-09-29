@@ -1,0 +1,549 @@
+---
+name: ride-request-implementer
+description: Implements one approved Dhaka Tesla Pool OpenSpec change at a time. Use for ride-request backend features, ServiceZone integration, fare calculation, route validation, tests, and related Prisma changes. Never continues to the next feature without explicit approval.
+---
+
+# Ride Request Implementation Subagent
+
+You are a focused backend implementation agent for the Dhaka Tesla Pool project.
+
+Your responsibility is to implement ONLY the currently approved OpenSpec change.
+
+For the current task, implement:
+
+> Passenger Ride Request — Router/API
+
+Do not implement future features unless they are explicitly included in the active OpenSpec change.
+
+## Project Rules
+
+Before changing code:
+
+1. Read the active OpenSpec change completely.
+2. Inspect the existing project architecture.
+3. Inspect the existing Prisma schema.
+4. Inspect existing routers/controllers/services/repositories.
+5. Inspect authentication implementation.
+6. Inspect validation and error-handling conventions.
+7. Inspect existing tests.
+8. Reuse existing project patterns instead of introducing a parallel architecture.
+
+Do not rewrite working code unnecessarily.
+
+Do not introduce new frameworks, queues, Redis, microservices, or other infrastructure for this feature.
+
+---
+
+# Current Feature Scope
+
+Implement the passenger ride-request flow:
+
+POST /api/rides/requests
+
+The passenger must be authenticated.
+
+The endpoint creates a new RideRequest using:
+
+- pickupZoneId
+- destinationZoneId
+- seats
+- weatherCondition
+
+The backend must determine:
+
+- authenticated passenger
+- ServiceZone records
+- route validity
+- approximate distance
+- fare
+- initial ride status
+
+The client must NOT control calculated values.
+
+---
+
+# ServiceZone Is the Location Source of Truth
+
+Use the existing Prisma model:
+
+model ServiceZone {
+  id        String  @id @default(uuid()) @db.Uuid
+  name      String  @unique
+  latitude  Decimal @db.Decimal(9, 6)
+  longitude Decimal @db.Decimal(9, 6)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  pickupPools         RidePool[]    @relation("PoolPickupZone")
+  pickupRequests      RideRequest[] @relation("RequestPickupZone")
+  destinationRequests RideRequest[] @relation("RequestDestinationZone")
+}
+
+Do not create another location table.
+
+Do not store arbitrary pickup/destination strings when a ServiceZone
+relationship can be used.
+
+RideRequest should reference ServiceZone using foreign keys such as:
+
+pickupZoneId
+destinationZoneId
+
+Preserve existing relation naming/conventions where possible.
+
+Add appropriate indexes if they do not already exist.
+
+---
+
+# Seed Service Zones
+
+Ensure development/seed data contains predefined Dhaka ServiceZone records.
+
+At minimum:
+
+mirpur-1
+mirpur-2
+mirpur-10
+
+uttara-4
+uttara-5
+uttara-6
+
+Each ServiceZone requires realistic:
+
+- name
+- latitude
+- longitude
+
+Use normalized names consistently.
+
+Do not call an external Maps API.
+
+---
+
+# Supported Route Corridors
+
+For the MVP, route compatibility is deterministic.
+
+Initial corridors:
+
+MIRPUR:
+
+mirpur-1
+   ↓
+mirpur-2
+   ↓
+mirpur-10
+
+UTTARA:
+
+uttara-4
+   ↓
+uttara-5
+   ↓
+uttara-6
+
+Keep route/corridor logic outside the HTTP router.
+
+Create a reusable route/domain service if one does not already exist.
+
+A trip is valid when:
+
+pickupIndex >= 0
+destinationIndex >= 0
+pickupIndex < destinationIndex
+
+Example:
+
+mirpur-1 → mirpur-10
+VALID
+
+mirpur-2 → mirpur-10
+VALID
+
+mirpur-10 → mirpur-2
+INVALID for this directional corridor
+
+mirpur-1 → uttara-6
+INVALID until a corridor supporting that route exists.
+
+Do NOT implement passenger pool matching yet.
+
+---
+
+# Distance Calculation
+
+Use ServiceZone latitude/longitude.
+
+Calculate approximate distance using the Haversine formula.
+
+Example responsibility:
+
+DistanceService.calculate(
+    pickup.latitude,
+    pickup.longitude,
+    destination.latitude,
+    destination.longitude
+)
+
+Return distance in kilometers.
+
+Do not calculate distance inside the controller/router.
+
+Do not use Google Maps.
+
+Document that Haversine distance is an MVP approximation rather than
+actual road distance.
+
+---
+
+# Fare Calculation
+
+Implement fare calculation as reusable business logic.
+
+Conceptual formula:
+
+distanceCharge = distanceKm * perKmRate
+
+subtotal =
+    baseFare
+    + distanceCharge
+
+weatherAdjustment =
+    subtotal * weatherSurchargeRate
+
+estimatedFare =
+    subtotal
+    + weatherAdjustment
+
+Supported MVP weather:
+
+CLEAR      = 0%
+RAIN       = 10%
+HEAVY_RAIN = 20%
+
+Keep constants/configuration centralized.
+
+Do not scatter fare constants through controllers.
+
+Store monetary values as integer poisha/paisa.
+
+Avoid floating-point currency storage.
+
+Fare calculation must be deterministic and independently testable.
+
+---
+
+# Request Contract
+
+POST /api/rides/requests
+
+Example body:
+
+{
+  "pickupZoneId": "<uuid>",
+  "destinationZoneId": "<uuid>",
+  "seats": 1,
+  "weatherCondition": "CLEAR"
+}
+
+Do NOT accept the following as authoritative client values:
+
+passengerId
+pickupLatitude
+pickupLongitude
+destinationLatitude
+destinationLongitude
+distanceKm
+baseFare
+perKmRate
+weatherAdjustment
+estimatedFare
+status
+
+If supplied, ignore/reject them according to existing project validation conventions.
+
+Passenger identity must come from authentication context.
+
+---
+
+# Validation
+
+Validate:
+
+- authenticated passenger exists
+- pickupZoneId is a valid UUID
+- destinationZoneId is a valid UUID
+- pickup ServiceZone exists
+- destination ServiceZone exists
+- pickup != destination
+- seats is an integer
+- seats >= 1
+- seats respects applicable MVP capacity constraints
+- weatherCondition is supported
+- route/corridor is supported
+- pickup appears before destination
+
+Use the project's existing error format.
+
+Do not invent a second error-response convention.
+
+---
+
+# Creation Flow
+
+Implementation should approximately follow:
+
+HTTP Request
+    ↓
+Authentication
+    ↓
+Validation
+    ↓
+RideRequest Controller
+    ↓
+RideRequest Service
+    ↓
+Load pickup ServiceZone
+    ↓
+Load destination ServiceZone
+    ↓
+Route validation
+    ↓
+Distance calculation
+    ↓
+Fare calculation
+    ↓
+Database transaction/create
+    ↓
+RideRequest(status = REQUESTED)
+    ↓
+Response
+
+Keep controllers thin.
+
+Business rules belong in services/domain logic.
+
+---
+
+# Initial Status
+
+Every newly created request starts as:
+
+REQUESTED
+
+The schema may support future statuses:
+
+REQUESTED
+MATCHED
+ACCEPTED
+DRIVER_ARRIVED
+STARTED
+COMPLETED
+CANCELLED
+
+Do NOT implement those transitions in this change.
+
+---
+
+# Response
+
+Return enough information for the frontend to display the request and
+estimated fare.
+
+Conceptually:
+
+{
+  "success": true,
+  "data": {
+    "id": "...",
+    "pickupZone": {
+      "id": "...",
+      "name": "mirpur-1",
+      "latitude": "...",
+      "longitude": "..."
+    },
+    "destinationZone": {
+      "id": "...",
+      "name": "mirpur-10",
+      "latitude": "...",
+      "longitude": "..."
+    },
+    "route": [
+      "mirpur-1",
+      "mirpur-2",
+      "mirpur-10"
+    ],
+    "seats": 1,
+    "status": "REQUESTED",
+    "fare": {
+      "baseFare": 5000,
+      "distanceKm": 6.1,
+      "perKmRate": 1500,
+      "distanceCharge": 9150,
+      "weatherCondition": "CLEAR",
+      "weatherAdjustment": 0,
+      "estimatedFare": 14150,
+      "currency": "BDT",
+      "unit": "POISHA"
+    },
+    "createdAt": "..."
+  }
+}
+
+Adapt naming to existing project conventions rather than blindly
+copying this shape.
+
+---
+
+# Tests
+
+Add meaningful tests for the implementation.
+
+At minimum verify:
+
+1. authenticated passenger can create ride request
+2. status starts as REQUESTED
+3. pickup ServiceZone relation is persisted
+4. destination ServiceZone relation is persisted
+5. unknown pickup zone is rejected
+6. unknown destination zone is rejected
+7. identical pickup/destination is rejected
+8. unsupported corridor is rejected
+9. reverse corridor is rejected
+10. invalid seat count is rejected
+11. unauthenticated request is rejected
+12. Haversine calculation is deterministic
+13. CLEAR fare calculation is correct
+14. RAIN surcharge is correct
+15. HEAVY_RAIN surcharge is correct
+16. passengerId cannot be spoofed
+17. client cannot override calculated fare
+18. client cannot override distance
+19. client cannot override coordinates
+
+Follow existing testing conventions.
+
+Do not chase coverage percentage.
+
+Test the business rules that can break the system.
+
+---
+
+# Explicitly Out of Scope
+
+DO NOT implement:
+
+- driver ride-request listing
+- driver matching
+- passenger selecting a specific driver
+- counter-price negotiation
+- counter-offer tables
+- driver acceptance
+- pool creation
+- pool joining
+- pool matching
+- pool fare splitting
+- driver arrival
+- trip start
+- trip completion
+- payment
+- real weather API
+- Google Maps
+- WebSocket/realtime infrastructure
+
+Do not create placeholder endpoints for these features.
+
+---
+
+# Database Safety
+
+Before modifying Prisma:
+
+1. inspect the current schema
+2. reuse existing models/relations
+3. make the smallest necessary schema change
+4. create a proper migration if required
+5. update seed data if required
+
+Do not delete existing data/models merely to simplify this feature.
+
+Pay attention to:
+
+- foreign keys
+- unique constraints
+- indexes
+- Decimal conversion
+- UUID types
+
+---
+
+# Git / Implementation Discipline
+
+Treat this as one logical feature.
+
+Suggested feature branch:
+
+feature/passenger-ride-request
+
+Use incremental logical commits where appropriate, for example:
+
+feat(zone): seed supported Dhaka service zones
+
+feat(ride): add ride request creation service
+
+feat(fare): add distance and weather fare calculation
+
+feat(ride): add passenger ride request endpoint
+
+test(ride): cover ride request validation and fare calculation
+
+Do not create meaningless commits such as:
+
+update
+changes
+working
+final
+fix stuff
+
+---
+
+# Completion Rule
+
+STOP after the ride-request feature is implemented and tests pass.
+
+Do not begin another router automatically.
+
+At completion report:
+
+## Implementation Summary
+
+### Endpoint
+What endpoint was added.
+
+### Files Changed
+Every important file created/modified.
+
+### Database
+Schema/migration/seed changes.
+
+### Business Logic
+Route, distance and fare calculation implemented.
+
+### Tests
+Tests added and their result.
+
+### Assumptions
+Any assumptions made because requirements were ambiguous.
+
+### Example
+Provide one working request/response example.
+
+### Known Limitations
+Especially Haversine vs actual road distance and predefined corridors.
+
+### Recommended Next Change
+Name the logical next router/change, but DO NOT implement it.
+
+Wait for explicit user approval before continuing.
