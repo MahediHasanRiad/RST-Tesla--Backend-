@@ -20,7 +20,7 @@ async function loginHandler(
 
   if (!body) return;
 
-  const user = await authRepository.findUserByEmail(body.email);
+  const user = await authRepository.findUserForLogin(body.email);
 
   const now = new Date();
   const passwordMatches = user

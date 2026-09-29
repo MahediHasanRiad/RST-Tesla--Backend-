@@ -3,7 +3,6 @@ import { prisma } from "../../../lib/prisma.js";
 import { logger } from "../../../lib/logger.js";
 
 export class AuthRepository {
-  
   private fail(
     operation: string,
     error: unknown,
@@ -21,6 +20,17 @@ export class AuthRepository {
       return await prisma.user.findUnique({ where: { email } });
     } catch (error) {
       this.fail("findUserByEmail", error);
+      throw error;
+    }
+  }
+  async findUserForLogin(email: string) {
+    try {
+      return await prisma.user.findUnique({
+        where: { email },
+        include: { driver: true },
+      });
+    } catch (error) {
+      this.fail("findUserForLogin", error);
       throw error;
     }
   }
@@ -58,7 +68,7 @@ export class AuthRepository {
         });
         if (data.role === "DRIVER")
           await tx.driver.create({ data: { userId: user.id } });
-        
+
         return { user };
       });
     } catch (error) {
@@ -108,7 +118,10 @@ export class AuthRepository {
 
   async updatePassword(userId: string, password: string) {
     try {
-      return await prisma.user.update({ where: { id: userId }, data: { password } });
+      return await prisma.user.update({
+        where: { id: userId },
+        data: { password },
+      });
     } catch (error) {
       this.fail("updatePassword", error, { actorId: userId });
       throw error;
@@ -147,6 +160,5 @@ export class AuthRepository {
       throw error;
     }
   }
-
 }
 export const authRepository = new AuthRepository();

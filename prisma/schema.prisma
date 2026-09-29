@@ -85,7 +85,6 @@ model AuthRateLimit {
 
 model Driver {
   id              String   @id @default(uuid()) @db.Uuid
-  // Kept after a driver deletes their account so completed pool history survives.
   userId          String?  @unique @db.Uuid
   user            User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
   experienceYears Int?
