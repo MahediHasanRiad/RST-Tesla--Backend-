@@ -16,6 +16,16 @@ Alternatively, from the repository root, run `docker compose up --build` to run 
 
 Redis is for cacheable reads only. Booking capacity, memberships, fares, and lifecycle state must continue to use PostgreSQL transactions.
 
+## Driver vehicle presence
+
+After a driver signs in, the client opens the Socket.IO connection using the access token in the handshake auth payload:
+
+```ts
+io("http://localhost:3001", { auth: { accessToken } });
+```
+
+Only authenticated drivers with an owned vehicle are accepted. An accepted connection marks that vehicle `ONLINE`. Clients can emit `driver:offline` or `driver:logout` with an optional acknowledgement callback; both mark the owned vehicle `OFFLINE`, and logout closes the socket. An unexpected disconnect also marks the vehicle offline after the driver's final active presence socket disconnects. This is a real-time presence contract; it does not add an HTTP logout endpoint or change ride, pool, fare, or vehicle CRUD behavior.
+
 ## Ride requests and service zones
 
 Supported pickup and destination locations are database-backed `ServiceZone` records. Seed the predefined Dhaka zones with:

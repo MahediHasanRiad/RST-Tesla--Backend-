@@ -87,6 +87,7 @@ model Driver {
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
   vehicle         Vehicle?
+  
 }
 
 model Vehicle {

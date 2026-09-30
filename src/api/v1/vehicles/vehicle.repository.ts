@@ -1,4 +1,4 @@
-import { PoolStatus } from "../../../generated/prisma/client.js";
+import { PoolStatus, VehicleAvailability } from "../../../generated/prisma/client.js";
 import { logger } from "../../../lib/logger.js";
 import { prisma } from "../../../lib/prisma.js";
 import type {
@@ -46,6 +46,31 @@ export class VehicleRepository {
       return await prisma.vehicle.findUnique({ where: { driverId } });
     } catch (error) {
       this.fail("findByDriverId", error, driverId);
+      throw error;
+    }
+  }
+
+  async setAvailabilityForDriver(
+    driverId: string,
+    availability: VehicleAvailability,
+  ) {
+    try {
+      const vehicle = await prisma.vehicle.findUnique({
+        where: { driverId },
+        select: { id: true },
+      });
+      if (!vehicle) return { kind: "missing" as const };
+
+      return {
+        kind: "updated" as const,
+        vehicle: await prisma.vehicle.update({
+          where: { id: vehicle.id },
+          data: { availability },
+          select: { id: true, availability: true },
+        }),
+      };
+    } catch (error) {
+      this.fail("setAvailabilityForDriver", error, driverId);
       throw error;
     }
   }
