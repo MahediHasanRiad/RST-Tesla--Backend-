@@ -24,16 +24,20 @@ Supported pickup and destination locations are database-backed `ServiceZone` rec
 npm run prisma:seed
 ```
 
-Clients can discover zone IDs through `GET /api/v1/service-zones?limit=20&cursor=<opaque-cursor>`. The first request omits `cursor`; subsequent responses provide `nextCursor` while `hasNextPage` is true. Authenticated passengers create a request with `POST /api/v1/ride-requests`:
+Clients can discover zone IDs through `GET /api/v1/service-zones?limit=20&cursor=<opaque-cursor>`. The first request omits `cursor`; subsequent responses provide `nextCursor` while `hasNextPage` is true. Authenticated passengers create a fresh request with `POST /api/v1/ride-requests/fresh`:
 
 ```json
 {
   "pickupZoneId": "uuid-of-mirpur-1",
   "destinationZoneId": "uuid-of-mirpur-10",
   "seats": 1,
+  "enableRidePool": true,
+  "vehicleId": "selected-vehicle-uuid",
   "weatherCondition": "CLEAR"
 }
 ```
+
+Before creating the request, passengers search available vehicles with `GET /api/v1/ride-requests/available-vehicles?pickupZoneId=<uuid>&destinationZoneId=<uuid>&seats=1`. The endpoint validates the requested route, then lists vehicles directly from PostgreSQL where `availability` is `ONLINE`; it returns the vehicle capacity and available seats. No `RidePool` is required for this discovery step. The passenger sends the selected `vehicleId` to the fresh request endpoint. With `enableRidePool: true`, the request joins the selected vehicle's existing matching `OPEN` pool atomically; with `false`, it creates a private `CLOSE` pool. Vehicle capacity and all seat reservations are resolved and enforced by PostgreSQL.
 
 The server validates the directional Mirpur/Uttara corridor, reads coordinates from PostgreSQL, calculates Haversine distance, and returns a fare using a 5,000 paisa base plus 1,000 paisa per kilometer (10 BDT/km). `CLEAR` is the default weather condition; `RAIN` and `HEAVY_RAIN` apply server-controlled surcharges. Money is stored as integer paisa.
 

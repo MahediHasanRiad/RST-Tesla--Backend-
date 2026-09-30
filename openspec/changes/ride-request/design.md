@@ -11,7 +11,7 @@ See `proposal.md` and the two capability specs. The Prisma schema already contai
 - Make PostgreSQL ServiceZone records the only supported location source.
 - Seed the requested zones idempotently and resolve corridor order from zone records.
 - Add authenticated passenger ride-request creation with authoritative foreign keys, Haversine distance, and a testable integer-paisa fare breakdown.
-- Preserve the existing lifecycle by creating requests as `REQUESTED` without matching or pool membership.
+- Preserve the existing lifecycle by creating fresh requests without passenger matching or automatic joining.
 - Provide authenticated driver and passenger read projections for active/completed ride requests.
 - Use offset pagination for completed ride history and Redis cache-aside for all new list reads.
 - Let drivers open directional pools using their own online vehicle.
@@ -22,7 +22,7 @@ See `proposal.md` and the two capability specs. The Prisma schema already contai
 
 - Pool joining, matching, seat reservation, driver actions, live road routing, Google Maps, geocoding, or location search.
 - Mutating driver lifecycle actions such as arrive, start, or complete.
-- Automatic matching without an explicit passenger pool-join action.
+- Automatic passenger matching or joining without an explicit passenger pool-join action.
 - Storing a second location snapshot on RideRequest.
 - Accepting client coordinates, names, passenger IDs, fares, or distances.
 
@@ -50,17 +50,21 @@ The controller validates the request and authenticated passenger role, the repos
 
 ### Use the established API shape
 
-Register `GET /api/v1/service-zones` for read-only ServiceZone discovery and `POST /api/v1/ride-requests` for authenticated passenger creation beneath the app's existing `/api/v1` mount; no unversioned compatibility alias is included. Accept optional weather with `CLEAR` as the default. Return `sendSuccess` with the request, populated zones, and a fare object; map missing zones, unsupported corridors, same-zone requests, validation failures, and unauthenticated access to the project's standard error handling.
+Register `GET /api/v1/service-zones` for read-only ServiceZone discovery, `GET /api/v1/ride-requests/available-vehicles` for route vehicle discovery, and `POST /api/v1/ride-requests/fresh` for authenticated passenger creation beneath the app's existing `/api/v1` mount; no unversioned compatibility alias is included. Accept optional weather with `CLEAR` as the default. Return `sendSuccess` with the request, selected vehicle/pool, populated zones, and fare object; map missing vehicles, missing zones, unsupported corridors, same-zone requests, validation failures, and unauthenticated access to the project's standard error handling.
 
 ### Authenticated ride-history projections
 
 Register `GET /api/v1/ride-requests/driver` for requests assigned to pools owned by the authenticated driver, `GET /api/v1/ride-requests/driver/completed` for that driver's completed requests, and `GET /api/v1/ride-requests/completed` for the authenticated passenger's completed requests. The two completed endpoints accept `page` (default `1`) and `limit` (default `20`, maximum `100`) and return `items`, `page`, `limit`, `totalItems`, `totalPages`, and `hasNextPage`. The driver all-requests endpoint uses the existing cursor pagination contract. Each list controller checks Redis first using an actor- and filter-isolated key, loads PostgreSQL on a miss, caches for a bounded TTL, and still succeeds when Redis is unavailable.
 
+### Vehicle discovery and selected fresh ride request
+
+Register `GET /api/v1/ride-requests/available-vehicles` for authenticated passengers with pickupZoneId, destinationZoneId, and seats. It returns online vehicles serving the same directional route, their pool IDs, capacity, reserved seats, and available seats. Register `POST /api/v1/ride-requests/fresh` with required pickupZoneId, destinationZoneId, vehicleId, seats, optional weatherCondition, and optional `enableRidePool` defaulting to `false`. The backend validates the selected vehicle and route again inside PostgreSQL. With pooling enabled, it locks and joins the selected matching `OPEN` pool; without pooling, it creates a private `CLOSE` pool for the selected vehicle only when that vehicle has no conflicting active pool. In both cases, the request and pool mutation reserve seats atomically. PostgreSQL remains authoritative for vehicle availability and capacity.
+
 ### Driver pool opening and passenger pool joining
 
 Register `POST /api/v1/ride-requests/open-pool` for authenticated drivers. The controller derives the driver's vehicle from `request.user`, validates pickup and destination ServiceZone IDs and the directional corridor, and creates an `OPEN` RidePool with `reservedSeats = 0` and both zone foreign keys. Only one active pool per vehicle is allowed.
 
-Extend passenger ride creation with `enableRidePool`, defaulting to `false`, and persist the opt-in on RideRequest. Register `POST /api/v1/ride-requests/:rideRequestId/join-pool` with `{ poolId }`; the backend derives the passenger and requested seat count from the RideRequest, validates pool/request route compatibility and opt-in, locks the pool row, re-reads capacity, increments `reservedSeats`, assigns `poolId`, changes the request to `PENDING_DRIVER_ACCEPTANCE`, and records status history in one PostgreSQL transaction. Redis is not used for this decision.
+Extend passenger fresh-ride creation with `enableRidePool`, defaulting to `false`, and persist the opt-in on RideRequest. Register `POST /api/v1/ride-requests/:rideRequestId/join-pool` with `{ poolId }` for later explicit shared-pool joining; the backend derives the passenger and requested seat count from the RideRequest, validates pool/request route compatibility and opt-in, locks the pool row, re-reads vehicle capacity, increments `reservedSeats`, assigns the joining request to the pool, changes the request to `PENDING_DRIVER_ACCEPTANCE`, and records status history in one PostgreSQL transaction. Redis is not used for this decision.
 
 ### Acceptance and ephemeral fare negotiation
 

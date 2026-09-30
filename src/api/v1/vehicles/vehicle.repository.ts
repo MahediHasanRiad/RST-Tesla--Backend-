@@ -8,10 +8,6 @@ import type {
 
 const activePoolStatuses: PoolStatus[] = [
   "OPEN",
-  "PENDING_DRIVER_ACCEPTANCE",
-  "MATCHED",
-  "DRIVER_ARRIVED",
-  "STARTED",
 ];
 
 export class VehicleRepository {

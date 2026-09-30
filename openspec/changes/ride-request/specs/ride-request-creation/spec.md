@@ -8,12 +8,12 @@ Allows authenticated passengers to create ride requests from supported ServiceZo
 
 ### Requirement: Authenticated passengers can create ride requests by ServiceZone ID
 
-The system MUST expose `POST /api/v1/ride-requests` for authenticated passengers. The request MUST accept pickupZoneId, destinationZoneId, seats, and an optional weather condition defaulting to `CLEAR`, and MUST persist pickupZoneId and destinationZoneId as RideRequest foreign keys.
+The system MUST expose `GET /api/v1/ride-requests/available-vehicles` for authenticated passengers to search by pickupZoneId, destinationZoneId, and seats. It MUST expose `POST /api/v1/ride-requests/fresh` for authenticated passengers. The fresh request MUST accept pickupZoneId, destinationZoneId, a required vehicleId selected from vehicle discovery, seats, optional `enableRidePool` defaulting to `false`, and an optional weather condition defaulting to `CLEAR`. It MUST persist pickupZoneId and destinationZoneId as RideRequest foreign keys and reserve the selected vehicle/pool atomically.
 
 #### Scenario: Passenger creates a valid request
 
 - **WHEN** an authenticated passenger submits valid distinct ServiceZone IDs, a valid positive seat count, and a supported forward corridor
-- **THEN** the system creates a RideRequest with status `REQUESTED`, the authenticated passenger as owner, both ServiceZone foreign keys, and a calculated fare
+- **THEN** the system creates a RideRequest with the authenticated passenger as owner, both ServiceZone foreign keys, the selected vehicle, and a calculated fare, reserving capacity in an `OPEN` shared pool or creating a `CLOSE` private pool
 
 #### Scenario: Unauthenticated creation is rejected
 
@@ -73,6 +73,34 @@ The system MUST calculate approximate straight-line distance using the Haversine
 - **WHEN** the ride-request location/fare capability is documented
 - **THEN** the README states that Haversine distance is an MVP straight-line approximation and is not road distance
 
+### Requirement: Passengers can discover vehicles before booking
+
+The vehicle-discovery endpoint MUST validate the pickup and destination ServiceZones and directional corridor, return only online vehicles available for the requested route, and include vehicleId, vehicle details, poolId when applicable, capacity, reservedSeats, and availableSeats. It MUST exclude closed pools, incompatible routes, and vehicles without enough capacity for the requested seats.
+
+#### Scenario: Passenger searches available route vehicles
+
+- **WHEN** an authenticated passenger searches with pickupZoneId, destinationZoneId, and seats
+- **THEN** the API returns the matching vehicle IDs and calculated available seats for selection
+
+### Requirement: Fresh requests reserve a selected vehicle and pool atomically
+
+For every fresh ride request, the system MUST use the selected vehicleId and pickup/destination zones in one PostgreSQL transaction. When `enableRidePool` is `true`, it MUST reserve seats in a matching `OPEN` pool; when false, it MUST create a `CLOSE` private pool for the selected vehicle. RidePool.vehicleId remains required. Available seats MUST equal `vehicle.capacity - reservedSeats`, and the capacity check MUST be repeated inside the transaction.
+
+#### Scenario: Pooling is enabled for a fresh request
+
+- **WHEN** a passenger selects a discovered vehicle and creates a fresh request with `enableRidePool: true`
+- **THEN** the backend reserves the requested seats in that vehicle's matching open route pool
+
+#### Scenario: Private fresh request creates a closed pool
+
+- **WHEN** a passenger selects an available vehicle and creates a fresh request with `enableRidePool: false` or omits the flag
+- **THEN** the backend creates a `CLOSE` private pool for that vehicle and excludes it from other passengers' available-pool results
+
+#### Scenario: Other passengers discover an open route pool
+
+- **WHEN** another passenger requests available pools for the same pickup and destination route
+- **THEN** the API returns matching `OPEN` pools with vehicle IDs, `reservedSeats`, and `availableSeats` derived from the assigned vehicle capacity, subject to cursor pagination and capacity filtering
+
 ### Requirement: Ride-request persistence and response preserve location relationships
 
 The system MUST persist only the ServiceZone foreign keys on RideRequest for pickup and destination, with appropriate indexes, and MUST not duplicate zone name or coordinates without a documented snapshot requirement. A successful response MUST include the resolved zone details and request status.
@@ -82,10 +110,10 @@ The system MUST persist only the ServiceZone foreign keys on RideRequest for pic
 - **WHEN** a valid ride request is created
 - **THEN** its pickupZoneId and destinationZoneId reference the selected ServiceZone records and the response includes their IDs, normalized names, latitude, and longitude
 
-#### Scenario: No pool join occurs during creation
+#### Scenario: No passenger join occurs during creation
 
 - **WHEN** a valid ride request is created
-- **THEN** the request remains `REQUESTED` and no pool membership or matching decision is created by this capability
+- **THEN** the request is linked only to the newly created first-passenger pool and no other passenger is joined or matched automatically
 
 ### Requirement: Drivers can list their assigned ride requests
 
@@ -145,7 +173,7 @@ Ride-request creation MUST accept `enableRidePool`, defaulting to `false`, and p
 #### Scenario: Passenger opts into pooling
 
 - **WHEN** an authenticated passenger creates a request with `enableRidePool: true`
-- **THEN** the request is persisted as pool-enabled and remains unassigned until the passenger selects a compatible pool
+- **THEN** the request is persisted as pool-enabled and linked to the newly created open route pool; later passengers must explicitly select that pool to join it
 
 #### Scenario: Passenger joins a compatible pool
 

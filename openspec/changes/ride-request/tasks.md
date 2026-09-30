@@ -17,9 +17,9 @@
 ## 3. Ride-request API
 
 - [x] 3.1 Add the ride-request repository operation to resolve both ServiceZones and create a `REQUESTED` RideRequest with authenticated passenger ownership, foreign keys, and calculated fare; verify missing zones and persistence behavior.
-- [x] 3.2 Add the authenticated passenger create controller and `POST /api/v1/ride-requests` route using existing auth, validation, repository, async-handler, logger, error, and response conventions; verify unauthenticated and non-passenger access is rejected.
+- [x] 3.2 Add the authenticated passenger create controller and existing ride-request route using existing auth, validation, repository, async-handler, logger, error, and response conventions; verify unauthenticated and non-passenger access is rejected.
 - [x] 3.3 Return populated pickupZone and destinationZone details plus the fare breakdown; verify a valid Mirpur request returns the expected request status and location relationships.
-- [x] 3.4 Ensure creation performs no pool matching, membership creation, or capacity decision; verify the new request remains `REQUESTED` with no pool assignment.
+- [x] 3.4 Ensure creation performs no passenger joining or matching decision beyond creating the request's own route pool; verify no other passenger is assigned automatically.
 
 ## 4. Focused tests and documentation
 
@@ -56,3 +56,12 @@
 - [x] 7.3 Store counter fares in Redis with a bounded TTL, keep status unchanged while negotiating, and clean up after acceptance without making Redis authoritative.
 - [x] 7.4 Register the accept and counter-fare routes, add focused tests, and document the request contracts.
 - [x] 7.5 Run focused tests, `npm run check`, `npm run build`, and inspect the final diff.
+
+## 8. Vehicle discovery and selected fresh ride booking
+
+- [x] 8.1 Add authenticated `GET /api/v1/ride-requests/available-vehicles` with strict route/seats validation and vehicle/pool projections.
+- [x] 8.2 Update `POST /api/v1/ride-requests/fresh` so vehicleId is required and selected vehicle ownership/capacity is validated server-side.
+- [x] 8.3 Reconcile RidePool.vehicleId back to required and add the migration/client generation needed to remove unassigned pools.
+- [x] 8.4 Implement transactional shared-pool reservation for `enableRidePool: true` and private `CLOSE` pool creation for false/omitted pooling.
+- [x] 8.5 Add tests for vehicle search, selected vehicle IDs, route filtering, available seats, shared reservation, private pool isolation, and capacity conflicts.
+- [x] 8.6 Update README/API contracts and run focused tests, `npm run check`, `npm run build`, and inspect the final diff.

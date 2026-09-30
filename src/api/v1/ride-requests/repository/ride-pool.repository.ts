@@ -3,13 +3,7 @@ import { prisma } from "../../../../lib/prisma.js";
 import { OpenRidePoolInput } from "../validation/ride-pool.validation.js";
 
 
-const activePoolStatuses = [
-  "OPEN",
-  "PENDING_DRIVER_ACCEPTANCE",
-  "MATCHED",
-  "DRIVER_ARRIVED",
-  "STARTED",
-] as const;
+const activePoolStatuses = ["OPEN"] as const;
 
 export class RidePoolRepository {
   private fail(operation: string, error: unknown, actorId?: string) {
@@ -150,6 +144,7 @@ export class RidePoolRepository {
           if (!pool) return { kind: "pool_not_found" as const };
           if (
             pool.status !== "OPEN" ||
+            !pool.vehicle ||
             pool.vehicle.availability !== "ONLINE"
           ) {
             return { kind: "pool_closed" as const };

@@ -1,0 +1,2 @@
+ALTER TABLE "RidePool"
+ALTER COLUMN "vehicleId" DROP NOT NULL;

@@ -19,14 +19,8 @@ enum VehicleAvailability {
 }
 
 enum PoolStatus {
-  PENDING
+  CLOSE
   OPEN
-  PENDING_DRIVER_ACCEPTANCE
-  MATCHED
-  DRIVER_ARRIVED
-  STARTED
-  COMPLETED
-  CANCELLED
 }
 
 enum RideRequestStatus {
@@ -130,7 +124,7 @@ model RidePool {
   vehicleId         String        @db.Uuid
   pickupZoneId      String        @db.Uuid
   destinationZoneId String        @db.Uuid
-  status            PoolStatus    @default(PENDING)
+  status            PoolStatus    @default(CLOSE)
   reservedSeats     Int           @default(0)
   vehicle           Vehicle       @relation(fields: [vehicleId], references: [id])
   pickupZone        ServiceZone   @relation("PoolPickupZone", fields: [pickupZoneId], references: [id])

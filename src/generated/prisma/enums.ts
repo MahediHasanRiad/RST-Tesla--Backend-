@@ -27,14 +27,8 @@ export type VehicleAvailability = (typeof VehicleAvailability)[keyof typeof Vehi
 
 
 export const PoolStatus = {
-  PENDING: 'PENDING',
-  OPEN: 'OPEN',
-  PENDING_DRIVER_ACCEPTANCE: 'PENDING_DRIVER_ACCEPTANCE',
-  MATCHED: 'MATCHED',
-  DRIVER_ARRIVED: 'DRIVER_ARRIVED',
-  STARTED: 'STARTED',
-  COMPLETED: 'COMPLETED',
-  CANCELLED: 'CANCELLED'
+  CLOSE: 'CLOSE',
+  OPEN: 'OPEN'
 } as const
 
 export type PoolStatus = (typeof PoolStatus)[keyof typeof PoolStatus]

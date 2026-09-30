@@ -1,7 +1,10 @@
 import { logger } from "../../../../lib/logger.js";
 import { prisma } from "../../../../lib/prisma.js";
 import { CursorPosition } from "../../../../shared/pagination/cursor.js";
-import { CreateRideRequestInput } from "../validation/ride-request.validation.js";
+import {
+  CreateRideRequestInput,
+  FreshRideRequestInput,
+} from "../validation/ride-request.validation.js";
 
 export class RideRequestRepository {
   private fail(operation: string, error: unknown, actorId?: string) {
@@ -52,6 +55,148 @@ export class RideRequestRepository {
       });
     } catch (error) {
       this.fail("create", error, passengerId);
+      throw error;
+    }
+  }
+
+  async createFresh(
+    passengerId: string,
+    input: FreshRideRequestInput,
+    farePaisa: number,
+  ) {
+    try {
+      return await prisma.$transaction(async (transaction) => {
+        await transaction.$queryRaw`
+          SELECT "id" FROM "Vehicle" WHERE "id" = ${input.vehicleId} FOR UPDATE
+        `;
+        const vehicle = await transaction.vehicle.findUnique({
+          where: { id: input.vehicleId },
+          select: {
+            id: true,
+            name: true,
+            capacity: true,
+            availability: true,
+          },
+        });
+
+        if (!vehicle) {
+          return { kind: "vehicle_not_found" as const };
+        }
+        if (input.seats > vehicle.capacity) {
+          return { kind: "capacity_conflict" as const };
+        }
+
+        let pool;
+        if (input.enableRidePool) {
+          const existingPool = await transaction.ridePool.findFirst({
+            where: {
+              vehicleId: input.vehicleId,
+              pickupZoneId: input.pickupZoneId,
+              destinationZoneId: input.destinationZoneId,
+              status: "OPEN",
+            },
+            orderBy: [{ createdAt: "asc" }, { id: "asc" }],
+            select: { id: true },
+          });
+
+          if (!existingPool) return { kind: "pool_not_found" as const };
+          await transaction.$queryRaw`
+            SELECT "id" FROM "RidePool" WHERE "id" = ${existingPool.id} FOR UPDATE
+          `;
+
+          const currentPool = await transaction.ridePool.findUnique({
+            where: { id: existingPool.id },
+            select: { id: true, status: true, reservedSeats: true },
+          });
+          if (!currentPool || currentPool.status !== "OPEN") {
+            return { kind: "pool_not_found" as const };
+          }
+          if (currentPool.reservedSeats + input.seats > vehicle.capacity) {
+            return { kind: "capacity_conflict" as const };
+          }
+
+          pool = await transaction.ridePool.update({
+            where: { id: currentPool.id },
+            data: { reservedSeats: { increment: input.seats } },
+            select: {
+              id: true,
+              status: true,
+              reservedSeats: true,
+              pickupZone: {
+                select: { id: true, name: true, latitude: true, longitude: true },
+              },
+              destinationZone: {
+                select: { id: true, name: true, latitude: true, longitude: true },
+              },
+              vehicle: {
+                select: { id: true, name: true, capacity: true, availability: true },
+              },
+            },
+          });
+        } else {
+          const conflictingPool = await transaction.ridePool.findFirst({
+            where: {
+              vehicleId: input.vehicleId,
+              status: "OPEN",
+            },
+            select: { id: true },
+          });
+          if (conflictingPool) return { kind: "pool_conflict" as const };
+
+          pool = await transaction.ridePool.create({
+            data: {
+              vehicleId: input.vehicleId,
+              pickupZoneId: input.pickupZoneId,
+              destinationZoneId: input.destinationZoneId,
+              status: "CLOSE",
+              reservedSeats: input.seats,
+            },
+            select: {
+            id: true,
+            status: true,
+            reservedSeats: true,
+            pickupZone: {
+              select: { id: true, name: true, latitude: true, longitude: true },
+            },
+            destinationZone: {
+              select: { id: true, name: true, latitude: true, longitude: true },
+            },
+            vehicle: {
+              select: {
+                id: true,
+                name: true,
+                capacity: true,
+                availability: true,
+              },
+            },
+            },
+          });
+        }
+
+        const request = await transaction.rideRequest.create({
+          data: {
+            poolId: pool.id,
+            passengerId,
+            pickupZoneId: input.pickupZoneId,
+            destinationZoneId: input.destinationZoneId,
+            requestedSeats: input.seats,
+            enableRidePool: input.enableRidePool,
+            farePaisa,
+          },
+          include: {
+            pickupZone: {
+              select: { id: true, name: true, latitude: true, longitude: true },
+            },
+            destinationZone: {
+              select: { id: true, name: true, latitude: true, longitude: true },
+            },
+          },
+        });
+
+        return { kind: "created" as const, pool, request };
+      }, { isolationLevel: "Serializable" });
+    } catch (error) {
+      this.fail("createFresh", error, passengerId);
       throw error;
     }
   }
@@ -152,6 +297,26 @@ export class RideRequestRepository {
     }
   }
 
+  async findAvailableVehiclesByRoute() {
+    try {
+      return await prisma.vehicle.findMany({
+        where: { availability: "ONLINE" },
+        orderBy: [{ createdAt: "asc" }, { id: "asc" }],
+        select: {
+          id: true,
+          name: true,
+          capacity: true,
+          availability: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+      });
+    } catch (error) {
+      this.fail("findAvailableVehiclesByRoute", error);
+      throw error;
+    }
+  }
+
   async findByIdForPassenger(rideRequestId: string, passengerId: string) {
     try {
       return await prisma.rideRequest.findFirst({
@@ -243,6 +408,7 @@ export class RideRequestRepository {
           });
 
           if (!pool) return { kind: "pool_not_found" as const };
+          if (!pool.vehicle) return { kind: "capacity_conflict" as const };
           if (
             pool.reservedSeats + existing.requestedSeats >
             pool.vehicle.capacity

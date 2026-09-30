@@ -34,7 +34,7 @@ export async function counterFareRideRequestController(
   }
 
   const isPassenger = context.passengerId === request.user.id;
-  const isDriver = context.pool?.vehicle.driver.userId === request.user.id;
+  const isDriver = context.pool?.vehicle?.driver.userId === request.user.id;
   if (!isPassenger && !isDriver) throw new ApiError(403, "forbidden");
 
   const cacheKey = counterFareRedisKey(rideRequestId);

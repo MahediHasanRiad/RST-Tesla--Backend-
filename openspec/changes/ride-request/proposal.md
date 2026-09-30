@@ -22,6 +22,8 @@ Ride requests need a single authoritative location model so supported pickup and
 - Allow passengers to opt into pooling when creating a ride request and join a selected compatible pool.
 - Enforce pool capacity and request assignment in a PostgreSQL transaction.
 - Add driver acceptance and Redis-backed passenger/driver counter-fare routes; persist the negotiated fare only when the driver accepts.
+- Add a vehicle-discovery route so passengers can search available vehicles for a pickup/destination route before creating a fresh request.
+- Add a separate fresh-ride route that requires the selected vehicleId and creates or joins the route pool atomically. Pool-enabled requests join an existing matching `OPEN` pool; private requests use a `CLOSE` pool and cannot be joined by other passengers.
 
 ## Capabilities
 
@@ -38,8 +40,9 @@ Ride requests need a single authoritative location model so supported pickup and
 
 - Affected persistence: seed data and the existing `ServiceZone`/`RideRequest` foreign-key model, including pickup and destination indexes if missing.
 - Affected persistence: add `RidePool.destinationZoneId` and a passenger pool opt-in field on `RideRequest`.
+- Affected persistence: keep RidePool.vehicleId required because every bookable fresh request selects a concrete vehicle.
 - Affected API: new versioned ride-request creation and authenticated ride-history/list routes, validation, controllers, repositories, distance/fare helpers, and response projections.
-- Affected code: new ride-request and ride-pool feature files and shared/domain calculation utilities; no automatic matching implementation.
+- Affected code: vehicle discovery, selected-vehicle fresh request/pool transaction, and route-specific available-seat discovery; no automatic passenger joining beyond the selected pool reservation.
 - Affected documentation: README limitation and API/location behavior.
 - No paid routing dependency; coordinates in PostgreSQL remain the source of truth.
 - Counter fares are ephemeral Redis data until acceptance; PostgreSQL remains authoritative for accepted fare and lifecycle state.

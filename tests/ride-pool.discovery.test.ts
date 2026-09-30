@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { listAvailableRidePoolsController } from "../src/api/v1/ride-requests/controllers/list-available-ride-pools.controller.js";
-import { rideRequestRepository } from "../src/api/v1/ride-requests/ride-request.repository.js";
+import { rideRequestRepository } from "../src/api/v1/ride-requests/repository/ride-request.repository.js";
 import { redis } from "../src/lib/redis.js";
 
 type RedisStub = {
