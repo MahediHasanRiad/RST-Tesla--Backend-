@@ -8,6 +8,17 @@ export const redis = new Redis(env.REDIS_URL, {
   maxRetriesPerRequest: 1
 });
 
+export function createRedisClient() {
+  const client = new Redis(env.REDIS_URL, {
+    lazyConnect: true,
+    maxRetriesPerRequest: 1,
+  });
+  client.on("error", (error) => {
+    logger.warn("Redis connection error", { error });
+  });
+  return client;
+}
+
 redis.on("error", (error) => {
   logger.warn("Redis connection error", { error });
 });

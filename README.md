@@ -16,6 +16,12 @@ Alternatively, from the repository root, run `docker compose up --build` to run 
 
 Redis is for cacheable reads only. Booking capacity, memberships, fares, and lifecycle state must continue to use PostgreSQL transactions.
 
+## Clustered runtime
+
+The API starts one Node.js primary process and `max(1, available CPU cores - 1)` workers. Set `CLUSTER_WORKERS` to override the worker count in constrained environments. The primary owns worker lifecycle; workers initialize Express, PostgreSQL, Redis, and Socket.IO exactly once.
+
+Socket.IO uses sticky-session routing so polling handshakes and upgraded connections remain on the owning worker. Dedicated Redis publisher/subscriber connections use the existing `REDIS_URL` for cross-worker Socket.IO events. Redis is infrastructure only: if pub/sub is unavailable, the worker logs the failure and continues with local-worker Socket.IO events; PostgreSQL remains authoritative for vehicle availability, rides, pools, capacity, fares, and authorization. No REST routes are added or changed by clustered startup.
+
 ## Driver vehicle presence
 
 After a driver signs in, the client opens the Socket.IO connection using the access token in the handshake auth payload:

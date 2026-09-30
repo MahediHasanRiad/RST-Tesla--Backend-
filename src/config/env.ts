@@ -10,6 +10,7 @@ const tokenTtl = (fallback: string) =>
 const environment = z.object({
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
   PORT: z.coerce.number().int().positive().default(3001),
+  CLUSTER_WORKERS: z.coerce.number().int().positive().optional(),
   DATABASE_URL: z.string().url(),
   DIRECT_URL: z.string().url().optional(),
   REDIS_URL: z.string().url(),

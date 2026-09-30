@@ -1,34 +1,60 @@
+import cluster from "node:cluster";
 import { createServer } from "node:http";
-import { Server as SocketIOServer } from "socket.io";
-import { buildApp } from "./app.js";
+import { setupMaster } from "@socket.io/sticky";
 import { env } from "./config/env.js";
-import { disconnectDatabase } from "./lib/prisma.js";
-import { disconnectRedis } from "./lib/redis.js";
 import { logger } from "./lib/logger.js";
-import { attachDriverPresence } from "./realtime/driver-presence.js";
+import { getClusterWorkerCount } from "./runtime/cluster-config.js";
 
-const app = buildApp();
-const httpServer = createServer(app);
+const workerCount = getClusterWorkerCount(env.CLUSTER_WORKERS);
+let shuttingDown = false;
 
-const socketServer = new SocketIOServer(httpServer, {
-  cors: { origin: false },
-});
-attachDriverPresence(socketServer);
+// setup node cluster
+if (cluster.isPrimary) {
+  const httpServer = createServer();
+  setupMaster(httpServer, { loadBalancingMethod: "least-connection" });
+  httpServer.listen(env.PORT, () => {
+    logger.info("API primary listening", {
+      port: env.PORT,
+      workerCount,
+      processId: process.pid,
+    });
+  });
 
-const shutdown = async (signal: string) => {
-  logger.info("Shutting down API", { signal });
-  httpServer.close();
-  await Promise.all([
-    socketServer.close(),
-    disconnectDatabase(),
-    disconnectRedis(),
-  ]);
-  process.exit(0);
-};
+  for (let index = 0; index < workerCount - 1; index += 1) cluster.fork();
 
-process.once("SIGINT", () => void shutdown("SIGINT"));
-process.once("SIGTERM", () => void shutdown("SIGTERM"));
+  cluster.on("exit", (worker, code, signal) => {
+    logger.warn("API worker exited", {
+      workerId: worker.id,
+      processId: worker.process.pid,
+      code,
+      signal,
+      restarting: !shuttingDown,
+    });
+    if (!shuttingDown) cluster.fork();
+  });
 
-httpServer.listen(env.PORT, () => {
-  console.log(`Server on port ${env.PORT}`)
-});
+  const shutdown = (signal: string) => {
+    if (shuttingDown) return;
+    shuttingDown = true;
+    logger.info("Shutting down API primary process", { signal });
+    httpServer.close();
+    for (const worker of Object.values(cluster.workers ?? {})) worker?.disconnect();
+    setTimeout(() => process.exit(0), 10_000).unref();
+  };
+
+  process.once("SIGINT", () => shutdown("SIGINT"));
+  process.once("SIGTERM", () => shutdown("SIGTERM"));
+
+} else {
+  // call redis adapter
+  void import("./worker-server.js")
+    .then(({ startWorker }) => startWorker())
+    .catch((error) => {
+      logger.error("API worker failed to start", {
+        processId: process.pid,
+        errorName: error instanceof Error ? error.name : "UnknownError",
+        errorMessage: error instanceof Error ? error.message : String(error),
+      });
+      process.exit(1);
+    });
+}
