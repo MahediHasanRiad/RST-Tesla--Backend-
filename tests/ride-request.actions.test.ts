@@ -11,6 +11,11 @@ const passenger = {
   email: "passenger@example.com",
   role: "PASSENGER" as const,
 };
+const driver = {
+  id: "driver-1",
+  email: "driver@example.com",
+  role: "DRIVER" as const,
+};
 
 function responseCollector() {
   let body: unknown;
@@ -33,6 +38,7 @@ async function withRepositoryStubs(
     findByIdForPassenger: (...args: unknown[]) => Promise<unknown>;
     findStatusHistoryForPassenger: (...args: unknown[]) => Promise<unknown>;
     cancelForPassenger: (...args: unknown[]) => Promise<unknown>;
+    cancelForDriver: (...args: unknown[]) => Promise<unknown>;
   }>,
   callback: () => Promise<void>,
 ) {
@@ -51,12 +57,47 @@ async function withRepositoryStubs(
   }
 }
 
-function request() {
+function request(user = passenger) {
   return {
-    user: passenger,
+    user,
     params: { rideRequestId },
   } as never;
 }
+
+test("driver uses the existing cancel flow to reject a pending ride", async () => {
+  const collected = responseCollector();
+  await withRepositoryStubs(
+    {
+      cancelForDriver: async (id, driverId) => {
+        assert.equal(id, rideRequestId);
+        assert.equal(driverId, driver.id);
+        return {
+          kind: "cancelled",
+          request: {
+            id: rideRequestId,
+            passengerId: "passenger-1",
+            status: "CANCELLED",
+          },
+        };
+      },
+    },
+    async () => {
+      await cancelRideRequestController(
+        request(driver),
+        collected.response as never,
+      );
+    },
+  );
+
+  assert.deepEqual(
+    (collected.getBody() as { data: unknown }).data,
+    {
+      id: rideRequestId,
+      passengerId: "passenger-1",
+      status: "CANCELLED",
+    },
+  );
+});
 
 test("get ride request returns the passenger-owned request", async () => {
   const collected = responseCollector();

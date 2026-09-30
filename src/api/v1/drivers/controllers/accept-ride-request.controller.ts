@@ -5,6 +5,7 @@ import { ApiError } from "../../../../shared/http/api-error.js";
 import { sendSuccess } from "../../../../shared/http/api-response.js";
 import { rideRequestIdParamsSchema } from "../../ride-requests/validation/ride-request.validation.js";
 import { rideRequestRepository } from "../../ride-requests/repository/ride-request.repository.js";
+import { emitRideStatusUpdate } from "../../../../realtime/ride-status.js";
 
 
 function parseCachedFare(value: string | null) {
@@ -61,6 +62,20 @@ export async function acceptRideRequestController(
     logger.warn("Redis counter fare cleanup failed after acceptance", {
       cacheKey,
       actorId: request.user.id,
+      errorName: error instanceof Error ? error.name : "UnknownError",
+      errorMessage: error instanceof Error ? error.message : String(error),
+    });
+  }
+
+  try {
+    // send update using socket/io
+    emitRideStatusUpdate(result.request.passengerId, {
+      rideRequestId: result.request.id,
+      status: "MATCHED",
+    });
+  } catch (error) {
+    logger.warn("Ride status realtime update failed after acceptance", {
+      rideRequestId: result.request.id,
       errorName: error instanceof Error ? error.name : "UnknownError",
       errorMessage: error instanceof Error ? error.message : String(error),
     });

@@ -572,7 +572,7 @@ export class RideRequestRepository {
         const cancelled = await transaction.rideRequest.update({
           where: { id: existing.id },
           data: { status: "CANCELLED" },
-          select: { id: true, status: true, updatedAt: true },
+          select: { id: true, passengerId: true, status: true, updatedAt: true },
         });
 
         await transaction.rideStatusHistory.create({
@@ -588,6 +588,48 @@ export class RideRequestRepository {
       });
     } catch (error) {
       this.fail("cancelForPassenger", error, passengerId);
+      throw error;
+    }
+  }
+
+  async cancelForDriver(rideRequestId: string, driverUserId: string) {
+    try {
+      return await prisma.$transaction(async (transaction) => {
+        const existing = await transaction.rideRequest.findFirst({
+          where: {
+            id: rideRequestId,
+            status: "PENDING_DRIVER_ACCEPTANCE",
+            pool: { vehicle: { driver: { userId: driverUserId } } },
+          },
+          select: { id: true, passengerId: true, status: true },
+        });
+
+        if (!existing) return { kind: "not_found" as const };
+
+        const cancelled = await transaction.rideRequest.update({
+          where: { id: existing.id },
+          data: { status: "CANCELLED" },
+          select: {
+            id: true,
+            passengerId: true,
+            status: true,
+            updatedAt: true,
+          },
+        });
+
+        await transaction.rideStatusHistory.create({
+          data: {
+            requestId: existing.id,
+            fromStatus: existing.status,
+            toStatus: "CANCELLED",
+            changedById: driverUserId,
+          },
+        });
+
+        return { kind: "cancelled" as const, request: cancelled };
+      });
+    } catch (error) {
+      this.fail("cancelForDriver", error, driverUserId);
       throw error;
     }
   }

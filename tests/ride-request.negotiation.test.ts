@@ -5,6 +5,7 @@ import { acceptRideRequestController } from "../src/api/v1/ride-requests/control
 import { counterFareRideRequestController } from "../src/api/v1/ride-requests/controllers/counter-fare-ride-request.controller.js";
 import { redis } from "../src/lib/redis.js";
 import { rideRequestRepository } from "../src/api/v1/ride-requests/repository/ride-request.repository.js";
+import { attachRideStatus } from "../src/realtime/ride-status.js";
 
 const rideRequestId = "550e8400-e29b-41d4-a716-446655440000";
 
@@ -125,6 +126,7 @@ test("driver acceptance persists the cached counter fare and cleans it up", asyn
   let deletedKey: string | undefined;
   const acceptedRequest = {
     id: rideRequestId,
+    passengerId: passenger.id,
     status: "MATCHED",
     farePaisa: 13000,
   };
@@ -153,6 +155,19 @@ test("driver acceptance persists the cached counter fare and cleans it up", asyn
       },
     },
     async () => {
+      const emitted: unknown[] = [];
+      attachRideStatus({
+        sockets: {
+          sockets: new Map([
+            ["passenger", {
+              data: { userId: passenger.id, role: "PASSENGER" },
+              emit: (_event: string, payload: unknown) => {
+                emitted.push(payload);
+              },
+            }],
+          ]),
+        },
+      } as never);
       const collected = responseCollector();
       await acceptRideRequestController(
         {
@@ -165,6 +180,9 @@ test("driver acceptance persists the cached counter fare and cleans it up", asyn
       assert.equal(acceptedFare, 13000);
       assert.equal(deletedKey, `ride-request:counter-fare:${rideRequestId}`);
       assert.equal(collected.getStatus(), 200);
+      assert.deepEqual(emitted, [
+        { rideRequestId, status: "MATCHED" },
+      ]);
       assert.equal(
         (collected.getBody() as { data: { pool: { reservedSeats: number } } })
           .data.pool.reservedSeats,

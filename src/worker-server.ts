@@ -6,6 +6,7 @@ import { createServer } from "node:http";
 import { buildApp } from "./app.js";
 import { createRedisClient } from "./lib/redis.js";
 import { attachDriverPresence } from "./realtime/driver-presence.js";
+import { attachRideStatus } from "./realtime/ride-status.js";
 
 export async function startWorker() {
   const app = buildApp();
@@ -33,6 +34,7 @@ export async function startWorker() {
 
   // Application socket events
   attachDriverPresence(io);
+  attachRideStatus(io);
 
   const shutdown = async () => {
     await io.close();

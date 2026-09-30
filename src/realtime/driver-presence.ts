@@ -11,7 +11,12 @@ type PresenceAck = (result: {
 }) => void;
 
 type DriverSocket = Socket & {
-  data: Socket["data"] & { driverId?: string; explicitlyOffline?: boolean };
+  data: Socket["data"] & {
+    userId?: string;
+    role?: string;
+    driverId?: string;
+    explicitlyOffline?: boolean;
+  };
 };
 
 function getAccessToken(socket: Socket) {
@@ -33,6 +38,10 @@ export function createDriverPresence() {
       // find user based on access token
       const user = await authRepository.findUserById(actor.userId);
       if (!user) return next(new Error("unauthenticated"));
+
+      socket.data.userId = user.id;
+      socket.data.role = user.role;
+      if (user.role === "PASSENGER") return next();
       if (user.role !== "DRIVER") return next(new Error("forbidden"));
 
       // get driver info
@@ -144,6 +153,7 @@ export function createDriverPresence() {
       void authenticate(socket, next);
     });
     io.on("connection", (socket) => {
+      if ((socket.data as { role?: string }).role === "PASSENGER") return;
       void handleConnection(socket as DriverSocket);
     });
   }

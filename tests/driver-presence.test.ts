@@ -79,7 +79,7 @@ test("presence authentication accepts only a driver with an owned vehicle", asyn
   }
 });
 
-test("passenger presence authentication is rejected", async () => {
+test("passenger socket authentication is accepted for ride updates", async () => {
   const credentials = AuthCredentials as unknown as Record<string, unknown>;
   const auth = authRepository as unknown as Record<string, unknown>;
   const originalVerify = credentials.verifyAccessToken;
@@ -89,11 +89,14 @@ test("passenger presence authentication is rejected", async () => {
 
   try {
     const presence = createDriverPresence();
+    const socket = fakeSocket("socket-1");
     let authenticationError: Error | undefined;
-    await presence.authenticate(fakeSocket("socket-1") as never, (error) => {
+    await presence.authenticate(socket as never, (error) => {
       authenticationError = error;
     });
-    assert.equal(authenticationError?.message, "forbidden");
+    assert.equal(authenticationError, undefined);
+    assert.equal(socket.data.userId, "passenger-user");
+    assert.equal(socket.data.role, "PASSENGER");
   } finally {
     credentials.verifyAccessToken = originalVerify;
     auth.findUserById = originalFindUser;
