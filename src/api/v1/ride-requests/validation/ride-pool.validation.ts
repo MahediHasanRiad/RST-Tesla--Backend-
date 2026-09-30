@@ -11,6 +11,10 @@ export const joinRidePoolSchema = z
   .object({ poolId: z.string().uuid() })
   .strict();
 
+export const closeRidePoolSchema = z
+  .object({ poolId: z.string().uuid() })
+  .strict();
+
 export type OpenRidePoolInput = z.infer<typeof openRidePoolSchema>;
 export type JoinRidePoolInput = z.infer<typeof joinRidePoolSchema>;
-
+export type CloseRidePoolInput = z.infer<typeof closeRidePoolSchema>;

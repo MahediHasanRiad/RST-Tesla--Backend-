@@ -46,7 +46,7 @@
 - [x] 6.4 Add `enableRidePool` to passenger ride creation and persist the server-validated opt-in.
 - [x] 6.5 Add transactional `POST /api/v1/ride-requests/:rideRequestId/join-pool` with row locking, capacity validation, assignment, status transition, and history.
 - [x] 6.6 Update available-pool discovery to use RidePool destinationZoneId and return capacity for the requested seats.
-- [ ] 6.7 Add focused authorization, validation, capacity, route compatibility, and concurrent-final-seat tests; update README contracts.
+- [x] 6.7 Add focused authorization, validation, capacity, route compatibility, and concurrent-final-seat tests; update README contracts.
 - [x] 6.8 Run focused tests, `npm run check`, `npm run build`, and inspect the final diff.
 
 ## 7. Ride request acceptance and counter fare
@@ -65,3 +65,10 @@
 - [x] 8.4 Implement transactional shared-pool reservation for `enableRidePool: true` and private `CLOSE` pool creation for false/omitted pooling.
 - [x] 8.5 Add tests for vehicle search, selected vehicle IDs, route filtering, available seats, shared reservation, private pool isolation, and capacity conflicts.
 - [x] 8.6 Update README/API contracts and run focused tests, `npm run check`, `npm run build`, and inspect the final diff.
+
+## 9. Driver ride-pool closure
+
+- [x] 9.1 Add the strict close-pool input schema for `poolId` and the authenticated driver controller for `POST /api/v1/ride-requests/close-pool`; verify client-supplied driver or vehicle ownership cannot override `request.user`.
+- [x] 9.2 Add the repository transaction that locks the selected pool, verifies ownership through the driver's vehicle, requires `OPEN`, and changes it to `CLOSE`; verify unknown, foreign, and already-closed pools are rejected without mutation.
+- [x] 9.3 Ensure closed pools are excluded from available-pool discovery and rejected by passenger joins while preserving already-assigned ride requests; verify behavior with focused integration tests.
+- [x] 9.4 Add authorization, successful closure, concurrent close/join, invalid-state, and existing-assignment tests; update README/API contracts and run focused tests, `npm run check`, `npm run build`, and inspect the final diff.

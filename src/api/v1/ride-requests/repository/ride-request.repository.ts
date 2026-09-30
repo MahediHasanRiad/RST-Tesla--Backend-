@@ -37,7 +37,7 @@ export class RideRequestRepository {
         data: {
           poolId: input.ridePoolId,
           passengerId,
-          status: 'PENDING_DRIVER_ACCEPTANCE',
+          status: "PENDING_DRIVER_ACCEPTANCE",
           pickupZoneId: input.pickupZoneId,
           destinationZoneId: input.destinationZoneId,
           requestedSeats: input.seats,
@@ -65,136 +65,173 @@ export class RideRequestRepository {
     farePaisa: number,
   ) {
     try {
-      return await prisma.$transaction(async (transaction) => {
-        await transaction.$queryRaw`
-          SELECT "id" FROM "Vehicle" WHERE "id" = ${input.vehicleId} FOR UPDATE
-        `;
-        const vehicle = await transaction.vehicle.findUnique({
-          where: { id: input.vehicleId },
-          select: {
-            id: true,
-            name: true,
-            capacity: true,
-            availability: true,
-          },
-        });
-
-        if (!vehicle) {
-          return { kind: "vehicle_not_found" as const };
-        }
-        if (input.seats > vehicle.capacity) {
-          return { kind: "capacity_conflict" as const };
-        }
-
-        let pool;
-        if (input.enableRidePool) {
-          const existingPool = await transaction.ridePool.findFirst({
-            where: {
-              vehicleId: input.vehicleId,
-              pickupZoneId: input.pickupZoneId,
-              destinationZoneId: input.destinationZoneId,
-              status: "OPEN",
+      return await prisma.$transaction(
+        async (transaction) => {
+          // Fetch vehicle
+          const vehicle = await transaction.vehicle.findUnique({
+            where: { id: input.vehicleId },
+            select: {
+              id: true,
+              name: true,
+              capacity: true,
+              availability: true,
             },
-            orderBy: [{ createdAt: "asc" }, { id: "asc" }],
-            select: { id: true },
           });
 
-          if (!existingPool) return { kind: "pool_not_found" as const };
-          await transaction.$queryRaw`
-            SELECT "id" FROM "RidePool" WHERE "id" = ${existingPool.id} FOR UPDATE
-          `;
-
-          const currentPool = await transaction.ridePool.findUnique({
-            where: { id: existingPool.id },
-            select: { id: true, status: true, reservedSeats: true },
-          });
-          if (!currentPool || currentPool.status !== "OPEN") {
-            return { kind: "pool_not_found" as const };
+          if (!vehicle) {
+            return { kind: "vehicle_not_found" as const };
           }
-          if (currentPool.reservedSeats + input.seats > vehicle.capacity) {
+          if (input.seats > vehicle.capacity) {
             return { kind: "capacity_conflict" as const };
           }
 
-          pool = await transaction.ridePool.update({
-            where: { id: currentPool.id },
-            data: { reservedSeats: { increment: input.seats } },
-            select: {
-              id: true,
-              status: true,
-              reservedSeats: true,
-              pickupZone: {
-                select: { id: true, name: true, latitude: true, longitude: true },
+          let pool;
+          if (input.enableRidePool) {
+            // Find existing open pool for ride-pooling
+            const existingPool = await transaction.ridePool.findFirst({
+              where: {
+                vehicleId: input.vehicleId,
+                pickupZoneId: input.pickupZoneId,
+                destinationZoneId: input.destinationZoneId,
+                status: "OPEN",
               },
-              destinationZone: {
-                select: { id: true, name: true, latitude: true, longitude: true },
-              },
-              vehicle: {
-                select: { id: true, name: true, capacity: true, availability: true },
-              },
-            },
-          });
-        } else {
-          const conflictingPool = await transaction.ridePool.findFirst({
-            where: {
-              vehicleId: input.vehicleId,
-              status: "OPEN",
-            },
-            select: { id: true },
-          });
-          if (conflictingPool) return { kind: "pool_conflict" as const };
+              orderBy: [{ createdAt: "asc" }, { id: "asc" }],
+              select: { id: true },
+            });
 
-          pool = await transaction.ridePool.create({
-            data: {
-              vehicleId: input.vehicleId,
-              pickupZoneId: input.pickupZoneId,
-              destinationZoneId: input.destinationZoneId,
-              status: "CLOSE",
-              reservedSeats: input.seats,
-            },
-            select: {
-            id: true,
-            status: true,
-            reservedSeats: true,
-            pickupZone: {
-              select: { id: true, name: true, latitude: true, longitude: true },
-            },
-            destinationZone: {
-              select: { id: true, name: true, latitude: true, longitude: true },
-            },
-            vehicle: {
+            if (!existingPool) return { kind: "pool_not_found" as const };
+
+            const currentPool = await transaction.ridePool.findUnique({
+              where: { id: existingPool.id },
+              select: { id: true, status: true, reservedSeats: true },
+            });
+
+            if (!currentPool || currentPool.status !== "OPEN") {
+              return { kind: "pool_not_found" as const };
+            }
+            if (currentPool.reservedSeats + input.seats > vehicle.capacity) {
+              return { kind: "capacity_conflict" as const };
+            }
+
+            pool = await transaction.ridePool.update({
+              where: { id: currentPool.id },
+              data: { reservedSeats: { increment: input.seats } },
               select: {
                 id: true,
-                name: true,
-                capacity: true,
-                availability: true,
+                status: true,
+                reservedSeats: true,
+                pickupZone: {
+                  select: {
+                    id: true,
+                    name: true,
+                    latitude: true,
+                    longitude: true,
+                  },
+                },
+                destinationZone: {
+                  select: {
+                    id: true,
+                    name: true,
+                    latitude: true,
+                    longitude: true,
+                  },
+                },
+                vehicle: {
+                  select: {
+                    id: true,
+                    name: true,
+                    capacity: true,
+                    availability: true,
+                  },
+                },
+              },
+            });
+          } else {
+            // Ensure no conflicting open pools exist for non-pooled ride requests
+            const conflictingPool = await transaction.ridePool.findFirst({
+              where: {
+                vehicleId: input.vehicleId,
+                status: "OPEN",
+              },
+              select: { id: true },
+            });
+            if (conflictingPool) return { kind: "pool_conflict" as const };
+
+            pool = await transaction.ridePool.create({
+              data: {
+                vehicleId: input.vehicleId,
+                pickupZoneId: input.pickupZoneId,
+                destinationZoneId: input.destinationZoneId,
+                status: "CLOSE",
+                reservedSeats: input.seats,
+              },
+              select: {
+                id: true,
+                status: true,
+                reservedSeats: true,
+                pickupZone: {
+                  select: {
+                    id: true,
+                    name: true,
+                    latitude: true,
+                    longitude: true,
+                  },
+                },
+                destinationZone: {
+                  select: {
+                    id: true,
+                    name: true,
+                    latitude: true,
+                    longitude: true,
+                  },
+                },
+                vehicle: {
+                  select: {
+                    id: true,
+                    name: true,
+                    capacity: true,
+                    availability: true,
+                  },
+                },
+              },
+            });
+          }
+
+          // Create the ride request
+          const request = await transaction.rideRequest.create({
+            data: {
+              poolId: pool.id,
+              passengerId,
+              pickupZoneId: input.pickupZoneId,
+              destinationZoneId: input.destinationZoneId,
+              requestedSeats: input.seats,
+              enableRidePool: input.enableRidePool,
+              farePaisa,
+            },
+            include: {
+              pickupZone: {
+                select: {
+                  id: true,
+                  name: true,
+                  latitude: true,
+                  longitude: true,
+                },
+              },
+              destinationZone: {
+                select: {
+                  id: true,
+                  name: true,
+                  latitude: true,
+                  longitude: true,
+                },
               },
             },
-            },
           });
-        }
 
-        const request = await transaction.rideRequest.create({
-          data: {
-            poolId: pool.id,
-            passengerId,
-            pickupZoneId: input.pickupZoneId,
-            destinationZoneId: input.destinationZoneId,
-            requestedSeats: input.seats,
-            enableRidePool: input.enableRidePool,
-            farePaisa,
-          },
-          include: {
-            pickupZone: {
-              select: { id: true, name: true, latitude: true, longitude: true },
-            },
-            destinationZone: {
-              select: { id: true, name: true, latitude: true, longitude: true },
-            },
-          },
-        });
-
-        return { kind: "created" as const, pool, request };
-      }, { isolationLevel: "Serializable" });
+          return { kind: "created" as const, pool, request };
+        },
+        { isolationLevel: "Serializable" },
+      );
     } catch (error) {
       this.fail("createFresh", error, passengerId);
       throw error;

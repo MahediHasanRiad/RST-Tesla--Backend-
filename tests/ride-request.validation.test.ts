@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { createRideRequestSchema } from "../src/api/v1/ride-requests/ride-request.validation.js";
+import { createRideRequestSchema } from "../src/api/v1/ride-requests/validation/ride-request.validation.js";
+import { closeRidePoolSchema, joinRidePoolSchema } from "../src/api/v1/ride-requests/validation/ride-pool.validation.js";
 import { calculateDistanceKm } from "../src/shared/ride/distance.js";
 import {
   calculateFare,
@@ -56,6 +57,26 @@ test("ride request input enforces UUID and seat constraints", () => {
       destinationZoneId: mirpurTen,
       seats: 11,
     }).success,
+    false,
+  );
+});
+
+test("pool actions require strict UUID-only input", () => {
+  assert.equal(
+    closeRidePoolSchema.safeParse({ poolId: mirpurOne }).success,
+    true,
+  );
+  assert.equal(
+    closeRidePoolSchema.safeParse({ poolId: "invalid" }).success,
+    false,
+  );
+  assert.equal(
+    closeRidePoolSchema.safeParse({ poolId: mirpurOne, driverId: "client" })
+      .success,
+    false,
+  );
+  assert.equal(
+    joinRidePoolSchema.safeParse({ poolId: mirpurOne, seats: 2 }).success,
     false,
   );
 });

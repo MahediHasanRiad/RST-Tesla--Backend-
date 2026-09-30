@@ -56,6 +56,14 @@ Drivers open a directional pool with `POST /api/v1/ride-requests/open-pool`:
 }
 ```
 
+The owning driver can stop accepting new passengers by closing the pool with `POST /api/v1/ride-requests/close-pool`:
+
+```json
+{ "poolId": "open-pool-uuid" }
+```
+
+Only the driver who owns the pool's vehicle can close it. Closing changes the pool from `OPEN` to `CLOSE`, removes it from future pool discovery and joins, and preserves ride requests already assigned to the pool.
+
 Passengers opt into pooling when creating a request with `"enableRidePool": true` and their requested `seats`. After choosing a compatible pool, they join it with `POST /api/v1/ride-requests/:rideRequestId/join-pool` and `{ "poolId": "..." }`. The backend uses the stored request seat count and performs the capacity update in a PostgreSQL transaction.
 
 The pool-owning driver accepts a pending request with `POST /api/v1/ride-requests/:rideRequestId/accept`. The passenger or pool-owning driver may submit a temporary counter fare with `POST /api/v1/ride-requests/:rideRequestId/counter-fare`:

@@ -14,6 +14,7 @@ import { listAvailableRidePoolsController } from "./controllers/list-available-r
 import { listAvailableVehiclesController } from "./controllers/list-available-vehicles.controller.js";
 import { listPassengerCompletedRideRequestsController } from "./controllers/list-passenger-completed-ride-requests.controller.js";
 import { openRidePoolController } from "./controllers/open-ride-pool.controller.js";
+import { closeRidePoolController } from "./controllers/close-ride-pool.controller.js";
 
 export const rideRequestRoutes = Router();
 
@@ -22,6 +23,12 @@ rideRequestRoutes.post(
   "/open-pool",
   requireAuth,
   asyncHandler(openRidePoolController),
+);
+
+rideRequestRoutes.post(
+  "/close-pool",
+  requireAuth,
+  asyncHandler(closeRidePoolController),
 );
 
 rideRequestRoutes.post(
@@ -66,11 +73,11 @@ rideRequestRoutes.get(
   asyncHandler(listPassengerCompletedRideRequestsController),
 );
 
-// rideRequestRoutes.post(
-//   "/:rideRequestId/join-pool",
-//   requireAuth,
-//   asyncHandler(joinRidePoolController),
-// );
+rideRequestRoutes.post(
+  "/:rideRequestId/join-pool",
+  requireAuth,
+  asyncHandler(joinRidePoolController),
+);
 
 rideRequestRoutes.post(
   "/:rideRequestId/cancel",

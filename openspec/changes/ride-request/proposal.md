@@ -19,6 +19,7 @@ Ride requests need a single authoritative location model so supported pickup and
 - Add completed ride history for drivers and passengers with offset pagination.
 - Cache these non-authoritative list reads in Redis while keeping PostgreSQL authoritative.
 - Add driver-created ride pools with a database-backed destination zone.
+- Add a driver-owned route to close an open ride pool, preventing new passengers from discovering or joining it while preserving existing assignments.
 - Allow passengers to opt into pooling when creating a ride request and join a selected compatible pool.
 - Enforce pool capacity and request assignment in a PostgreSQL transaction.
 - Add driver acceptance and Redis-backed passenger/driver counter-fare routes; persist the negotiated fare only when the driver accepts.
@@ -42,6 +43,7 @@ Ride requests need a single authoritative location model so supported pickup and
 - Affected persistence: add `RidePool.destinationZoneId` and a passenger pool opt-in field on `RideRequest`.
 - Affected persistence: keep RidePool.vehicleId required because every bookable fresh request selects a concrete vehicle.
 - Affected API: new versioned ride-request creation and authenticated ride-history/list routes, validation, controllers, repositories, distance/fare helpers, and response projections.
+- Affected API: authenticated driver pool-closing action with ownership and lifecycle validation.
 - Affected code: vehicle discovery, selected-vehicle fresh request/pool transaction, and route-specific available-seat discovery; no automatic passenger joining beyond the selected pool reservation.
 - Affected documentation: README limitation and API/location behavior.
 - No paid routing dependency; coordinates in PostgreSQL remain the source of truth.

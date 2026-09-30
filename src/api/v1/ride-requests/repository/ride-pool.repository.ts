@@ -39,7 +39,6 @@ export class RidePoolRepository {
               availability: true,
             },
           });
-          console.log('vvvvvv', vehicle)
           if (!vehicle) return { kind: "vehicle_not_found" as const };
           if (vehicle.availability !== "ONLINE") {
             return { kind: "vehicle_offline" as const };
@@ -103,6 +102,79 @@ export class RidePoolRepository {
     }
   }
 
+  async closeForDriver(driverUserId: string, poolId: string) {
+    try {
+      return await prisma.$transaction(
+        async (transaction) => {
+          const lockedPools = await transaction.$queryRaw<
+            Array<{ id: string; status: string; driverUserId: string | null }>
+          >`
+            SELECT
+              pool."id" AS "id",
+              pool."status"::text AS "status",
+              driver."userId" AS "driverUserId"
+            FROM "RidePool" AS pool
+            INNER JOIN "Vehicle" AS vehicle ON vehicle."id" = pool."vehicleId"
+            INNER JOIN "Driver" AS driver ON driver."id" = vehicle."driverId"
+            WHERE pool."id" = CAST(${poolId} AS uuid)
+            FOR UPDATE OF pool
+          `;
+
+          const lockedPool = lockedPools[0];
+          if (!lockedPool) return { kind: "pool_not_found" as const };
+          if (lockedPool.driverUserId !== driverUserId) {
+            return { kind: "forbidden" as const };
+          }
+          if (lockedPool.status !== "OPEN") {
+            return { kind: "pool_closed" as const };
+          }
+
+          const pool = await transaction.ridePool.update({
+            where: { id: poolId },
+            data: { status: "CLOSE" },
+            select: {
+              id: true,
+              status: true,
+              reservedSeats: true,
+              createdAt: true,
+              updatedAt: true,
+              pickupZone: {
+                select: {
+                  id: true,
+                  name: true,
+                  latitude: true,
+                  longitude: true,
+                },
+              },
+              destinationZone: {
+                select: {
+                  id: true,
+                  name: true,
+                  latitude: true,
+                  longitude: true,
+                },
+              },
+              vehicle: {
+                select: {
+                  id: true,
+                  name: true,
+                  capacity: true,
+                  availability: true,
+                },
+              },
+            },
+          });
+
+          return { kind: "closed" as const, pool };
+        },
+        { isolationLevel: "Serializable" },
+      );
+    } catch (error) {
+      this.fail("closeForDriver", error, driverUserId);
+      throw error;
+    }
+  }
+
   async joinForPassenger(
     passengerId: string,
     rideRequestId: string,
@@ -130,6 +202,13 @@ export class RidePoolRepository {
           }
 
           // Find the ride pool 
+          await transaction.$queryRaw`
+            SELECT "id"
+            FROM "RidePool"
+            WHERE "id" = CAST(${poolId} AS uuid)
+            FOR UPDATE
+          `;
+
           const pool = await transaction.ridePool.findUnique({
             where: { id: poolId },
             select: {

@@ -21,7 +21,7 @@ See `proposal.md` and the two capability specs. The Prisma schema already contai
 **Non-Goals:**
 
 - Pool joining, matching, seat reservation, driver actions, live road routing, Google Maps, geocoding, or location search.
-- Mutating driver lifecycle actions such as arrive, start, or complete.
+- Mutating ride lifecycle actions such as arrive, start, or complete.
 - Automatic passenger matching or joining without an explicit passenger pool-join action.
 - Storing a second location snapshot on RideRequest.
 - Accepting client coordinates, names, passenger IDs, fares, or distances.
@@ -65,6 +65,8 @@ Register `GET /api/v1/ride-requests/available-vehicles` for authenticated passen
 Register `POST /api/v1/ride-requests/open-pool` for authenticated drivers. The controller derives the driver's vehicle from `request.user`, validates pickup and destination ServiceZone IDs and the directional corridor, and creates an `OPEN` RidePool with `reservedSeats = 0` and both zone foreign keys. Only one active pool per vehicle is allowed.
 
 Extend passenger fresh-ride creation with `enableRidePool`, defaulting to `false`, and persist the opt-in on RideRequest. Register `POST /api/v1/ride-requests/:rideRequestId/join-pool` with `{ poolId }` for later explicit shared-pool joining; the backend derives the passenger and requested seat count from the RideRequest, validates pool/request route compatibility and opt-in, locks the pool row, re-reads vehicle capacity, increments `reservedSeats`, assigns the joining request to the pool, changes the request to `PENDING_DRIVER_ACCEPTANCE`, and records status history in one PostgreSQL transaction. Redis is not used for this decision.
+
+Register `POST /api/v1/ride-requests/close-pool` with `{ poolId }` for the authenticated driver who owns the pool's vehicle. The controller must derive the driver from `request.user`, verify ownership through the driver's vehicle, and allow only an `OPEN` pool to transition to `CLOSE`. The repository must perform the lifecycle check and update atomically so concurrent joins cannot commit after closure. Closing a pool prevents future available-pool discovery and passenger joins but does not cancel or detach ride requests already assigned to the pool. A close request for an unknown, foreign, or already closed pool is rejected without mutation.
 
 ### Acceptance and ephemeral fare negotiation
 

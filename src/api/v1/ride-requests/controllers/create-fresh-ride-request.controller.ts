@@ -16,11 +16,13 @@ export async function createFreshRideRequestController(
     throw new ApiError(403, "forbidden");
   }
 
+  // input validation
   const input = freshRideRequestSchema.parse(request.body);
   if (input.pickupZoneId === input.destinationZoneId) {
     throw new ApiError(400, "same_service_zone");
   }
 
+  // check location
   const [pickupZone, destinationZone] = await rideRequestRepository.findZones(
     input.pickupZoneId,
     input.destinationZoneId,
@@ -39,6 +41,7 @@ export async function createFreshRideRequestController(
   );
   const fare = calculateFare(distanceKm, input.weatherCondition);
 
+  // create
   const result = await rideRequestRepository.createFresh(
     request.user.id,
     input,

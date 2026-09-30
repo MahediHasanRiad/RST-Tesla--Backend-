@@ -10,9 +10,11 @@ import {
 import { resolveRouteCorridor } from "../../../../shared/ride/route-corridor.js";
 import { listAvailableRidePoolsSchema } from "../validation/ride-request.validation.js";
 import { rideRequestRepository } from "../repository/ride-request.repository.js";
-
-
-const LIST_CACHE_TTL_SECONDS = 60;
+import {
+  availableRidePoolCacheKey,
+  availableRidePoolVersionKey,
+  AVAILABLE_RIDE_POOL_CACHE_TTL_SECONDS,
+} from "../ride-pool.cache.js";
 
 export async function listAvailableRidePoolsController(
   request: Request,
@@ -45,7 +47,31 @@ export async function listAvailableRidePoolsController(
   if (!requestedRoute) throw new ApiError(400, "unsupported_route");
 
   // cache key
-  const cacheKey = `list:available-ride-pools:pickup=${encodeURIComponent(input.pickupZoneId)}:destination=${encodeURIComponent(input.destinationZoneId)}:seats=${input.seats}:cursor=${encodeURIComponent(input.cursor ?? "")}:limit=${input.limit}`;
+  let cacheVersion = "0";
+  try {
+    cacheVersion =
+      (await redis.get(
+        availableRidePoolVersionKey(
+          input.pickupZoneId,
+          input.destinationZoneId,
+        ),
+      )) ?? "0";
+  } catch (error) {
+    logger.warn("Redis cache version read failed", {
+      actorId: request.user.id,
+      errorName: error instanceof Error ? error.name : "UnknownError",
+      errorMessage: error instanceof Error ? error.message : String(error),
+    });
+  }
+  // redis cache key
+  const cacheKey = availableRidePoolCacheKey({
+    version: cacheVersion,
+    pickupZoneId: input.pickupZoneId,
+    destinationZoneId: input.destinationZoneId,
+    seats: input.seats,
+    cursor: input.cursor,
+    limit: input.limit,
+  });
   let page: ReturnType<typeof createCursorPage> | undefined;
 
   try {
@@ -119,7 +145,7 @@ export async function listAvailableRidePoolsController(
         cacheKey,
         JSON.stringify(page),
         "EX",
-        LIST_CACHE_TTL_SECONDS,
+        AVAILABLE_RIDE_POOL_CACHE_TTL_SECONDS,
       );
     } catch (error) {
       logger.warn("Redis cache write failed", {

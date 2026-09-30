@@ -4,7 +4,7 @@ import { offsetQuerySchema } from "../../../../shared/pagination/offset.js";
 
 export const createRideRequestSchema = z
   .object({
-    ridePoolId: z.string(),
+    ridePoolId: z.string().uuid().optional(),
     pickupZoneId: z.string().uuid(),
     destinationZoneId: z.string().uuid(),
     seats: z.coerce.number().int().min(1).max(10),
@@ -20,7 +20,7 @@ export const freshRideRequestSchema = z
     pickupZoneId: z.string().uuid(),
     destinationZoneId: z.string().uuid(),
     vehicleId: z.string().uuid(),
-    seats: z.coerce.number().int().min(1).max(10),
+    seats: z.coerce.number().int().default(1),
     enableRidePool: z.coerce.boolean().default(false),
     weatherCondition: z.enum(["CLEAR", "RAIN", "HEAVY_RAIN"]).default("CLEAR"),
   })
