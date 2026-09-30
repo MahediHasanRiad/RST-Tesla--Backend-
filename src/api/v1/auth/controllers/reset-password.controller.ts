@@ -5,19 +5,20 @@ import { authRepository } from "../auth.repository.js";
 import { resetPasswordSchema } from "../auth.validation.js";
 import { redis } from "../../../../lib/redis.js";
 
-
-async function resetPasswordHandler(
-  req: Request,
-  res: Response,
-) {
+async function resetPasswordHandler(req: Request, res: Response) {
+  
   const body = resetPasswordSchema.parse(req.body);
   if (!body) return;
+
   const storedOtp = await redis.get(`auth:otp:${body.email}`);
   if (!storedOtp || storedOtp !== body.otp)
     return res.status(401).send({ error: "invalid_otp" });
+
   const user = await authRepository.findUserByEmail(body.email);
   if (!user) return res.status(401).send({ error: "invalid_otp" });
+
   await redis.del(`auth:otp:${body.email}`);
+
   await authRepository.updatePassword(
     user.id,
     await AuthCredentials.hashPassword(body.password),

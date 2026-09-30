@@ -1,7 +1,7 @@
 import type { Request, Response } from "express";
 import { asyncHandler } from "../../../../shared/http/async-handler.js";
 import { logger } from "../../../../lib/logger.js";
-import { sendOtpMail } from "../../../../shared/auth/brevo.js";
+import { enqueueEmail } from "../../../../queue/queues.js";
 import { authRepository } from "../auth.repository.js";
 import { registerSchema } from "../auth.validation.js";
 import {
@@ -53,13 +53,13 @@ async function registerHandler(req: Request, res: Response) {
 
     try {
       // send email
-      await sendOtpMail({
+      await enqueueEmail({
         email: email,
         otp,
         purpose: "EMAIL_VERIFICATION",
       });
     } catch (error) {
-      logger.warn("Registration OTP email delivery failed", {
+      logger.warn("Registration OTP email enqueue failed", {
         requestId: req.requestId,
         actorId: result.user.id,
         errorName: error instanceof Error ? error.name : "UnknownError",

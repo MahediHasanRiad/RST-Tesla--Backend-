@@ -17,7 +17,8 @@ The selected baseline is a **modular monolith**: a React web application, a Node
 | Database | PostgreSQL | Authoritative relational data, constraints, history, and capacity transactions. |
 | ORM | Prisma | Typed schema, migrations, and normal database access; explicit transactions/raw SQL are used where row locking is necessary. |
 | Cache | Redis | Short-lived cache for read-heavy, non-critical data such as area lists and fare estimates. |
-| Email delivery | Brevo API with Redis | Sends OTP emails directly; Redis is the source of truth for short-lived OTP state. |
+| Email delivery | Brevo API through BullMQ | Sends OTP emails in a retryable email worker; Redis is the source of truth for short-lived OTP state and queue infrastructure. |
+| Push notifications | Firebase Cloud Messaging through BullMQ | Sends device notifications in a dedicated notification worker; PostgreSQL stores registered device tokens. |
 | Media | Cloudinary | Validated public user-avatar storage and delivery. |
 | Logging | Winston | Structured application logs with request and domain context. |
 | AI agent | OpenAI Responses API | Natural-language ride assistance through narrowly scoped application tools. |
@@ -45,6 +46,9 @@ flowchart LR
   A -->|Validated avatar uploads| C[Cloudinary]
   A -->|Private file operations| S[Supabase Storage]
   A -->|Function calling| O[OpenAI Responses API]
+  A --> Q[BullMQ queues]
+  Q --> N[Notification worker\nFirebase FCM]
+  Q --> E[Email worker\nBrevo]
   A --> L[Structured logs and health endpoint]
   subgraph Docker Compose
     A
@@ -59,6 +63,7 @@ flowchart LR
 - **Node.js API:** authentication, request validation, authorization, matching, fare calculation, state-machine enforcement, and transaction boundaries. Use Zod schemas to validate every external input—request bodies, route parameters, query strings, headers, cookies, and multipart metadata—before controller business logic runs. Reject unknown, malformed, unsafe, or out-of-range values with a consistent `400` response. Express is used with Multer for multipart uploads. Winston records structured application logs.
 - **PostgreSQL with Prisma:** durable relational records, foreign keys, unique constraints, indexes, and row-level locks for capacity-sensitive mutations. Prisma owns schema migrations and normal typed queries; use Prisma interactive transactions with explicit locking/raw SQL where lock semantics need to be unambiguous.
 - **Redis:** caches area lists, compatible-area rules, and non-binding fare estimates with short TTLs. It is also the required, authoritative store for short-lived email-verification and password-reset OTPs; PostgreSQL holds no OTP state. Redis must not be the source of truth for vehicle capacity, memberships, request status, fares already quoted, or authorization. Invalidate relevant keys after an area/rule update; PostgreSQL is used whenever a stale read could admit an invalid booking.
+- **BullMQ workers:** the API enqueues email and push-notification side effects without waiting for external providers. The email worker uses Brevo; the notification worker uses Firebase Admin and removes invalid FCM tokens from PostgreSQL. Queue retries are bounded and queue failure must not change PostgreSQL ride or authorization decisions.
 - **Docker Compose:** starts the API, PostgreSQL, and Redis together, using health checks so the API waits for its dependencies. It is the reproducible local setup and deployment baseline.
 - **Supabase Storage:** stores private files rather than relational booking data. The Node.js API is the only component permitted to use the Supabase secret key; React receives only authorized, short-lived signed URLs. Bucket policies remain private by default and object paths, MIME types, and sizes are validated by the API.
 - **Cloudinary:** stores validated public user-avatar media. The API accepts only allowlisted image MIME types and configured size limits, stages each upload under `public/assert` using a random server-generated filename, uploads it server-side using Cloudinary credentials, and deletes the staged file in both success and failure paths. PostgreSQL stores only the resulting secure URL. Never expose Cloudinary credentials, accept arbitrary remote URLs, or trust client-provided filenames or media metadata.

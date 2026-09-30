@@ -16,6 +16,23 @@ Alternatively, from the repository root, run `docker compose up --build` to run 
 
 Redis is for cacheable reads only. Booking capacity, memberships, fares, and lifecycle state must continue to use PostgreSQL transactions.
 
+## Background notifications and email
+
+BullMQ uses `REDIS_URL` as queue infrastructure for two independent workers:
+
+- `npm run dev:worker:notification` sends Firebase Cloud Messaging push notifications.
+- `npm run dev:worker:email` sends queued OTP email through the existing Brevo integration.
+
+Run the API and both workers as separate processes. Jobs retry with bounded exponential backoff, and failed jobs are logged without making Redis authoritative for rides, pools, fares, or authorization.
+
+Authenticated clients register an FCM token with `POST /api/v1/users/me/device-tokens`:
+
+```json
+{ "token": "client-fcm-registration-token", "platform": "ANDROID" }
+```
+
+Use `DELETE /api/v1/users/me/device-tokens` to deactivate a token. Configure `GOOGLE_APPLICATION_CREDENTIALS` with the path to your Firebase service-account JSON file, or use the platform's default Google credentials. Never commit the service-account JSON. Firebase Cloud Messaging must be enabled in the Firebase project. Mobile clients are responsible for requesting notification permission and sending refreshed tokens.
+
 ## Clustered runtime
 
 The API starts one Node.js primary process and `max(1, available CPU cores - 1)` workers. Set `CLUSTER_WORKERS` to override the worker count in constrained environments. The primary owns worker lifecycle; workers initialize Express, PostgreSQL, Redis, and Socket.IO exactly once.

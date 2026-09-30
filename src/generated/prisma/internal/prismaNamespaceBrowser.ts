@@ -58,7 +58,8 @@ export const ModelName = {
   ServiceZone: 'ServiceZone',
   RidePool: 'RidePool',
   RideRequest: 'RideRequest',
-  RideStatusHistory: 'RideStatusHistory'
+  RideStatusHistory: 'RideStatusHistory',
+  UserDeviceToken: 'UserDeviceToken'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -188,6 +189,20 @@ export const RideStatusHistoryScalarFieldEnum = {
 } as const
 
 export type RideStatusHistoryScalarFieldEnum = (typeof RideStatusHistoryScalarFieldEnum)[keyof typeof RideStatusHistoryScalarFieldEnum]
+
+
+export const UserDeviceTokenScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  token: 'token',
+  platform: 'platform',
+  isActive: 'isActive',
+  lastSeenAt: 'lastSeenAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type UserDeviceTokenScalarFieldEnum = (typeof UserDeviceTokenScalarFieldEnum)[keyof typeof UserDeviceTokenScalarFieldEnum]
 
 
 export const SortOrder = {

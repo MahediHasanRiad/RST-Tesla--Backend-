@@ -404,7 +404,8 @@ export const ModelName = {
   ServiceZone: 'ServiceZone',
   RidePool: 'RidePool',
   RideRequest: 'RideRequest',
-  RideStatusHistory: 'RideStatusHistory'
+  RideStatusHistory: 'RideStatusHistory',
+  UserDeviceToken: 'UserDeviceToken'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -420,7 +421,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "authRateLimit" | "driver" | "vehicle" | "serviceZone" | "ridePool" | "rideRequest" | "rideStatusHistory"
+    modelProps: "user" | "authRateLimit" | "driver" | "vehicle" | "serviceZone" | "ridePool" | "rideRequest" | "rideStatusHistory" | "userDeviceToken"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1016,6 +1017,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    UserDeviceToken: {
+      payload: Prisma.$UserDeviceTokenPayload<ExtArgs>
+      fields: Prisma.UserDeviceTokenFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.UserDeviceTokenFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserDeviceTokenPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.UserDeviceTokenFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserDeviceTokenPayload>
+        }
+        findFirst: {
+          args: Prisma.UserDeviceTokenFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserDeviceTokenPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.UserDeviceTokenFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserDeviceTokenPayload>
+        }
+        findMany: {
+          args: Prisma.UserDeviceTokenFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserDeviceTokenPayload>[]
+        }
+        create: {
+          args: Prisma.UserDeviceTokenCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserDeviceTokenPayload>
+        }
+        createMany: {
+          args: Prisma.UserDeviceTokenCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.UserDeviceTokenCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserDeviceTokenPayload>[]
+        }
+        delete: {
+          args: Prisma.UserDeviceTokenDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserDeviceTokenPayload>
+        }
+        update: {
+          args: Prisma.UserDeviceTokenUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserDeviceTokenPayload>
+        }
+        deleteMany: {
+          args: Prisma.UserDeviceTokenDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.UserDeviceTokenUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.UserDeviceTokenUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserDeviceTokenPayload>[]
+        }
+        upsert: {
+          args: Prisma.UserDeviceTokenUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserDeviceTokenPayload>
+        }
+        aggregate: {
+          args: Prisma.UserDeviceTokenAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateUserDeviceToken>
+        }
+        groupBy: {
+          args: Prisma.UserDeviceTokenGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.UserDeviceTokenGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.UserDeviceTokenCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.UserDeviceTokenCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -1166,6 +1241,20 @@ export const RideStatusHistoryScalarFieldEnum = {
 } as const
 
 export type RideStatusHistoryScalarFieldEnum = (typeof RideStatusHistoryScalarFieldEnum)[keyof typeof RideStatusHistoryScalarFieldEnum]
+
+
+export const UserDeviceTokenScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  token: 'token',
+  platform: 'platform',
+  isActive: 'isActive',
+  lastSeenAt: 'lastSeenAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type UserDeviceTokenScalarFieldEnum = (typeof UserDeviceTokenScalarFieldEnum)[keyof typeof UserDeviceTokenScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -1489,6 +1578,7 @@ export type GlobalOmitConfig = {
   ridePool?: Prisma.RidePoolOmit
   rideRequest?: Prisma.RideRequestOmit
   rideStatusHistory?: Prisma.RideStatusHistoryOmit
+  userDeviceToken?: Prisma.UserDeviceTokenOmit
 }
 
 /* Types for Logging */

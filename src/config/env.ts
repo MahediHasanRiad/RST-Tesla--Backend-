@@ -29,6 +29,12 @@ const environment = z.object({
   CLOUDINARY_CLOUD_NAME: z.string().min(1),
   CLOUDINARY_API_KEY: z.string().min(1),
   CLOUDINARY_API_SECRET: z.string().min(1),
+  QUEUE_MAX_ATTEMPTS: z.coerce.number().int().positive().default(5),
+  QUEUE_BACKOFF_MS: z.coerce.number().int().positive().default(5000),
+  QUEUE_NOTIFICATION_CONCURRENCY: z.coerce.number().int().positive().default(5),
+  QUEUE_EMAIL_CONCURRENCY: z.coerce.number().int().positive().default(3),
+  GOOGLE_APPLICATION_CREDENTIALS: z.string().min(1).optional(),
+  VAPID_key: z.string().min(1).optional(),
 }).superRefine((value, context) => {
   if (value.NODE_ENV === "production" && !value.BREVO_API_KEY)
     context.addIssue({

@@ -1,7 +1,7 @@
 import type { Request, Response } from "express";
 import { asyncHandler } from "../../../../shared/http/async-handler.js";
 import { authRepository } from "../auth.repository.js";
-import { sendOtpMail } from "../../../../shared/auth/brevo.js";
+import { enqueueEmail } from "../../../../queue/queues.js";
 import { resendVerificationSchema } from "../auth.validation.js";
 import { AuthCredentials } from "../../../../shared/auth/credentials.js";
 import { logger } from "../../../../lib/logger.js";
@@ -21,13 +21,13 @@ async function resendVerificationHandler(req: Request, res: Response) {
 
     try {
       // send email
-      await sendOtpMail({
+      await enqueueEmail({
         email: email,
         otp,
         purpose: "EMAIL_VERIFICATION",
       });
     } catch (error) {
-      logger.warn("Verification OTP email delivery failed", {
+      logger.warn("Verification OTP email enqueue failed", {
         requestId: req.requestId,
         actorId: user.id,
         errorName: error instanceof Error ? error.name : "UnknownError",
