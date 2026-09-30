@@ -5,6 +5,7 @@ import { rideRequestIdParamsSchema } from "../../ride-requests/validation/ride-r
 import { rideRequestRepository } from "../../ride-requests/repository/ride-request.repository.js";
 import { emitRideStatusUpdate } from "../../../../realtime/ride-status.js";
 import { logger } from "../../../../lib/logger.js";
+import { persistAndQueuePushNotification } from "../../../../shared/notifications/push-notification.js";
 
 
 export async function cancelRideRequestController(
@@ -40,6 +41,16 @@ export async function cancelRideRequestController(
       errorMessage: error instanceof Error ? error.message : String(error),
     });
   }
+
+  await persistAndQueuePushNotification({
+    userId: request.user.role === "DRIVER"
+      ? result.request.passengerId
+      : ("driverUserId" in result ? result.driverUserId as string | null : null),
+    eventType: "RIDE_CANCELLED",
+    title: "Ride cancelled",
+    body: "The ride request was cancelled.",
+    data: { rideRequestId: result.request.id },
+  });
 
   return sendSuccess(response, 200, result.request);
 }

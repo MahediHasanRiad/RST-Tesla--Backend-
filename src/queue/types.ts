@@ -5,6 +5,7 @@ export type EmailJobData = {
 };
 
 export type PushNotificationJobData = {
+  notificationId: string;
   userId: string;
   eventType: string;
   title: string;

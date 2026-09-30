@@ -34,7 +34,10 @@ export class VehicleRepository {
 
   async findById(vehicleId: string) {
     try {
-      return await prisma.vehicle.findUnique({ where: { id: vehicleId } });
+      return await prisma.vehicle.findUnique({
+        where: { id: vehicleId },
+        include: { driver: { select: { userId: true } } },
+      });
     } catch (error) {
       this.fail("findById", error, vehicleId);
       throw error;

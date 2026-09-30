@@ -10,6 +10,7 @@ export async function registerDeviceTokenController(
 ) {
   if (!request.user) throw new ApiError(401, "unauthenticated");
   const input = deviceTokenSchema.parse(request.body);
+  
   const token = await deviceTokenRepository.upsert(
     request.user.id,
     input.token,

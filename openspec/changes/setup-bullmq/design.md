@@ -12,6 +12,8 @@ The backend already has a shared Redis client and direct Brevo delivery for auth
 - Keep API requests independent from Firebase and Brevo network latency.
 - Reuse the existing Redis configuration through a queue infrastructure adapter rather than scattering raw Redis calls.
 - Persist device-token ownership and lifecycle in PostgreSQL.
+- Persist notification history and read state in PostgreSQL before push delivery.
+- Notify the other ride participant or assigned driver from the approved ride controllers.
 - Make provider failures retryable, bounded, observable, and safe to replay.
 - Keep provider secrets out of source code, logs, job payloads, and `.env.example`.
 
@@ -39,6 +41,22 @@ Notification jobs contain a target user ID, approved event type, minimal entity 
 ### Store FCM tokens in PostgreSQL
 
 Add a user-device-token record owned by a user, with token, platform metadata, active/revoked state, timestamps, and a uniqueness constraint suitable for idempotent refresh. The notification worker reads active tokens through the repository and disables tokens that Firebase reports as invalid. Redis does not own token state.
+
+### Store notifications in PostgreSQL
+
+Add a `Notification` record with `id`, `userId`, `eventType`, `title`, `body`, optional JSON `data`, `isRead`, `readAt`, `createdAt`, and `updatedAt`. Add an index for a user's unread and recent notifications. The notification record is created before enqueueing delivery, so notification history remains available when Firebase or Redis is unavailable. Notification reads and ownership remain PostgreSQL-authoritative.
+
+### Enqueue approved ride notifications
+
+After the existing authoritative operation succeeds, create a notification and enqueue a push job from these controllers:
+
+- `accept-ride-request.controller.ts` → passenger, `RIDE_MATCHED`.
+- `cancel-ride-request.controller.ts` → the other participant, `RIDE_CANCELLED`.
+- `counter-fare-ride-request.controller.ts` → the other participant, `COUNTER_FARE_UPDATED`.
+- `create-fresh-ride-request.controller.ts` → assigned driver, `RIDE_REQUEST_CREATED`.
+- `create-ride-request.controller.ts` → assigned driver, `RIDE_REQUEST_CREATED`.
+
+Push enqueue failure is logged safely and does not roll back the completed ride operation or notification record.
 
 ### Initialize Firebase Admin only inside the notification worker
 

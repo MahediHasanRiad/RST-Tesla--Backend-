@@ -6,6 +6,8 @@ import { resolveRouteCorridor } from "../../../../shared/ride/route-corridor.js"
 import { sendSuccess } from "../../../../shared/http/api-response.js";
 import { rideRequestRepository } from "../repository/ride-request.repository.js";
 import { freshRideRequestSchema } from "../validation/ride-request.validation.js";
+import { vehicleRepository } from "../../vehicles/vehicle.repository.js";
+import { persistAndQueuePushNotification } from "../../../../shared/notifications/push-notification.js";
 
 export async function createFreshRideRequestController(
   request: Request,
@@ -59,6 +61,15 @@ export async function createFreshRideRequestController(
   if (result.kind === "pool_conflict") {
     throw new ApiError(409, "vehicle_has_active_ride_pool");
   }
+
+  const vehicle = await vehicleRepository.findById(input.vehicleId);
+  await persistAndQueuePushNotification({
+    userId: vehicle?.driver.userId,
+    eventType: "RIDE_REQUEST_CREATED",
+    title: "New ride request",
+    body: "A passenger created a ride request for your vehicle.",
+    data: { rideRequestId: result.request.id },
+  });
 
   return sendSuccess(response, 201, {
     id: result.request.id,

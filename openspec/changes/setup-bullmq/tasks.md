@@ -11,6 +11,8 @@
 - [x] 2.1 Add PostgreSQL persistence and repository operations for authenticated-user FCM device tokens, including uniqueness, refresh/replacement, revocation, and invalid-token cleanup; verify authorization and idempotency tests.
 - [x] 2.2 Add the validated device-token registration/removal API contract and standard validation/error handling; verify malformed tokens, ownership, and removal tests.
 - [x] 2.3 Implement Firebase Admin initialization from secret-managed configuration and the notification job processor; verify successful delivery, missing-token handling, invalid-token cleanup, and provider-failure behavior without logging secrets.
+- [x] 2.4 Add the PostgreSQL `Notification` model, migration, repository operations, ownership constraints, unread/recent indexes, and read-state behavior; verify notification persistence and authorization tests.
+- [x] 2.5 Add push-notification producers to the approved ride controllers for ride creation, acceptance, cancellation, and counter-fare events; persist notifications before enqueueing and verify recipient/event mapping and queue-failure behavior.
 
 ## 3. Email worker capability
 

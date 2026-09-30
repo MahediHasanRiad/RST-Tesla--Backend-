@@ -59,6 +59,20 @@ export class RideRequestRepository {
     }
   }
 
+  async findDriverUserIdByPoolId(poolId: string | undefined) {
+    if (!poolId) return null;
+    try {
+      const pool = await prisma.ridePool.findUnique({
+        where: { id: poolId },
+        select: { vehicle: { select: { driver: { select: { userId: true } } } } },
+      });
+      return pool?.vehicle.driver.userId ?? null;
+    } catch (error) {
+      this.fail("findDriverUserIdByPoolId", error);
+      throw error;
+    }
+  }
+
   async createFresh(
     passengerId: string,
     input: FreshRideRequestInput,
@@ -569,11 +583,19 @@ export class RideRequestRepository {
           };
         }
 
-        const cancelled = await transaction.rideRequest.update({
+          const cancelled = await transaction.rideRequest.update({
           where: { id: existing.id },
           data: { status: "CANCELLED" },
-          select: { id: true, passengerId: true, status: true, updatedAt: true },
-        });
+          select: {
+            id: true,
+            passengerId: true,
+            status: true,
+            updatedAt: true,
+            pool: {
+              select: { vehicle: { select: { driver: { select: { userId: true } } } } },
+            },
+          },
+          });
 
         await transaction.rideStatusHistory.create({
           data: {
@@ -584,7 +606,11 @@ export class RideRequestRepository {
           },
         });
 
-        return { kind: "cancelled" as const, request: cancelled };
+        return {
+          kind: "cancelled" as const,
+          request: cancelled,
+          driverUserId: cancelled.pool?.vehicle.driver.userId ?? null,
+        };
       });
     } catch (error) {
       this.fail("cancelForPassenger", error, passengerId);

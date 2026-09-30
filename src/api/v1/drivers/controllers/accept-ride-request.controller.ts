@@ -6,6 +6,7 @@ import { sendSuccess } from "../../../../shared/http/api-response.js";
 import { rideRequestIdParamsSchema } from "../../ride-requests/validation/ride-request.validation.js";
 import { rideRequestRepository } from "../../ride-requests/repository/ride-request.repository.js";
 import { emitRideStatusUpdate } from "../../../../realtime/ride-status.js";
+import { persistAndQueuePushNotification } from "../../../../shared/notifications/push-notification.js";
 
 
 function parseCachedFare(value: string | null) {
@@ -80,6 +81,14 @@ export async function acceptRideRequestController(
       errorMessage: error instanceof Error ? error.message : String(error),
     });
   }
+
+  await persistAndQueuePushNotification({
+    userId: result.request.passengerId,
+    eventType: "RIDE_MATCHED",
+    title: "Ride accepted",
+    body: "Your driver accepted the ride request.",
+    data: { rideRequestId: result.request.id },
+  });
 
   return sendSuccess(response, 200, {
     ...result.request,

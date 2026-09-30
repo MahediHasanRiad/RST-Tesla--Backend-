@@ -6,6 +6,7 @@ import { resolveRouteCorridor } from "../../../../shared/ride/route-corridor.js"
 import { sendSuccess } from "../../../../shared/http/api-response.js";
 import { createRideRequestSchema } from "../validation/ride-request.validation.js";
 import { rideRequestRepository } from "../repository/ride-request.repository.js";
+import { persistAndQueuePushNotification } from "../../../../shared/notifications/push-notification.js";
 
 
 export async function createRideRequestController(
@@ -49,6 +50,17 @@ export async function createRideRequestController(
     input,
     fare.estimatedFare,
   );
+
+  const driverUserId = await rideRequestRepository.findDriverUserIdByPoolId(
+    input.ridePoolId,
+  );
+  await persistAndQueuePushNotification({
+    userId: driverUserId,
+    eventType: "RIDE_REQUEST_CREATED",
+    title: "New ride request",
+    body: "A passenger created a ride request for your pool.",
+    data: { rideRequestId: rideRequest.id },
+  });
 
   return sendSuccess(response, 201, {
     id: rideRequest.id,

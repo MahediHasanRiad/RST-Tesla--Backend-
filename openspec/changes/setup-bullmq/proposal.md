@@ -11,6 +11,8 @@ Email and push delivery are external side effects that can slow HTTP requests an
 - Add a dedicated email worker that reuses the existing Brevo email delivery integration.
 - Add retry, backoff, failure logging, and graceful shutdown behavior for both workers.
 - Add a safe device-token registration/storage contract for users who opt into push notifications.
+- Add a PostgreSQL notification record so users can retrieve notification history and read state independently of push delivery.
+- Add push-notification producers for ride creation, acceptance, cancellation, and counter-fare changes.
 - Change notification/email-producing flows to enqueue jobs instead of waiting for provider delivery in the HTTP request.
 - Keep Redis limited to ephemeral queue infrastructure; PostgreSQL remains authoritative for users, ride state, fares, capacity, authorization, and notification preferences.
 
@@ -27,7 +29,7 @@ Email and push delivery are external side effects that can slow HTTP requests an
 
 ## Impact
 
-- Affected code: queue infrastructure, worker entrypoints/scripts, email-producing authentication flows, push-token persistence and validation, configuration, tests, and operational documentation.
+- Affected code: queue infrastructure, worker entrypoints/scripts, email-producing authentication flows, notification persistence, push-token persistence and validation, ride notification producers, configuration, tests, and operational documentation.
 - Existing email delivery uses Brevo and should be called by the email worker rather than directly inside request handling.
 - Firebase setup required before implementation/deployment:
   - Firebase project ID.
@@ -38,3 +40,4 @@ Email and push delivery are external side effects that can slow HTTP requests an
   - Client implementation that requests notification permission and sends FCM registration tokens to the backend.
   - Decision on token lifecycle: register, refresh/replace, revoke on logout, and remove invalid tokens after provider feedback.
 - No Firebase private key, service-account JSON, or device token will be committed to the repository.
+- Notification records remain authoritative in PostgreSQL even when a push token is missing or queue delivery fails.

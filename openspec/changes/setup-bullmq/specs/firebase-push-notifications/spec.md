@@ -6,6 +6,49 @@ Deliver targeted push notifications to authenticated users through Firebase Clou
 
 ## ADDED Requirements
 
+### Requirement: Notifications are persisted in PostgreSQL
+
+The system SHALL persist each user-facing ride notification in PostgreSQL before attempting push delivery. Each notification SHALL contain a unique ID, owning user ID, event type, title, body, optional structured data, read state, and creation/read timestamps. PostgreSQL SHALL remain authoritative for notification history and read state.
+
+#### Scenario: Ride notification is created
+
+- **WHEN** an approved ride event occurs
+- **THEN** the system creates a notification record for the intended recipient and then enqueues its push delivery
+
+#### Scenario: Push delivery is unavailable
+
+- **WHEN** the notification queue or Firebase provider is unavailable
+- **THEN** the PostgreSQL notification record remains available and the authoritative ride operation is not rolled back
+
+#### Scenario: User reads a notification
+
+- **WHEN** an authenticated user reads one of their notifications
+- **THEN** its read state and read timestamp are updated without allowing access to another user's notification
+
+### Requirement: Approved ride flows enqueue push notifications
+
+The system SHALL enqueue push notifications for the following events after the related authoritative operation succeeds: `RIDE_REQUEST_CREATED`, `RIDE_MATCHED`, `RIDE_CANCELLED`, and `COUNTER_FARE_UPDATED`. Each event SHALL target the other participant or assigned driver rather than the actor who caused the event.
+
+#### Scenario: Driver accepts a ride
+
+- **WHEN** a driver accepts a ride request
+- **THEN** the passenger receives a persisted `RIDE_MATCHED` notification and an asynchronous push job
+
+#### Scenario: Ride is cancelled
+
+- **WHEN** a driver or passenger cancels a ride request
+- **THEN** the other participant receives a persisted `RIDE_CANCELLED` notification and an asynchronous push job
+
+#### Scenario: Counter fare changes
+
+- **WHEN** a passenger or driver submits a valid counter fare
+- **THEN** the other participant receives a persisted `COUNTER_FARE_UPDATED` notification and an asynchronous push job
+
+#### Scenario: New ride request is created
+
+- **WHEN** a passenger creates a ride request assigned to a vehicle or driver
+- **THEN** the assigned driver receives a persisted `RIDE_REQUEST_CREATED` notification and an asynchronous push job
+
 ### Requirement: Users can register and manage push device tokens
 
 The system SHALL accept a validated FCM registration token for an authenticated user, support replacing refreshed tokens, and support removing tokens that are revoked or no longer valid.
@@ -46,7 +89,7 @@ The notification worker SHALL send only to tokens owned by the target user and S
 
 ### Requirement: Firebase configuration is secret-safe
 
-The system SHALL require the Firebase project identifier and server-side service-account configuration through environment or deployment secrets, SHALL document safe placeholders in `.env.example`, and SHALL never commit service-account JSON or private keys.
+The system SHALL use Firebase Admin Application Default Credentials through environment or deployment configuration, SHALL document safe placeholders in `.env.example`, and SHALL never commit service-account JSON or private keys.
 
 #### Scenario: Firebase credentials are missing
 

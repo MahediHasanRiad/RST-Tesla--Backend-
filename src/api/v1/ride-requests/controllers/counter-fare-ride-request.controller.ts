@@ -6,6 +6,7 @@ import { sendSuccess } from "../../../../shared/http/api-response.js";
 import { counterFareRedisKey, COUNTER_FARE_TTL_SECONDS } from "../ride-request.negotiation.js";
 import { counterFareSchema, rideRequestIdParamsSchema } from "../validation/ride-request.validation.js";
 import { rideRequestRepository } from "../repository/ride-request.repository.js";
+import { persistAndQueuePushNotification } from "../../../../shared/notifications/push-notification.js";
 
 
 const negotiableStatuses = new Set([
@@ -54,6 +55,14 @@ export async function counterFareRideRequestController(
     });
     throw new ApiError(503, "counter_fare_unavailable");
   }
+
+  await persistAndQueuePushNotification({
+    userId: isPassenger ? context.pool?.vehicle.driver.userId : context.passengerId,
+    eventType: "COUNTER_FARE_UPDATED",
+    title: "Counter fare updated",
+    body: `A counter fare of ${farePaisa} paisa was submitted.`,
+    data: { rideRequestId, farePaisa: String(farePaisa) },
+  });
 
   return sendSuccess(response, 200, {
     rideRequestId,

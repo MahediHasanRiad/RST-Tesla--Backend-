@@ -130,6 +130,17 @@ erDiagram
     uuid changed_by FK
     datetime created_at
   }
+  NOTIFICATIONS {
+    uuid id PK
+    uuid user_id FK
+    string event_type
+    string title
+    string body
+    json data
+    boolean is_read
+    datetime read_at
+    datetime created_at
+  }
   PAYMENTS {
     uuid id PK
     uuid request_id FK
@@ -149,6 +160,7 @@ erDiagram
   RIDE_POOLS ||--o{ RIDE_REQUESTS : groups
   RIDE_REQUESTS ||--o{ RIDE_STATUS_HISTORY : records
   USERS ||--o{ RIDE_STATUS_HISTORY : changes
+  USERS ||--o{ NOTIFICATIONS : receives
   RIDE_REQUESTS ||--o| PAYMENTS : settles
 ```
 
