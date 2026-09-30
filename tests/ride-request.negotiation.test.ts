@@ -4,7 +4,7 @@ import { ZodError } from "zod";
 import { acceptRideRequestController } from "../src/api/v1/ride-requests/controllers/accept-ride-request.controller.js";
 import { counterFareRideRequestController } from "../src/api/v1/ride-requests/controllers/counter-fare-ride-request.controller.js";
 import { redis } from "../src/lib/redis.js";
-import { rideRequestRepository } from "../src/api/v1/ride-requests/ride-request.repository.js";
+import { rideRequestRepository } from "../src/api/v1/ride-requests/repository/ride-request.repository.js";
 
 const rideRequestId = "550e8400-e29b-41d4-a716-446655440000";
 
@@ -145,7 +145,11 @@ test("driver acceptance persists the cached counter fare and cleans it up", asyn
         assert.equal(requestId, rideRequestId);
         assert.equal(driverUserId, driver.id);
         acceptedFare = counterFarePaisa;
-        return { kind: "accepted", request: acceptedRequest };
+        return {
+          kind: "accepted",
+          pool: { id: "pool-1", reservedSeats: 2 },
+          request: acceptedRequest,
+        };
       },
     },
     async () => {
@@ -161,6 +165,34 @@ test("driver acceptance persists the cached counter fare and cleans it up", asyn
       assert.equal(acceptedFare, 13000);
       assert.equal(deletedKey, `ride-request:counter-fare:${rideRequestId}`);
       assert.equal(collected.getStatus(), 200);
+      assert.equal(
+        (collected.getBody() as { data: { pool: { reservedSeats: number } } })
+          .data.pool.reservedSeats,
+        2,
+      );
+    },
+  );
+});
+
+test("driver acceptance maps a full pool to a conflict", async () => {
+  await withStubs(
+    { get: async () => null },
+    {
+      acceptForDriver: async () => ({ kind: "capacity_conflict" }),
+    },
+    async () => {
+      await assert.rejects(
+        () =>
+          acceptRideRequestController(
+            {
+              user: driver,
+              params: { rideRequestId },
+            } as never,
+            responseCollector().response as never,
+          ),
+        (error: { status: number; code: string }) =>
+          error.status === 409 && error.code === "ride_pool_capacity_conflict",
+      );
     },
   );
 });

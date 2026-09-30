@@ -52,16 +52,16 @@ rideRequestRoutes.get(
   asyncHandler(listPassengerCompletedRideRequestsController),
 );
 
+// rideRequestRoutes.post(
+//   "/:rideRequestId/join-pool",
+//   requireAuth,
+//   asyncHandler(joinRidePoolController),
+// );
+
 rideRequestRoutes.post(
   "/:rideRequestId/cancel",
   requireAuth,
   asyncHandler(cancelRideRequestController),
-);
-
-rideRequestRoutes.post(
-  "/:rideRequestId/join-pool",
-  requireAuth,
-  asyncHandler(joinRidePoolController),
 );
 
 rideRequestRoutes.post(

@@ -151,7 +151,7 @@ model RideRequest {
   destinationZoneId String            @db.Uuid
   requestedSeats    Int
   enableRidePool    Boolean           @default(false)
-  status            RideRequestStatus @default(REQUESTED)
+  status            RideRequestStatus @default(PENDING_DRIVER_ACCEPTANCE)
   farePaisa         Int?
 
   passenger       User?               @relation("PassengerRequests", fields: [passengerId], references: [id], onDelete: SetNull)

@@ -3,7 +3,6 @@ import { logger } from "../../../../lib/logger.js";
 import { redis } from "../../../../lib/redis.js";
 import { ApiError } from "../../../../shared/http/api-error.js";
 import { sendSuccess } from "../../../../shared/http/api-response.js";
-import { counterFareRedisKey } from "../ride-request.negotiation.js";
 import { rideRequestIdParamsSchema } from "../validation/ride-request.validation.js";
 import { rideRequestRepository } from "../repository/ride-request.repository.js";
 
@@ -23,13 +22,16 @@ export async function acceptRideRequestController(
   if (!request.user) throw new ApiError(401, "unauthenticated");
   if (request.user.role !== "DRIVER") throw new ApiError(403, "forbidden");
 
+  // input validation
   const { rideRequestId } = rideRequestIdParamsSchema.parse(request.params);
-  const cacheKey = counterFareRedisKey(rideRequestId);
+
+  const cacheKey = `ride-request:counter-fare:${rideRequestId}`;
   let counterFarePaisa: number | undefined;
 
   try {
     counterFarePaisa = parseCachedFare(await redis.get(cacheKey));
-  } catch (error) {
+  }
+  catch (error) {
     logger.warn("Redis counter fare read failed during acceptance", {
       cacheKey,
       actorId: request.user.id,
@@ -38,13 +40,19 @@ export async function acceptRideRequestController(
     });
   }
 
+  // accept ride request
   const result = await rideRequestRepository.acceptForDriver(
     rideRequestId,
     request.user.id,
     counterFarePaisa,
   );
   if (result.kind === "not_found") {
-    throw new ApiError(404, "ride_request_not_found_or_not_pending");
+    throw new ApiError(404, "not_found");
+  }
+  if(result.kind === "pool_not_found") throw new ApiError(404, "pool_not_found")
+  
+  if (result.kind === "capacity_conflict") {
+    throw new ApiError(409, `capacity_conflict`);
   }
 
   try {
@@ -58,5 +66,8 @@ export async function acceptRideRequestController(
     });
   }
 
-  return sendSuccess(response, 200, result.request);
+  return sendSuccess(response, 200, {
+    ...result.request,
+    pool: result.pool,
+  });
 }
