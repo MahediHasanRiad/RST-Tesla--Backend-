@@ -130,7 +130,6 @@ Cash
 
 The exact configured fare constants and the representation used for monetary values should be documented here once finalized.
 
-> **TODO:** Document the implemented base fare, zone/distance charge, pooling discount, and whether money is stored as integer paisa or another database representation.
 
 ## Architecture
 
@@ -262,28 +261,6 @@ The goal is not to introduce infrastructure simply because the system *might* be
 
 For example, a single Node deployment can evolve to multiple application servers behind a load balancer. Redis can coordinate real-time events across instances. Additional queue/stream infrastructure becomes justified when independent services and event consumers appear.
 
-## Project Structure
-
-The exact repository tree was not provided when this README was prepared.
-
-A typical high-level structure should be documented here using the actual repository rather than invented paths.
-
-```text
-RST-Tesla/
-├── TODO: add actual project structure
-└── README.md
-```
-
-## Environment Variables
-
-Never commit real credentials or secrets.
-
-```env
-# TODO: replace with the variable names from the actual .env.example
-DATABASE_URL=
-REDIS_URL=
-JWT_SECRET=
-```
 
 The names above are placeholders until verified against the repository.
 
@@ -319,16 +296,6 @@ To inspect services:
 docker compose ps
 ```
 
-> **TODO:** Document the actual exposed ports, health-check endpoints, and any required first-run migration command from the repository.
-
-## Migrations and Seed Data
-
-The project should provide reproducible Prisma migrations and seed/demo data.
-
-The assignment expects the story cast to remain visible in seed data/tests/demo flows, including Jashim, Bullet, Nusrat, and Rafiq.
-
-> **TODO:** Add the exact Prisma migration and seed commands implemented by the repository and document which story characters are currently seeded.
-
 ## API Overview
 
 The backend exposes a REST API through Express.
@@ -345,7 +312,6 @@ Major resource areas include:
 - ride lifecycle/status history;
 - notifications.
 
-> **TODO:** Add the actual route paths, methods, request/response examples, and authorization requirements from the implemented Express router.
 
 ## Testing
 
@@ -361,16 +327,10 @@ High-value tests for this project should focus on business invariants rather tha
 - cancellation rules are enforced;
 - authentication and role/ownership checks work correctly.
 
-> **TODO:** Add the actual test framework, commands, and tests currently implemented. Do not claim tests here until they exist in the repository.
 
-## Demo Credentials
-
-> **TODO:** Add evaluator-only demo accounts after confirming the seeded credentials. Do not publish real-user credentials.
 
 ## Screenshots
 
-> **TODO:** Add screenshots/GIFs of:
->
 > 1. passenger ride request;
 > 2. passenger-created shareable pool;
 > 3. driver-created pool;
@@ -378,11 +338,6 @@ High-value tests for this project should focus on business invariants rather tha
 > 5. driver acceptance and real-time passenger UI update;
 > 6. ride lifecycle/history.
 
-## Deployment
-
-> **TODO:** Add the public frontend/backend deployment URLs if deployed. If free hosting is unavailable, document that constraint and keep the Docker setup reproducible.
-
-## Key Trade-offs and Limitations
 
 ### Predefined route matching
 
