@@ -3,29 +3,29 @@ import { logger } from "../../../../lib/logger.js";
 import { redis } from "../../../../lib/redis.js";
 import { ApiError } from "../../../../shared/http/api-error.js";
 import { sendSuccess } from "../../../../shared/http/api-response.js";
-import {
-  createCursorPage,
-  parseCursorQuery,
-} from "../../../../shared/pagination/cursor.js";
-import { rideRequestRepository } from "../repository/ride-request.repository.js";
+import { createOffsetPage } from "../../../../shared/pagination/offset.js";
+import { completedRideHistoryQuerySchema } from "../../ride-requests/validation/ride-request.validation.js";
+import { rideRequestRepository } from "../../ride-requests/repository/ride-request.repository.js";
 
 
 const LIST_CACHE_TTL_SECONDS = 60;
 
-export async function listDriverRideRequestsController(
+export async function listDriverCompletedRideRequestsController(
   request: Request,
   response: Response,
 ) {
   if (!request.user) throw new ApiError(401, "unauthenticated");
   if (request.user.role !== "DRIVER") throw new ApiError(403, "forbidden");
 
-  const { cursor, limit, position } = parseCursorQuery(request.query);
-  const cacheKey = `list:v1:driver-ride-requests:driver=${encodeURIComponent(request.user.id)}:cursor=${encodeURIComponent(cursor ?? "")}:limit=${limit}`;
-  let page: ReturnType<typeof createCursorPage> | undefined;
+  const { page: pageNumber, limit } = completedRideHistoryQuerySchema.parse(
+    request.query,
+  );
+  const cacheKey = `list:v1:driver-completed-ride-requests:driver=${encodeURIComponent(request.user.id)}:page=${pageNumber}:limit=${limit}`;
+  let page: ReturnType<typeof createOffsetPage> | undefined;
 
   try {
     const cached = await redis.get(cacheKey);
-    if (cached) page = JSON.parse(cached) as ReturnType<typeof createCursorPage>;
+    if (cached) page = JSON.parse(cached) as ReturnType<typeof createOffsetPage>;
   } catch (error) {
     logger.warn("Redis cache read failed", {
       cacheKey,
@@ -36,15 +36,12 @@ export async function listDriverRideRequestsController(
   }
 
   if (!page) {
-    const result = await rideRequestRepository.findPageByDriver(
+    const result = await rideRequestRepository.findCompletedPageByDriver(
       request.user.id,
-      position,
+      pageNumber,
       limit,
     );
-    page = createCursorPage(result.items, limit, result.hasNextPage, (item:any) => ({
-      createdAt: item.createdAt.toISOString(),
-      id: item.id,
-    }));
+    page = createOffsetPage(result.items, pageNumber, limit, result.totalItems);
 
     try {
       await redis.set(cacheKey, JSON.stringify(page), "EX", LIST_CACHE_TTL_SECONDS);

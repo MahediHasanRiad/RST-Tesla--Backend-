@@ -6,6 +6,7 @@ import { userRoutes } from "./api/v1/users/user.routes.js";
 import { vehicleRoutes } from "./api/v1/vehicles/vehicle.routes.js";
 import { serviceZoneRoutes } from "./api/v1/service-zones/service-zone.routes.js";
 import { rideRequestRoutes } from "./api/v1/ride-requests/ride-request.routes.js";
+import { driverRoutes } from "./api/v1/drivers/driver.routes.js";
 import { errorHandler } from "./middleware/error.middleware.js";
 
 export function buildApp() {
@@ -22,6 +23,8 @@ export function buildApp() {
   app.use("/api/v1/vehicles", vehicleRoutes);
   app.use("/api/v1/service-zones", serviceZoneRoutes);
   app.use("/api/v1/ride-requests", rideRequestRoutes);
+  app.use("/api/v1/drivers", driverRoutes);
+  
   app.get("/health", (_request, response) => response.json({ status: "ok" }));
 
   app.use(errorHandler);

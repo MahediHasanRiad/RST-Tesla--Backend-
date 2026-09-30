@@ -1,8 +1,8 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { joinRidePoolController } from "../src/api/v1/ride-requests/controllers/join-ride-pool.controller.js";
-import { openRidePoolController } from "../src/api/v1/ride-requests/controllers/open-ride-pool.controller.js";
-import { closeRidePoolController } from "../src/api/v1/ride-requests/controllers/close-ride-pool.controller.js";
+import { openRidePoolController } from "../src/api/v1/drivers/controllers/open-ride-pool.controller.js";
+import { closeRidePoolController } from "../src/api/v1/drivers/controllers/close-ride-pool.controller.js";
 import { ridePoolRepository } from "../src/api/v1/ride-requests/repository/ride-pool.repository.js";
 import { redis } from "../src/lib/redis.js";
 import { vehicleRepository } from "../src/api/v1/vehicles/vehicle.repository.js";
@@ -82,6 +82,45 @@ test("driver can open an online directional pool", async () => {
   );
   assert.equal(collected.getStatus(), 201);
   assert.equal((collected.getBody() as { success: boolean }).success, true);
+});
+
+test("pool opening maps validation, vehicle, and duplicate-pool conflicts", async () => {
+  const vehicleRepo = vehicleRepository as unknown as Record<string, unknown>;
+  const originalFindDriverByUserId = vehicleRepo.findDriverByUserId;
+  vehicleRepo.findDriverByUserId = async () => ({ id: "driver-1" });
+  try {
+    for (const [kind, status, code] of [
+      ["vehicle_not_found", 404, "vehicle_not_found"],
+      ["vehicle_offline", 409, "vehicle_offline"],
+      ["active_pool_exists", 409, "active_pool_exists"],
+    ] as const) {
+      await withRepositoryStubs(
+        {
+          findZones: async () => [
+            { id: pickupZoneId, name: "mirpur-1" },
+            { id: destinationZoneId, name: "mirpur-10" },
+          ],
+          createForDriver: async () => ({ kind }),
+        },
+        async () => {
+          await assert.rejects(
+            () =>
+              openRidePoolController(
+                {
+                  user: { id: "driver-1", role: "DRIVER" },
+                  body: { pickupZoneId, destinationZoneId },
+                } as never,
+                responseCollector().response as never,
+              ),
+            (error: { status: number; code: string }) =>
+              error.status === status && error.code === code,
+          );
+        },
+      );
+    }
+  } finally {
+    vehicleRepo.findDriverByUserId = originalFindDriverByUserId;
+  }
 });
 
 test("passenger joins a pool using the stored ride-request seats", async () => {
@@ -201,6 +240,46 @@ test("pool close maps ownership and lifecycle conflicts", async () => {
         );
       },
     );
+  }
+});
+
+test("Redis invalidation failure does not undo a successful close", async () => {
+  const redisClient = redis as unknown as { incr: (key: string) => Promise<number> };
+  const originalIncr = redisClient.incr;
+  redisClient.incr = async () => {
+    throw new Error("redis unavailable");
+  };
+  try {
+    await withRepositoryStubs(
+      {
+        closeForDriver: async () => ({
+          kind: "closed" as const,
+          pool: {
+            id: poolId,
+            status: "CLOSE",
+            pickupZone: { id: pickupZoneId },
+            destinationZone: { id: destinationZoneId },
+          },
+        }),
+      },
+      async () => {
+        const collected = responseCollector();
+        await closeRidePoolController(
+          {
+            user: { id: "driver-1", role: "DRIVER" },
+            body: { poolId },
+          } as never,
+          collected.response as never,
+        );
+        assert.equal(collected.getStatus(), 200);
+        assert.equal(
+          (collected.getBody() as { data: { status: string } }).data.status,
+          "CLOSE",
+        );
+      },
+    );
+  } finally {
+    redisClient.incr = originalIncr;
   }
 });
 

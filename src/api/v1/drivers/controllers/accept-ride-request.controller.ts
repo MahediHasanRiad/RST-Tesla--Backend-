@@ -3,8 +3,8 @@ import { logger } from "../../../../lib/logger.js";
 import { redis } from "../../../../lib/redis.js";
 import { ApiError } from "../../../../shared/http/api-error.js";
 import { sendSuccess } from "../../../../shared/http/api-response.js";
-import { rideRequestIdParamsSchema } from "../validation/ride-request.validation.js";
-import { rideRequestRepository } from "../repository/ride-request.repository.js";
+import { rideRequestIdParamsSchema } from "../../ride-requests/validation/ride-request.validation.js";
+import { rideRequestRepository } from "../../ride-requests/repository/ride-request.repository.js";
 
 
 function parseCachedFare(value: string | null) {

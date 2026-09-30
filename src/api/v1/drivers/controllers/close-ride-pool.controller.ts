@@ -3,12 +3,12 @@ import { logger } from "../../../../lib/logger.js";
 import { redis } from "../../../../lib/redis.js";
 import { ApiError } from "../../../../shared/http/api-error.js";
 import { sendSuccess } from "../../../../shared/http/api-response.js";
-import { closeRidePoolSchema } from "../validation/ride-pool.validation.js";
-import { ridePoolRepository } from "../repository/ride-pool.repository.js";
 import {
   availableRidePoolVersionKey,
   AVAILABLE_RIDE_POOL_VERSION_TTL_SECONDS,
-} from "../ride-pool.cache.js";
+} from "../../ride-requests/ride-pool.cache.js";
+import { ridePoolRepository } from "../../ride-requests/repository/ride-pool.repository.js";
+import { closeRidePoolSchema } from "../../ride-requests/validation/ride-pool.validation.js";
 
 export async function closeRidePoolController(
   request: Request,
@@ -17,7 +17,6 @@ export async function closeRidePoolController(
   if (!request.user) throw new ApiError(401, "unauthenticated");
   if (request.user.role !== "DRIVER") throw new ApiError(403, "forbidden");
 
-  // input validation
   const { poolId } = closeRidePoolSchema.parse(request.body);
   const result = await ridePoolRepository.closeForDriver(
     request.user.id,
@@ -34,18 +33,17 @@ export async function closeRidePoolController(
     throw new ApiError(409, "ride_pool_not_open");
   }
 
-  // cache key
   const cacheVersionKey = availableRidePoolVersionKey(
     result.pool.pickupZone.id,
     result.pool.destinationZone.id,
   );
   try {
-    // add incr bcs, when drive close the pool the imidiately update the version, then also 
-    // remove from the cache 
     await redis.incr(cacheVersionKey);
-    await redis.expire(cacheVersionKey, AVAILABLE_RIDE_POOL_VERSION_TTL_SECONDS);
-  } 
-  catch (error) {
+    await redis.expire(
+      cacheVersionKey,
+      AVAILABLE_RIDE_POOL_VERSION_TTL_SECONDS,
+    );
+  } catch (error) {
     logger.warn("Ride-pool discovery cache invalidation failed", {
       cacheVersionKey,
       actorId: request.user.id,

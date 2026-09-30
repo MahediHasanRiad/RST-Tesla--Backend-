@@ -9,14 +9,17 @@ import { updateMyProfileController } from "./controllers/update-my-profile.contr
 export const userRoutes = Router();
 
 userRoutes.get("/me", requireAuth, asyncHandler(getMyProfileController));
+
 userRoutes.patch(
   "/update-profile",
   requireAuth,
   upload.single("avatar"),
   asyncHandler(updateMyProfileController),
 );
+
 userRoutes.delete(
   "/delete-profile",
   requireAuth,
   asyncHandler(deleteMyProfileController),
 );
+

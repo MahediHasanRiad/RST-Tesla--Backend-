@@ -47,7 +47,7 @@ Passengers can fetch one of their requests with `GET /api/v1/ride-requests/:ride
 
 Drivers can list requests assigned to their pools with `GET /api/v1/ride-requests/driver?cursor=<opaque-cursor>&limit=20`. Drivers can view completed history with `GET /api/v1/ride-requests/driver/completed?page=1&limit=20`, while passengers can view their own completed history with `GET /api/v1/ride-requests/completed?page=1&limit=20`. Completed-history endpoints use offset pagination; all three list endpoints use a 60-second Redis cache-aside and keep PostgreSQL authoritative.
 
-Drivers open a directional pool with `POST /api/v1/ride-requests/open-pool`:
+Drivers open a directional pool with `POST /api/v1/drivers/open-pool`:
 
 ```json
 {
@@ -56,13 +56,15 @@ Drivers open a directional pool with `POST /api/v1/ride-requests/open-pool`:
 }
 ```
 
-The owning driver can stop accepting new passengers by closing the pool with `POST /api/v1/ride-requests/close-pool`:
+The owning driver can stop accepting new passengers by closing the pool with `POST /api/v1/drivers/close-pool`:
 
 ```json
 { "poolId": "open-pool-uuid" }
 ```
 
 Only the driver who owns the pool's vehicle can close it. Closing changes the pool from `OPEN` to `CLOSE`, removes it from future pool discovery and joins, and preserves ride requests already assigned to the pool.
+
+The driver pool endpoints were moved from the ride-request namespace in this breaking API change; the former mutation paths are no longer registered.
 
 Passengers opt into pooling when creating a request with `"enableRidePool": true` and their requested `seats`. After choosing a compatible pool, they join it with `POST /api/v1/ride-requests/:rideRequestId/join-pool` and `{ "poolId": "..." }`. The backend uses the stored request seat count and performs the capacity update in a PostgreSQL transaction.
 
