@@ -45,6 +45,11 @@ enum PaymentStatus {
   FAILED
 }
 
+enum RideFareOfferStatus {
+  CURRENT
+  REPLACED
+}
+
 model User {
   id                  String    @id @default(uuid()) @db.Uuid
   role                UserRole
@@ -61,11 +66,12 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  rideRequests    RideRequest[]       @relation("PassengerRequests")
-  statusChanges   RideStatusHistory[] @relation("StatusChangedBy")
-  driver          Driver?
-  deviceTokens    UserDeviceToken[]
-  notifications   Notification[]
+  rideRequests  RideRequest[]       @relation("PassengerRequests")
+  statusChanges RideStatusHistory[] @relation("StatusChangedBy")
+  driver        Driver?
+  deviceTokens  UserDeviceToken[]
+  notifications Notification[]
+  fareOffers     RideFareOffer[]    @relation("FareOfferProposer")
 }
 
 model AuthRateLimit {
@@ -89,7 +95,6 @@ model Driver {
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
   vehicle         Vehicle?
-  
 }
 
 model Vehicle {
@@ -123,46 +128,86 @@ model ServiceZone {
 }
 
 model RidePool {
-  id                String        @id @default(uuid()) @db.Uuid
-  vehicleId         String        @db.Uuid
-  pickupZoneId      String        @db.Uuid
-  destinationZoneId String        @db.Uuid
-  status            PoolStatus    @default(CLOSE)
-  reservedSeats     Int           @default(0)
-  vehicle           Vehicle       @relation(fields: [vehicleId], references: [id])
-  pickupZone        ServiceZone   @relation("PoolPickupZone", fields: [pickupZoneId], references: [id])
-  destinationZone   ServiceZone   @relation("PoolDestinationZone", fields: [destinationZoneId], references: [id])
-  requests          RideRequest[]
-  createdAt         DateTime      @default(now())
-  updatedAt         DateTime      @updatedAt
+  id                String @id @default(uuid()) @db.Uuid
+  vehicleId         String @db.Uuid
+  pickupZoneId      String @db.Uuid
+  destinationZoneId String @db.Uuid
+
+  status        PoolStatus @default(OPEN)
+  reservedSeats Int        @default(0)
+
+  startedAt   DateTime?
+  completedAt DateTime?
+
+  vehicle         Vehicle       @relation(fields: [vehicleId], references: [id])
+  pickupZone      ServiceZone   @relation("PoolPickupZone", fields: [pickupZoneId], references: [id])
+  destinationZone ServiceZone   @relation("PoolDestinationZone", fields: [destinationZoneId], references: [id])
+  requests        RideRequest[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([vehicleId, status])
   @@index([pickupZoneId, status])
 }
 
 model RideRequest {
-  id                String            @id @default(uuid()) @db.Uuid
-  passengerId       String?           @db.Uuid
-  poolId            String?           @db.Uuid
-  pickupZoneId      String            @db.Uuid
-  destinationZoneId String            @db.Uuid
-  requestedSeats    Int
-  enableRidePool    Boolean           @default(false)
-  status            RideRequestStatus @default(PENDING_DRIVER_ACCEPTANCE)
+  id                String  @id @default(uuid()) @db.Uuid
+  passengerId       String? @db.Uuid
+  poolId            String? @db.Uuid
+  pickupZoneId      String  @db.Uuid
+  destinationZoneId String  @db.Uuid
+
+  requestedSeats Int
+  enableRidePool Boolean @default(false)
+
+  status RideRequestStatus @default(REQUESTED)
+
+  baseFarePaisa     Int?
+  distanceFarePaisa Int?
+  poolDiscountPaisa Int  @default(0)
   farePaisa         Int?
 
-  passenger       User?               @relation("PassengerRequests", fields: [passengerId], references: [id], onDelete: SetNull)
-  pool            RidePool?           @relation(fields: [poolId], references: [id])
-  pickupZone      ServiceZone         @relation("RequestPickupZone", fields: [pickupZoneId], references: [id])
-  destinationZone ServiceZone         @relation("RequestDestinationZone", fields: [destinationZoneId], references: [id])
-  statusHistory   RideStatusHistory[]
+  matchedAt   DateTime?
+  startedAt   DateTime?
+  completedAt DateTime?
+  cancelledAt DateTime?
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt              DateTime            @default(now())
+  updatedAt              DateTime            @updatedAt
+  user                   User?               @relation("PassengerRequests", fields: [userId], references: [id])
+  userId                 String?             @db.Uuid
+  pickupServiceZone      ServiceZone?        @relation("RequestPickupZone", fields: [pickupZoneId], references: [id])
+  destinationServiceZone ServiceZone?        @relation("RequestDestinationZone", fields: [destinationZoneId], references: [id])
+  ridePool               RidePool?           @relation(fields: [poolId], references: [id])
+  ridePoolId             String?             @db.Uuid
+  rideStatusHistories    RideStatusHistory[]
+  fareOffers             RideFareOffer[]
+  payment                Payment?
 
   @@index([pickupZoneId, status])
   @@index([destinationZoneId])
   @@index([passengerId, createdAt])
+}
+
+model RideFareOffer {
+  id                  String              @id @default(uuid()) @db.Uuid
+  rideRequestId       String              @db.Uuid
+  offerVersion        Int
+  amountPaisa         Int
+  proposedById        String?             @db.Uuid
+  passengerAcceptedAt DateTime?
+  driverAcceptedAt    DateTime?
+  status              RideFareOfferStatus @default(CURRENT)
+
+  rideRequest RideRequest @relation(fields: [rideRequestId], references: [id], onDelete: Cascade)
+  proposedBy  User?       @relation("FareOfferProposer", fields: [proposedById], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([rideRequestId, offerVersion])
+  @@index([rideRequestId, status])
 }
 
 model RideStatusHistory {
@@ -208,4 +253,20 @@ model Notification {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, isRead, createdAt])
+}
+
+model Payment {
+  id          String        @id @default(uuid()) @db.Uuid
+  rideId      String        @unique @db.Uuid
+  amountPaisa Int
+  method      PaymentMethod
+  status      PaymentStatus @default(PENDING)
+
+  paidAt    DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  ride RideRequest @relation(fields: [rideId], references: [id])
+
+  @@index([status])
 }

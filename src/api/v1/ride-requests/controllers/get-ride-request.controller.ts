@@ -19,5 +19,9 @@ export async function getRideRequestController(
   );
   if (!rideRequest) throw new ApiError(404, "ride_request_not_found");
 
-  return sendSuccess(response, 200, rideRequest);
+  return sendSuccess(response, 200, {
+    ...rideRequest,
+    currentOffer: rideRequest.fareOffers[0] ?? null,
+    fareOffers: undefined,
+  });
 }

@@ -77,6 +77,11 @@ export type RidePool = Prisma.RidePoolModel
  */
 export type RideRequest = Prisma.RideRequestModel
 /**
+ * Model RideFareOffer
+ * 
+ */
+export type RideFareOffer = Prisma.RideFareOfferModel
+/**
  * Model RideStatusHistory
  * 
  */
@@ -91,3 +96,8 @@ export type UserDeviceToken = Prisma.UserDeviceTokenModel
  * 
  */
 export type Notification = Prisma.NotificationModel
+/**
+ * Model Payment
+ * 
+ */
+export type Payment = Prisma.PaymentModel

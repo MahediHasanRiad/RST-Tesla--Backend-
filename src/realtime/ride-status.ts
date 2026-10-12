@@ -5,6 +5,15 @@ export type RideStatusUpdate = {
   status: "MATCHED" | "CANCELLED";
 };
 
+export type RideNegotiationUpdate = {
+  rideRequestId: string;
+  offerId: string;
+  offerVersion: number;
+  farePaisa: number;
+  passengerAccepted: boolean;
+  driverAccepted: boolean;
+};
+
 let socketServer: SocketIOServer | undefined;
 
 export function attachRideStatus(io: SocketIOServer) {
@@ -26,6 +35,38 @@ export function emitRideStatusUpdate(
     socket.emit("ride:status-updated", update);
     delivered += 1;
     
+  }
+  return delivered;
+}
+
+export function emitRideStatusUpdateToUser(
+  userId: string | null | undefined,
+  update: RideStatusUpdate,
+) {
+  if (!socketServer || !userId) return 0;
+
+  let delivered = 0;
+  for (const socket of socketServer.sockets.sockets.values()) {
+    const data = socket.data as { userId?: string };
+    if (data.userId !== userId) continue;
+    socket.emit("ride:status-updated", update);
+    delivered += 1;
+  }
+  return delivered;
+}
+
+export function emitRideNegotiationUpdate(
+  userId: string | null | undefined,
+  update: RideNegotiationUpdate,
+) {
+  if (!socketServer || !userId) return 0;
+
+  let delivered = 0;
+  for (const socket of socketServer.sockets.sockets.values()) {
+    const data = socket.data as { userId?: string };
+    if (data.userId !== userId) continue;
+    socket.emit("ride:negotiation-updated", update);
+    delivered += 1;
   }
   return delivered;
 }

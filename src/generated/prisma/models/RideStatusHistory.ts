@@ -248,7 +248,7 @@ export type RideStatusHistoryCreateInput = {
   fromStatus?: $Enums.RideRequestStatus | null
   toStatus: $Enums.RideRequestStatus
   createdAt?: Date | string
-  request: Prisma.RideRequestCreateNestedOneWithoutStatusHistoryInput
+  request: Prisma.RideRequestCreateNestedOneWithoutRideStatusHistoriesInput
   changedBy?: Prisma.UserCreateNestedOneWithoutStatusChangesInput
 }
 
@@ -266,7 +266,7 @@ export type RideStatusHistoryUpdateInput = {
   fromStatus?: Prisma.NullableEnumRideRequestStatusFieldUpdateOperationsInput | $Enums.RideRequestStatus | null
   toStatus?: Prisma.EnumRideRequestStatusFieldUpdateOperationsInput | $Enums.RideRequestStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  request?: Prisma.RideRequestUpdateOneRequiredWithoutStatusHistoryNestedInput
+  request?: Prisma.RideRequestUpdateOneRequiredWithoutRideStatusHistoriesNestedInput
   changedBy?: Prisma.UserUpdateOneWithoutStatusChangesNestedInput
 }
 
@@ -434,7 +434,7 @@ export type RideStatusHistoryCreateWithoutChangedByInput = {
   fromStatus?: $Enums.RideRequestStatus | null
   toStatus: $Enums.RideRequestStatus
   createdAt?: Date | string
-  request: Prisma.RideRequestCreateNestedOneWithoutStatusHistoryInput
+  request: Prisma.RideRequestCreateNestedOneWithoutRideStatusHistoriesInput
 }
 
 export type RideStatusHistoryUncheckedCreateWithoutChangedByInput = {
@@ -538,7 +538,7 @@ export type RideStatusHistoryUpdateWithoutChangedByInput = {
   fromStatus?: Prisma.NullableEnumRideRequestStatusFieldUpdateOperationsInput | $Enums.RideRequestStatus | null
   toStatus?: Prisma.EnumRideRequestStatusFieldUpdateOperationsInput | $Enums.RideRequestStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  request?: Prisma.RideRequestUpdateOneRequiredWithoutStatusHistoryNestedInput
+  request?: Prisma.RideRequestUpdateOneRequiredWithoutRideStatusHistoriesNestedInput
 }
 
 export type RideStatusHistoryUncheckedUpdateWithoutChangedByInput = {

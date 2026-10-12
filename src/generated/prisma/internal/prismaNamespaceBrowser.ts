@@ -58,9 +58,11 @@ export const ModelName = {
   ServiceZone: 'ServiceZone',
   RidePool: 'RidePool',
   RideRequest: 'RideRequest',
+  RideFareOffer: 'RideFareOffer',
   RideStatusHistory: 'RideStatusHistory',
   UserDeviceToken: 'UserDeviceToken',
-  Notification: 'Notification'
+  Notification: 'Notification',
+  Payment: 'Payment'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -156,6 +158,8 @@ export const RidePoolScalarFieldEnum = {
   destinationZoneId: 'destinationZoneId',
   status: 'status',
   reservedSeats: 'reservedSeats',
+  startedAt: 'startedAt',
+  completedAt: 'completedAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -172,12 +176,37 @@ export const RideRequestScalarFieldEnum = {
   requestedSeats: 'requestedSeats',
   enableRidePool: 'enableRidePool',
   status: 'status',
+  baseFarePaisa: 'baseFarePaisa',
+  distanceFarePaisa: 'distanceFarePaisa',
+  poolDiscountPaisa: 'poolDiscountPaisa',
   farePaisa: 'farePaisa',
+  matchedAt: 'matchedAt',
+  startedAt: 'startedAt',
+  completedAt: 'completedAt',
+  cancelledAt: 'cancelledAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  userId: 'userId',
+  ridePoolId: 'ridePoolId'
+} as const
+
+export type RideRequestScalarFieldEnum = (typeof RideRequestScalarFieldEnum)[keyof typeof RideRequestScalarFieldEnum]
+
+
+export const RideFareOfferScalarFieldEnum = {
+  id: 'id',
+  rideRequestId: 'rideRequestId',
+  offerVersion: 'offerVersion',
+  amountPaisa: 'amountPaisa',
+  proposedById: 'proposedById',
+  passengerAcceptedAt: 'passengerAcceptedAt',
+  driverAcceptedAt: 'driverAcceptedAt',
+  status: 'status',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
-export type RideRequestScalarFieldEnum = (typeof RideRequestScalarFieldEnum)[keyof typeof RideRequestScalarFieldEnum]
+export type RideFareOfferScalarFieldEnum = (typeof RideFareOfferScalarFieldEnum)[keyof typeof RideFareOfferScalarFieldEnum]
 
 
 export const RideStatusHistoryScalarFieldEnum = {
@@ -220,6 +249,20 @@ export const NotificationScalarFieldEnum = {
 } as const
 
 export type NotificationScalarFieldEnum = (typeof NotificationScalarFieldEnum)[keyof typeof NotificationScalarFieldEnum]
+
+
+export const PaymentScalarFieldEnum = {
+  id: 'id',
+  rideId: 'rideId',
+  amountPaisa: 'amountPaisa',
+  method: 'method',
+  status: 'status',
+  paidAt: 'paidAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type PaymentScalarFieldEnum = (typeof PaymentScalarFieldEnum)[keyof typeof PaymentScalarFieldEnum]
 
 
 export const SortOrder = {

@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   attachRideStatus,
+  emitRideNegotiationUpdate,
   emitRideStatusUpdate,
 } from "../src/realtime/ride-status.js";
 
@@ -55,4 +56,31 @@ test("ride status updates support driver rejection", () => {
   assert.deepEqual(passengerSocket.emitted, [
     { rideRequestId: "ride-2", status: "CANCELLED" },
   ]);
+});
+
+test("negotiation updates target the other participant", () => {
+  const passengerSocket = fakeSocket("passenger-1", "PASSENGER");
+  const driverSocket = fakeSocket("driver-1", "DRIVER");
+  const otherSocket = fakeSocket("driver-2", "DRIVER");
+  attachRideStatus({
+    sockets: { sockets: new Map([
+      ["passenger", passengerSocket],
+      ["driver", driverSocket],
+      ["other", otherSocket],
+    ]) },
+  } as never);
+
+  const delivered = emitRideNegotiationUpdate("driver-1", {
+    rideRequestId: "ride-3",
+    offerId: "offer-2",
+    offerVersion: 2,
+    farePaisa: 13000,
+    passengerAccepted: false,
+    driverAccepted: true,
+  });
+
+  assert.equal(delivered, 1);
+  assert.equal(driverSocket.emitted.length, 1);
+  assert.deepEqual(passengerSocket.emitted, []);
+  assert.deepEqual(otherSocket.emitted, []);
 });

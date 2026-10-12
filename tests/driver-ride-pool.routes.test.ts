@@ -17,6 +17,8 @@ test("driver pool router exposes only the dedicated open and close actions", () 
   assert.equal(driverPaths.includes("/close-pool"), true);
   assert.equal(routePaths(rideRequestRoutes).includes("/open-pool"), false);
   assert.equal(routePaths(rideRequestRoutes).includes("/close-pool"), false);
+  assert.equal(routePaths(rideRequestRoutes).includes("/:rideRequestId/accept"), true);
+  assert.equal(driverPaths.includes("/:rideRequestId/accept"), true);
 });
 
 test("application composition mounts the driver router", () => {

@@ -3,7 +3,6 @@ import test from "node:test";
 import { acceptRideRequestController } from "../src/api/v1/drivers/controllers/accept-ride-request.controller.js";
 import { cancelRideRequestController } from "../src/api/v1/drivers/controllers/cancel-ride-request.controller.js";
 import { rideRequestRepository } from "../src/api/v1/ride-requests/repository/ride-request.repository.js";
-import { redis } from "../src/lib/redis.js";
 import { attachRideStatus } from "../src/realtime/ride-status.js";
 
 const rideRequestId = "550e8400-e29b-41d4-a716-446655440000";
@@ -47,23 +46,29 @@ function socketForPassenger(
 
 test("driver acceptance emits MATCHED to the passenger", async () => {
   const repository = rideRequestRepository as unknown as Record<string, unknown>;
-  const redisClient = redis as unknown as Record<string, unknown>;
   const originalAccept = repository.acceptForDriver;
-  const originalGet = redisClient.get;
-  const originalDel = redisClient.del;
   const emitted = socketForPassenger();
 
   repository.acceptForDriver = async () => ({
     kind: "accepted",
-    pool: { id: "pool-1", reservedSeats: 1 },
+    matched: true,
     request: {
       id: rideRequestId,
       passengerId: "passenger-1",
       status: "MATCHED",
     },
+    offer: {
+      id: "offer-1",
+      offerVersion: 1,
+      amountPaisa: 10000,
+      proposedById: "passenger-1",
+      passengerAcceptedAt: new Date(),
+      driverAcceptedAt: new Date(),
+    },
+    passengerId: "passenger-1",
+    driverUserId: driver.id,
+    pool: { id: "pool-1", reservedSeats: 1 },
   });
-  redisClient.get = async () => null;
-  redisClient.del = async () => 1;
 
   try {
     await acceptRideRequestController(
@@ -72,8 +77,6 @@ test("driver acceptance emits MATCHED to the passenger", async () => {
     );
   } finally {
     repository.acceptForDriver = originalAccept;
-    redisClient.get = originalGet;
-    redisClient.del = originalDel;
   }
 
   assert.deepEqual(emitted, [

@@ -298,8 +298,8 @@ export type ServiceZoneCreateInput = {
   updatedAt?: Date | string
   pickupPools?: Prisma.RidePoolCreateNestedManyWithoutPickupZoneInput
   destinationPools?: Prisma.RidePoolCreateNestedManyWithoutDestinationZoneInput
-  pickupRequests?: Prisma.RideRequestCreateNestedManyWithoutPickupZoneInput
-  destinationRequests?: Prisma.RideRequestCreateNestedManyWithoutDestinationZoneInput
+  pickupRequests?: Prisma.RideRequestCreateNestedManyWithoutPickupServiceZoneInput
+  destinationRequests?: Prisma.RideRequestCreateNestedManyWithoutDestinationServiceZoneInput
 }
 
 export type ServiceZoneUncheckedCreateInput = {
@@ -311,8 +311,8 @@ export type ServiceZoneUncheckedCreateInput = {
   updatedAt?: Date | string
   pickupPools?: Prisma.RidePoolUncheckedCreateNestedManyWithoutPickupZoneInput
   destinationPools?: Prisma.RidePoolUncheckedCreateNestedManyWithoutDestinationZoneInput
-  pickupRequests?: Prisma.RideRequestUncheckedCreateNestedManyWithoutPickupZoneInput
-  destinationRequests?: Prisma.RideRequestUncheckedCreateNestedManyWithoutDestinationZoneInput
+  pickupRequests?: Prisma.RideRequestUncheckedCreateNestedManyWithoutPickupServiceZoneInput
+  destinationRequests?: Prisma.RideRequestUncheckedCreateNestedManyWithoutDestinationServiceZoneInput
 }
 
 export type ServiceZoneUpdateInput = {
@@ -324,8 +324,8 @@ export type ServiceZoneUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   pickupPools?: Prisma.RidePoolUpdateManyWithoutPickupZoneNestedInput
   destinationPools?: Prisma.RidePoolUpdateManyWithoutDestinationZoneNestedInput
-  pickupRequests?: Prisma.RideRequestUpdateManyWithoutPickupZoneNestedInput
-  destinationRequests?: Prisma.RideRequestUpdateManyWithoutDestinationZoneNestedInput
+  pickupRequests?: Prisma.RideRequestUpdateManyWithoutPickupServiceZoneNestedInput
+  destinationRequests?: Prisma.RideRequestUpdateManyWithoutDestinationServiceZoneNestedInput
 }
 
 export type ServiceZoneUncheckedUpdateInput = {
@@ -337,8 +337,8 @@ export type ServiceZoneUncheckedUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   pickupPools?: Prisma.RidePoolUncheckedUpdateManyWithoutPickupZoneNestedInput
   destinationPools?: Prisma.RidePoolUncheckedUpdateManyWithoutDestinationZoneNestedInput
-  pickupRequests?: Prisma.RideRequestUncheckedUpdateManyWithoutPickupZoneNestedInput
-  destinationRequests?: Prisma.RideRequestUncheckedUpdateManyWithoutDestinationZoneNestedInput
+  pickupRequests?: Prisma.RideRequestUncheckedUpdateManyWithoutPickupServiceZoneNestedInput
+  destinationRequests?: Prisma.RideRequestUncheckedUpdateManyWithoutDestinationServiceZoneNestedInput
 }
 
 export type ServiceZoneCreateManyInput = {
@@ -410,6 +410,11 @@ export type ServiceZoneScalarRelationFilter = {
   isNot?: Prisma.ServiceZoneWhereInput
 }
 
+export type ServiceZoneNullableScalarRelationFilter = {
+  is?: Prisma.ServiceZoneWhereInput | null
+  isNot?: Prisma.ServiceZoneWhereInput | null
+}
+
 export type DecimalFieldUpdateOperationsInput = {
   set?: runtime.Decimal | runtime.DecimalJsLike | number | string
   increment?: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -458,18 +463,22 @@ export type ServiceZoneCreateNestedOneWithoutDestinationRequestsInput = {
   connect?: Prisma.ServiceZoneWhereUniqueInput
 }
 
-export type ServiceZoneUpdateOneRequiredWithoutPickupRequestsNestedInput = {
+export type ServiceZoneUpdateOneWithoutPickupRequestsNestedInput = {
   create?: Prisma.XOR<Prisma.ServiceZoneCreateWithoutPickupRequestsInput, Prisma.ServiceZoneUncheckedCreateWithoutPickupRequestsInput>
   connectOrCreate?: Prisma.ServiceZoneCreateOrConnectWithoutPickupRequestsInput
   upsert?: Prisma.ServiceZoneUpsertWithoutPickupRequestsInput
+  disconnect?: Prisma.ServiceZoneWhereInput | boolean
+  delete?: Prisma.ServiceZoneWhereInput | boolean
   connect?: Prisma.ServiceZoneWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.ServiceZoneUpdateToOneWithWhereWithoutPickupRequestsInput, Prisma.ServiceZoneUpdateWithoutPickupRequestsInput>, Prisma.ServiceZoneUncheckedUpdateWithoutPickupRequestsInput>
 }
 
-export type ServiceZoneUpdateOneRequiredWithoutDestinationRequestsNestedInput = {
+export type ServiceZoneUpdateOneWithoutDestinationRequestsNestedInput = {
   create?: Prisma.XOR<Prisma.ServiceZoneCreateWithoutDestinationRequestsInput, Prisma.ServiceZoneUncheckedCreateWithoutDestinationRequestsInput>
   connectOrCreate?: Prisma.ServiceZoneCreateOrConnectWithoutDestinationRequestsInput
   upsert?: Prisma.ServiceZoneUpsertWithoutDestinationRequestsInput
+  disconnect?: Prisma.ServiceZoneWhereInput | boolean
+  delete?: Prisma.ServiceZoneWhereInput | boolean
   connect?: Prisma.ServiceZoneWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.ServiceZoneUpdateToOneWithWhereWithoutDestinationRequestsInput, Prisma.ServiceZoneUpdateWithoutDestinationRequestsInput>, Prisma.ServiceZoneUncheckedUpdateWithoutDestinationRequestsInput>
 }
@@ -482,8 +491,8 @@ export type ServiceZoneCreateWithoutPickupPoolsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   destinationPools?: Prisma.RidePoolCreateNestedManyWithoutDestinationZoneInput
-  pickupRequests?: Prisma.RideRequestCreateNestedManyWithoutPickupZoneInput
-  destinationRequests?: Prisma.RideRequestCreateNestedManyWithoutDestinationZoneInput
+  pickupRequests?: Prisma.RideRequestCreateNestedManyWithoutPickupServiceZoneInput
+  destinationRequests?: Prisma.RideRequestCreateNestedManyWithoutDestinationServiceZoneInput
 }
 
 export type ServiceZoneUncheckedCreateWithoutPickupPoolsInput = {
@@ -494,8 +503,8 @@ export type ServiceZoneUncheckedCreateWithoutPickupPoolsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   destinationPools?: Prisma.RidePoolUncheckedCreateNestedManyWithoutDestinationZoneInput
-  pickupRequests?: Prisma.RideRequestUncheckedCreateNestedManyWithoutPickupZoneInput
-  destinationRequests?: Prisma.RideRequestUncheckedCreateNestedManyWithoutDestinationZoneInput
+  pickupRequests?: Prisma.RideRequestUncheckedCreateNestedManyWithoutPickupServiceZoneInput
+  destinationRequests?: Prisma.RideRequestUncheckedCreateNestedManyWithoutDestinationServiceZoneInput
 }
 
 export type ServiceZoneCreateOrConnectWithoutPickupPoolsInput = {
@@ -511,8 +520,8 @@ export type ServiceZoneCreateWithoutDestinationPoolsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   pickupPools?: Prisma.RidePoolCreateNestedManyWithoutPickupZoneInput
-  pickupRequests?: Prisma.RideRequestCreateNestedManyWithoutPickupZoneInput
-  destinationRequests?: Prisma.RideRequestCreateNestedManyWithoutDestinationZoneInput
+  pickupRequests?: Prisma.RideRequestCreateNestedManyWithoutPickupServiceZoneInput
+  destinationRequests?: Prisma.RideRequestCreateNestedManyWithoutDestinationServiceZoneInput
 }
 
 export type ServiceZoneUncheckedCreateWithoutDestinationPoolsInput = {
@@ -523,8 +532,8 @@ export type ServiceZoneUncheckedCreateWithoutDestinationPoolsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   pickupPools?: Prisma.RidePoolUncheckedCreateNestedManyWithoutPickupZoneInput
-  pickupRequests?: Prisma.RideRequestUncheckedCreateNestedManyWithoutPickupZoneInput
-  destinationRequests?: Prisma.RideRequestUncheckedCreateNestedManyWithoutDestinationZoneInput
+  pickupRequests?: Prisma.RideRequestUncheckedCreateNestedManyWithoutPickupServiceZoneInput
+  destinationRequests?: Prisma.RideRequestUncheckedCreateNestedManyWithoutDestinationServiceZoneInput
 }
 
 export type ServiceZoneCreateOrConnectWithoutDestinationPoolsInput = {
@@ -551,8 +560,8 @@ export type ServiceZoneUpdateWithoutPickupPoolsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   destinationPools?: Prisma.RidePoolUpdateManyWithoutDestinationZoneNestedInput
-  pickupRequests?: Prisma.RideRequestUpdateManyWithoutPickupZoneNestedInput
-  destinationRequests?: Prisma.RideRequestUpdateManyWithoutDestinationZoneNestedInput
+  pickupRequests?: Prisma.RideRequestUpdateManyWithoutPickupServiceZoneNestedInput
+  destinationRequests?: Prisma.RideRequestUpdateManyWithoutDestinationServiceZoneNestedInput
 }
 
 export type ServiceZoneUncheckedUpdateWithoutPickupPoolsInput = {
@@ -563,8 +572,8 @@ export type ServiceZoneUncheckedUpdateWithoutPickupPoolsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   destinationPools?: Prisma.RidePoolUncheckedUpdateManyWithoutDestinationZoneNestedInput
-  pickupRequests?: Prisma.RideRequestUncheckedUpdateManyWithoutPickupZoneNestedInput
-  destinationRequests?: Prisma.RideRequestUncheckedUpdateManyWithoutDestinationZoneNestedInput
+  pickupRequests?: Prisma.RideRequestUncheckedUpdateManyWithoutPickupServiceZoneNestedInput
+  destinationRequests?: Prisma.RideRequestUncheckedUpdateManyWithoutDestinationServiceZoneNestedInput
 }
 
 export type ServiceZoneUpsertWithoutDestinationPoolsInput = {
@@ -586,8 +595,8 @@ export type ServiceZoneUpdateWithoutDestinationPoolsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   pickupPools?: Prisma.RidePoolUpdateManyWithoutPickupZoneNestedInput
-  pickupRequests?: Prisma.RideRequestUpdateManyWithoutPickupZoneNestedInput
-  destinationRequests?: Prisma.RideRequestUpdateManyWithoutDestinationZoneNestedInput
+  pickupRequests?: Prisma.RideRequestUpdateManyWithoutPickupServiceZoneNestedInput
+  destinationRequests?: Prisma.RideRequestUpdateManyWithoutDestinationServiceZoneNestedInput
 }
 
 export type ServiceZoneUncheckedUpdateWithoutDestinationPoolsInput = {
@@ -598,8 +607,8 @@ export type ServiceZoneUncheckedUpdateWithoutDestinationPoolsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   pickupPools?: Prisma.RidePoolUncheckedUpdateManyWithoutPickupZoneNestedInput
-  pickupRequests?: Prisma.RideRequestUncheckedUpdateManyWithoutPickupZoneNestedInput
-  destinationRequests?: Prisma.RideRequestUncheckedUpdateManyWithoutDestinationZoneNestedInput
+  pickupRequests?: Prisma.RideRequestUncheckedUpdateManyWithoutPickupServiceZoneNestedInput
+  destinationRequests?: Prisma.RideRequestUncheckedUpdateManyWithoutDestinationServiceZoneNestedInput
 }
 
 export type ServiceZoneCreateWithoutPickupRequestsInput = {
@@ -611,7 +620,7 @@ export type ServiceZoneCreateWithoutPickupRequestsInput = {
   updatedAt?: Date | string
   pickupPools?: Prisma.RidePoolCreateNestedManyWithoutPickupZoneInput
   destinationPools?: Prisma.RidePoolCreateNestedManyWithoutDestinationZoneInput
-  destinationRequests?: Prisma.RideRequestCreateNestedManyWithoutDestinationZoneInput
+  destinationRequests?: Prisma.RideRequestCreateNestedManyWithoutDestinationServiceZoneInput
 }
 
 export type ServiceZoneUncheckedCreateWithoutPickupRequestsInput = {
@@ -623,7 +632,7 @@ export type ServiceZoneUncheckedCreateWithoutPickupRequestsInput = {
   updatedAt?: Date | string
   pickupPools?: Prisma.RidePoolUncheckedCreateNestedManyWithoutPickupZoneInput
   destinationPools?: Prisma.RidePoolUncheckedCreateNestedManyWithoutDestinationZoneInput
-  destinationRequests?: Prisma.RideRequestUncheckedCreateNestedManyWithoutDestinationZoneInput
+  destinationRequests?: Prisma.RideRequestUncheckedCreateNestedManyWithoutDestinationServiceZoneInput
 }
 
 export type ServiceZoneCreateOrConnectWithoutPickupRequestsInput = {
@@ -640,7 +649,7 @@ export type ServiceZoneCreateWithoutDestinationRequestsInput = {
   updatedAt?: Date | string
   pickupPools?: Prisma.RidePoolCreateNestedManyWithoutPickupZoneInput
   destinationPools?: Prisma.RidePoolCreateNestedManyWithoutDestinationZoneInput
-  pickupRequests?: Prisma.RideRequestCreateNestedManyWithoutPickupZoneInput
+  pickupRequests?: Prisma.RideRequestCreateNestedManyWithoutPickupServiceZoneInput
 }
 
 export type ServiceZoneUncheckedCreateWithoutDestinationRequestsInput = {
@@ -652,7 +661,7 @@ export type ServiceZoneUncheckedCreateWithoutDestinationRequestsInput = {
   updatedAt?: Date | string
   pickupPools?: Prisma.RidePoolUncheckedCreateNestedManyWithoutPickupZoneInput
   destinationPools?: Prisma.RidePoolUncheckedCreateNestedManyWithoutDestinationZoneInput
-  pickupRequests?: Prisma.RideRequestUncheckedCreateNestedManyWithoutPickupZoneInput
+  pickupRequests?: Prisma.RideRequestUncheckedCreateNestedManyWithoutPickupServiceZoneInput
 }
 
 export type ServiceZoneCreateOrConnectWithoutDestinationRequestsInput = {
@@ -680,7 +689,7 @@ export type ServiceZoneUpdateWithoutPickupRequestsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   pickupPools?: Prisma.RidePoolUpdateManyWithoutPickupZoneNestedInput
   destinationPools?: Prisma.RidePoolUpdateManyWithoutDestinationZoneNestedInput
-  destinationRequests?: Prisma.RideRequestUpdateManyWithoutDestinationZoneNestedInput
+  destinationRequests?: Prisma.RideRequestUpdateManyWithoutDestinationServiceZoneNestedInput
 }
 
 export type ServiceZoneUncheckedUpdateWithoutPickupRequestsInput = {
@@ -692,7 +701,7 @@ export type ServiceZoneUncheckedUpdateWithoutPickupRequestsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   pickupPools?: Prisma.RidePoolUncheckedUpdateManyWithoutPickupZoneNestedInput
   destinationPools?: Prisma.RidePoolUncheckedUpdateManyWithoutDestinationZoneNestedInput
-  destinationRequests?: Prisma.RideRequestUncheckedUpdateManyWithoutDestinationZoneNestedInput
+  destinationRequests?: Prisma.RideRequestUncheckedUpdateManyWithoutDestinationServiceZoneNestedInput
 }
 
 export type ServiceZoneUpsertWithoutDestinationRequestsInput = {
@@ -715,7 +724,7 @@ export type ServiceZoneUpdateWithoutDestinationRequestsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   pickupPools?: Prisma.RidePoolUpdateManyWithoutPickupZoneNestedInput
   destinationPools?: Prisma.RidePoolUpdateManyWithoutDestinationZoneNestedInput
-  pickupRequests?: Prisma.RideRequestUpdateManyWithoutPickupZoneNestedInput
+  pickupRequests?: Prisma.RideRequestUpdateManyWithoutPickupServiceZoneNestedInput
 }
 
 export type ServiceZoneUncheckedUpdateWithoutDestinationRequestsInput = {
@@ -727,7 +736,7 @@ export type ServiceZoneUncheckedUpdateWithoutDestinationRequestsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   pickupPools?: Prisma.RidePoolUncheckedUpdateManyWithoutPickupZoneNestedInput
   destinationPools?: Prisma.RidePoolUncheckedUpdateManyWithoutDestinationZoneNestedInput
-  pickupRequests?: Prisma.RideRequestUncheckedUpdateManyWithoutPickupZoneNestedInput
+  pickupRequests?: Prisma.RideRequestUncheckedUpdateManyWithoutPickupServiceZoneNestedInput
 }
 
 

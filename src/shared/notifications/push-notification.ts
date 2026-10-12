@@ -6,7 +6,8 @@ export type RideNotificationEvent =
   | "RIDE_REQUEST_CREATED"
   | "RIDE_MATCHED"
   | "RIDE_CANCELLED"
-  | "COUNTER_FARE_UPDATED";
+  | "COUNTER_FARE_UPDATED"
+  | "RIDE_FARE_ACCEPTED";
 
 export async function persistAndQueuePushNotification(input: {
   userId: string | null | undefined;

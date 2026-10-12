@@ -404,9 +404,11 @@ export const ModelName = {
   ServiceZone: 'ServiceZone',
   RidePool: 'RidePool',
   RideRequest: 'RideRequest',
+  RideFareOffer: 'RideFareOffer',
   RideStatusHistory: 'RideStatusHistory',
   UserDeviceToken: 'UserDeviceToken',
-  Notification: 'Notification'
+  Notification: 'Notification',
+  Payment: 'Payment'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -422,7 +424,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "authRateLimit" | "driver" | "vehicle" | "serviceZone" | "ridePool" | "rideRequest" | "rideStatusHistory" | "userDeviceToken" | "notification"
+    modelProps: "user" | "authRateLimit" | "driver" | "vehicle" | "serviceZone" | "ridePool" | "rideRequest" | "rideFareOffer" | "rideStatusHistory" | "userDeviceToken" | "notification" | "payment"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -944,6 +946,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    RideFareOffer: {
+      payload: Prisma.$RideFareOfferPayload<ExtArgs>
+      fields: Prisma.RideFareOfferFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.RideFareOfferFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RideFareOfferPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.RideFareOfferFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RideFareOfferPayload>
+        }
+        findFirst: {
+          args: Prisma.RideFareOfferFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RideFareOfferPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.RideFareOfferFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RideFareOfferPayload>
+        }
+        findMany: {
+          args: Prisma.RideFareOfferFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RideFareOfferPayload>[]
+        }
+        create: {
+          args: Prisma.RideFareOfferCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RideFareOfferPayload>
+        }
+        createMany: {
+          args: Prisma.RideFareOfferCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.RideFareOfferCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RideFareOfferPayload>[]
+        }
+        delete: {
+          args: Prisma.RideFareOfferDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RideFareOfferPayload>
+        }
+        update: {
+          args: Prisma.RideFareOfferUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RideFareOfferPayload>
+        }
+        deleteMany: {
+          args: Prisma.RideFareOfferDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.RideFareOfferUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.RideFareOfferUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RideFareOfferPayload>[]
+        }
+        upsert: {
+          args: Prisma.RideFareOfferUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RideFareOfferPayload>
+        }
+        aggregate: {
+          args: Prisma.RideFareOfferAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateRideFareOffer>
+        }
+        groupBy: {
+          args: Prisma.RideFareOfferGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.RideFareOfferGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.RideFareOfferCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.RideFareOfferCountAggregateOutputType> | number
+        }
+      }
+    }
     RideStatusHistory: {
       payload: Prisma.$RideStatusHistoryPayload<ExtArgs>
       fields: Prisma.RideStatusHistoryFieldRefs
@@ -1166,6 +1242,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    Payment: {
+      payload: Prisma.$PaymentPayload<ExtArgs>
+      fields: Prisma.PaymentFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.PaymentFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PaymentPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.PaymentFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PaymentPayload>
+        }
+        findFirst: {
+          args: Prisma.PaymentFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PaymentPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.PaymentFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PaymentPayload>
+        }
+        findMany: {
+          args: Prisma.PaymentFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PaymentPayload>[]
+        }
+        create: {
+          args: Prisma.PaymentCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PaymentPayload>
+        }
+        createMany: {
+          args: Prisma.PaymentCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.PaymentCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PaymentPayload>[]
+        }
+        delete: {
+          args: Prisma.PaymentDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PaymentPayload>
+        }
+        update: {
+          args: Prisma.PaymentUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PaymentPayload>
+        }
+        deleteMany: {
+          args: Prisma.PaymentDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.PaymentUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.PaymentUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PaymentPayload>[]
+        }
+        upsert: {
+          args: Prisma.PaymentUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PaymentPayload>
+        }
+        aggregate: {
+          args: Prisma.PaymentAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregatePayment>
+        }
+        groupBy: {
+          args: Prisma.PaymentGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PaymentGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.PaymentCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PaymentCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -1282,6 +1432,8 @@ export const RidePoolScalarFieldEnum = {
   destinationZoneId: 'destinationZoneId',
   status: 'status',
   reservedSeats: 'reservedSeats',
+  startedAt: 'startedAt',
+  completedAt: 'completedAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -1298,12 +1450,37 @@ export const RideRequestScalarFieldEnum = {
   requestedSeats: 'requestedSeats',
   enableRidePool: 'enableRidePool',
   status: 'status',
+  baseFarePaisa: 'baseFarePaisa',
+  distanceFarePaisa: 'distanceFarePaisa',
+  poolDiscountPaisa: 'poolDiscountPaisa',
   farePaisa: 'farePaisa',
+  matchedAt: 'matchedAt',
+  startedAt: 'startedAt',
+  completedAt: 'completedAt',
+  cancelledAt: 'cancelledAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  userId: 'userId',
+  ridePoolId: 'ridePoolId'
+} as const
+
+export type RideRequestScalarFieldEnum = (typeof RideRequestScalarFieldEnum)[keyof typeof RideRequestScalarFieldEnum]
+
+
+export const RideFareOfferScalarFieldEnum = {
+  id: 'id',
+  rideRequestId: 'rideRequestId',
+  offerVersion: 'offerVersion',
+  amountPaisa: 'amountPaisa',
+  proposedById: 'proposedById',
+  passengerAcceptedAt: 'passengerAcceptedAt',
+  driverAcceptedAt: 'driverAcceptedAt',
+  status: 'status',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
-export type RideRequestScalarFieldEnum = (typeof RideRequestScalarFieldEnum)[keyof typeof RideRequestScalarFieldEnum]
+export type RideFareOfferScalarFieldEnum = (typeof RideFareOfferScalarFieldEnum)[keyof typeof RideFareOfferScalarFieldEnum]
 
 
 export const RideStatusHistoryScalarFieldEnum = {
@@ -1346,6 +1523,20 @@ export const NotificationScalarFieldEnum = {
 } as const
 
 export type NotificationScalarFieldEnum = (typeof NotificationScalarFieldEnum)[keyof typeof NotificationScalarFieldEnum]
+
+
+export const PaymentScalarFieldEnum = {
+  id: 'id',
+  rideId: 'rideId',
+  amountPaisa: 'amountPaisa',
+  method: 'method',
+  status: 'status',
+  paidAt: 'paidAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type PaymentScalarFieldEnum = (typeof PaymentScalarFieldEnum)[keyof typeof PaymentScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -1515,6 +1706,20 @@ export type ListEnumRideRequestStatusFieldRefInput<$PrismaModel> = FieldRefInput
 
 
 /**
+ * Reference to a field of type 'RideFareOfferStatus'
+ */
+export type EnumRideFareOfferStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'RideFareOfferStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'RideFareOfferStatus[]'
+ */
+export type ListEnumRideFareOfferStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'RideFareOfferStatus[]'>
+    
+
+
+/**
  * Reference to a field of type 'Json'
  */
 export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
@@ -1525,6 +1730,34 @@ export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'J
  * Reference to a field of type 'QueryMode'
  */
 export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
+    
+
+
+/**
+ * Reference to a field of type 'PaymentMethod'
+ */
+export type EnumPaymentMethodFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PaymentMethod'>
+    
+
+
+/**
+ * Reference to a field of type 'PaymentMethod[]'
+ */
+export type ListEnumPaymentMethodFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PaymentMethod[]'>
+    
+
+
+/**
+ * Reference to a field of type 'PaymentStatus'
+ */
+export type EnumPaymentStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PaymentStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'PaymentStatus[]'
+ */
+export type ListEnumPaymentStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PaymentStatus[]'>
     
 
 
@@ -1699,9 +1932,11 @@ export type GlobalOmitConfig = {
   serviceZone?: Prisma.ServiceZoneOmit
   ridePool?: Prisma.RidePoolOmit
   rideRequest?: Prisma.RideRequestOmit
+  rideFareOffer?: Prisma.RideFareOfferOmit
   rideStatusHistory?: Prisma.RideStatusHistoryOmit
   userDeviceToken?: Prisma.UserDeviceTokenOmit
   notification?: Prisma.NotificationOmit
+  payment?: Prisma.PaymentOmit
 }
 
 /* Types for Logging */

@@ -73,8 +73,8 @@ export async function createFreshRideRequestController(
 
   return sendSuccess(response, 201, {
     id: result.request.id,
-    pickupZone: result.request.pickupZone,
-    destinationZone: result.request.destinationZone,
+    pickupZone: result.request.pickupServiceZone,
+    destinationZone: result.request.destinationServiceZone,
     route: route.names,
     seats: result.request.requestedSeats,
     enableRidePool: result.request.enableRidePool,

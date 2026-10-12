@@ -1,6 +1,9 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { createRideRequestSchema } from "../src/api/v1/ride-requests/validation/ride-request.validation.js";
+import {
+  acceptFareSchema,
+  createRideRequestSchema,
+} from "../src/api/v1/ride-requests/validation/ride-request.validation.js";
 import { closeRidePoolSchema, joinRidePoolSchema } from "../src/api/v1/ride-requests/validation/ride-pool.validation.js";
 import { calculateDistanceKm } from "../src/shared/ride/distance.js";
 import {
@@ -57,6 +60,15 @@ test("ride request input enforces UUID and seat constraints", () => {
       destinationZoneId: mirpurTen,
       seats: 11,
     }).success,
+    false,
+  );
+});
+
+test("fare acceptance requires a positive offer version and rejects unknown fields", () => {
+  assert.equal(acceptFareSchema.safeParse({ offerVersion: 2 }).success, true);
+  assert.equal(acceptFareSchema.safeParse({ offerVersion: 0 }).success, false);
+  assert.equal(
+    acceptFareSchema.safeParse({ offerVersion: 2, farePaisa: 10000 }).success,
     false,
   );
 });

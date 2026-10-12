@@ -63,3 +63,11 @@ export const PaymentStatus = {
 } as const
 
 export type PaymentStatus = (typeof PaymentStatus)[keyof typeof PaymentStatus]
+
+
+export const RideFareOfferStatus = {
+  CURRENT: 'CURRENT',
+  REPLACED: 'REPLACED'
+} as const
+
+export type RideFareOfferStatus = (typeof RideFareOfferStatus)[keyof typeof RideFareOfferStatus]

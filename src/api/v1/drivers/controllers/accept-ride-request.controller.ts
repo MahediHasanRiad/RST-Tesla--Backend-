@@ -1,97 +1,9 @@
 import type { Request, Response } from "express";
-import { logger } from "../../../../lib/logger.js";
-import { redis } from "../../../../lib/redis.js";
-import { ApiError } from "../../../../shared/http/api-error.js";
-import { sendSuccess } from "../../../../shared/http/api-response.js";
-import { rideRequestIdParamsSchema } from "../../ride-requests/validation/ride-request.validation.js";
-import { rideRequestRepository } from "../../ride-requests/repository/ride-request.repository.js";
-import { emitRideStatusUpdate } from "../../../../realtime/ride-status.js";
-import { persistAndQueuePushNotification } from "../../../../shared/notifications/push-notification.js";
-
-
-function parseCachedFare(value: string | null) {
-  if (!value) return undefined;
-  const farePaisa = Number(value);
-  return Number.isSafeInteger(farePaisa) && farePaisa > 0
-    ? farePaisa
-    : undefined;
-}
+import { acceptRideRequestController as acceptNegotiatedRideRequestController } from "../../ride-requests/controllers/accept-ride-request.controller.js";
 
 export async function acceptRideRequestController(
   request: Request,
   response: Response,
 ) {
-  if (!request.user) throw new ApiError(401, "unauthenticated");
-  if (request.user.role !== "DRIVER") throw new ApiError(403, "forbidden");
-
-  // input validation
-  const { rideRequestId } = rideRequestIdParamsSchema.parse(request.params);
-
-  const cacheKey = `ride-request:counter-fare:${rideRequestId}`;
-  let counterFarePaisa: number | undefined;
-
-  try {
-    counterFarePaisa = parseCachedFare(await redis.get(cacheKey));
-  }
-  catch (error) {
-    logger.warn("Redis counter fare read failed during acceptance", {
-      cacheKey,
-      actorId: request.user.id,
-      errorName: error instanceof Error ? error.name : "UnknownError",
-      errorMessage: error instanceof Error ? error.message : String(error),
-    });
-  }
-
-  // accept ride request
-  const result = await rideRequestRepository.acceptForDriver(
-    rideRequestId,
-    request.user.id,
-    counterFarePaisa,
-  );
-  if (result.kind === "not_found") {
-    throw new ApiError(404, "not_found");
-  }
-  if(result.kind === "pool_not_found") throw new ApiError(404, "pool_not_found")
-  
-  if (result.kind === "capacity_conflict") {
-    throw new ApiError(409, `capacity_conflict`);
-  }
-
-  try {
-    await redis.del(cacheKey);
-  } catch (error) {
-    logger.warn("Redis counter fare cleanup failed after acceptance", {
-      cacheKey,
-      actorId: request.user.id,
-      errorName: error instanceof Error ? error.name : "UnknownError",
-      errorMessage: error instanceof Error ? error.message : String(error),
-    });
-  }
-
-  try {
-    // send update using socket/io
-    emitRideStatusUpdate(result.request.passengerId, {
-      rideRequestId: result.request.id,
-      status: "MATCHED",
-    });
-  } catch (error) {
-    logger.warn("Ride status realtime update failed after acceptance", {
-      rideRequestId: result.request.id,
-      errorName: error instanceof Error ? error.name : "UnknownError",
-      errorMessage: error instanceof Error ? error.message : String(error),
-    });
-  }
-
-  await persistAndQueuePushNotification({
-    userId: result.request.passengerId,
-    eventType: "RIDE_MATCHED",
-    title: "Ride accepted",
-    body: "Your driver accepted the ride request.",
-    data: { rideRequestId: result.request.id },
-  });
-
-  return sendSuccess(response, 200, {
-    ...result.request,
-    pool: result.pool,
-  });
+  return acceptNegotiatedRideRequestController(request, response);
 }

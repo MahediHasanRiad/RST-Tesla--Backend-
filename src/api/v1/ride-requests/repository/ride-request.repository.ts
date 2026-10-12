@@ -1,5 +1,6 @@
 import { logger } from "../../../../lib/logger.js";
 import { prisma } from "../../../../lib/prisma.js";
+import { Prisma } from "../../../../generated/prisma/client.js";
 import { CursorPosition } from "../../../../shared/pagination/cursor.js";
 import {
   CreateRideRequestInput,
@@ -43,12 +44,19 @@ export class RideRequestRepository {
           requestedSeats: input.seats,
           enableRidePool: input.enableRidePool,
           farePaisa,
+          fareOffers: {
+            create: {
+              offerVersion: 1,
+              amountPaisa: farePaisa,
+              proposedById: passengerId,
+            },
+          },
         },
         include: {
-          pickupZone: {
+          pickupServiceZone: {
             select: { id: true, name: true, latitude: true, longitude: true },
           },
-          destinationZone: {
+          destinationServiceZone: {
             select: { id: true, name: true, latitude: true, longitude: true },
           },
         },
@@ -64,7 +72,9 @@ export class RideRequestRepository {
     try {
       const pool = await prisma.ridePool.findUnique({
         where: { id: poolId },
-        select: { vehicle: { select: { driver: { select: { userId: true } } } } },
+        select: {
+          vehicle: { select: { driver: { select: { userId: true } } } },
+        },
       });
       return pool?.vehicle.driver.userId ?? null;
     } catch (error) {
@@ -220,10 +230,18 @@ export class RideRequestRepository {
               destinationZoneId: input.destinationZoneId,
               requestedSeats: input.seats,
               enableRidePool: input.enableRidePool,
+              status: "PENDING_DRIVER_ACCEPTANCE",
               farePaisa,
+              fareOffers: {
+                create: {
+                  offerVersion: 1,
+                  amountPaisa: farePaisa,
+                  proposedById: passengerId,
+                },
+              },
             },
             include: {
-              pickupZone: {
+              pickupServiceZone: {
                 select: {
                   id: true,
                   name: true,
@@ -231,7 +249,7 @@ export class RideRequestRepository {
                   longitude: true,
                 },
               },
-              destinationZone: {
+              destinationServiceZone: {
                 select: {
                   id: true,
                   name: true,
@@ -281,12 +299,25 @@ export class RideRequestRepository {
           requestedSeats: true,
           status: true,
           farePaisa: true,
+          fareOffers: {
+            where: { status: "CURRENT" },
+            orderBy: { offerVersion: "desc" },
+            take: 1,
+            select: {
+              id: true,
+              offerVersion: true,
+              amountPaisa: true,
+              proposedById: true,
+              passengerAcceptedAt: true,
+              driverAcceptedAt: true,
+            },
+          },
           createdAt: true,
           updatedAt: true,
-          pickupZone: {
+          pickupServiceZone: {
             select: { id: true, name: true, latitude: true, longitude: true },
           },
-          destinationZone: {
+          destinationServiceZone: {
             select: { id: true, name: true, latitude: true, longitude: true },
           },
         },
@@ -378,12 +409,25 @@ export class RideRequestRepository {
           requestedSeats: true,
           status: true,
           farePaisa: true,
+          fareOffers: {
+            where: { status: "CURRENT" },
+            orderBy: { offerVersion: "desc" },
+            take: 1,
+            select: {
+              id: true,
+              offerVersion: true,
+              amountPaisa: true,
+              proposedById: true,
+              passengerAcceptedAt: true,
+              driverAcceptedAt: true,
+            },
+          },
           createdAt: true,
           updatedAt: true,
-          pickupZone: {
+          pickupServiceZone: {
             select: { id: true, name: true, latitude: true, longitude: true },
           },
-          destinationZone: {
+          destinationServiceZone: {
             select: { id: true, name: true, latitude: true, longitude: true },
           },
         },
@@ -402,13 +446,26 @@ export class RideRequestRepository {
           id: true,
           status: true,
           passengerId: true,
-          pool: {
+          ridePool: {
             select: {
               vehicle: {
                 select: {
                   driver: { select: { userId: true } },
                 },
               },
+            },
+          },
+          fareOffers: {
+            where: { status: "CURRENT" },
+            orderBy: { offerVersion: "desc" },
+            take: 1,
+            select: {
+              id: true,
+              offerVersion: true,
+              amountPaisa: true,
+              proposedById: true,
+              passengerAcceptedAt: true,
+              driverAcceptedAt: true,
             },
           },
         },
@@ -419,72 +476,285 @@ export class RideRequestRepository {
     }
   }
 
-  async acceptForDriver(
+  async counterFare(rideRequestId: string, passengerId: string, amountPaisa: number ) {
+    try {
+      if (!Number.isSafeInteger(amountPaisa) || amountPaisa <= 0) {
+        return { kind: "invalid_amount" as const };
+      }
+
+      return await prisma.$transaction(
+        async (tx) => {
+          const existing = await tx.rideRequest.findUnique({
+            where: {
+              id: rideRequestId,
+            },
+            select: {
+              id: true,
+              status: true,
+              passengerId: true,
+              ridePool: {
+                select: {
+                  vehicle: {
+                    select: {
+                      driver: {
+                        select: {
+                          userId: true,
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+              fareOffers: {
+                where: {
+                  status: "CURRENT",
+                },
+                orderBy: {
+                  offerVersion: "desc",
+                },
+                take: 1,
+                select: {
+                  id: true,
+                  offerVersion: true,
+                  proposedById: true,
+                },
+              },
+            },
+          });
+
+          if (!existing) {
+            return { kind: "not_found" as const };
+          }
+
+          if (
+            !["REQUESTED", "PENDING_DRIVER_ACCEPTANCE"].includes(
+              existing.status,
+            )
+          ) {
+            return { kind: "invalid_status" as const };
+          }
+
+          const driverUserId = existing.ridePool?.vehicle.driver.userId;
+
+          if (
+            existing.passengerId !== passengerId &&
+            driverUserId !== passengerId
+          ) {
+            return { kind: "forbidden" as const };
+          }
+
+          const currentOffer = existing.fareOffers[0];
+
+          // Prevent a user from countering their own offer.
+          if (currentOffer?.proposedById === passengerId) {
+            return { kind: "own_offer" as const };
+          }
+
+          const nextVersion = (currentOffer?.offerVersion ?? 0) + 1;
+
+          // Conditional write protects against concurrent changes
+          // to the ride request.
+          const claim = await tx.rideRequest.updateMany({
+            where: {
+              id: existing.id,
+              status: {
+                in: ["REQUESTED", "PENDING_DRIVER_ACCEPTANCE"],
+              },
+            },
+            data: {
+              updatedAt: new Date(),
+            },
+          });
+
+          if (claim.count !== 1) {
+            return { kind: "conflict" as const };
+          }
+
+          if (currentOffer) {
+            const replaced = await tx.rideFareOffer.updateMany({
+              where: {
+                id: currentOffer.id,
+                status: "CURRENT",
+              },
+              data: {
+                status: "REPLACED",
+              },
+            });
+
+            if (replaced.count !== 1) {
+              return { kind: "conflict" as const };
+            }
+          }
+
+          const offer = await tx.rideFareOffer.create({
+            data: {
+              rideRequestId: existing.id,
+              offerVersion: nextVersion,
+              amountPaisa,
+              proposedById: passengerId,
+              status: "CURRENT",
+            },
+            select: {
+              id: true,
+              offerVersion: true,
+              amountPaisa: true,
+              proposedById: true,
+              passengerAcceptedAt: true,
+              driverAcceptedAt: true,
+            },
+          });
+
+          return {
+            kind: "countered" as const,
+            requestId: existing.id,
+            status: existing.status,
+            offer,
+            passengerId: existing.passengerId,
+            driverUserId,
+          };
+        },
+        {
+          isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
+        },
+      );
+    } catch (error) {
+      this.fail("counterFare", error, passengerId);
+      throw error;
+    }
+  }
+
+  async acceptForActor(
     rideRequestId: string,
-    driverUserId: string,
-    counterFarePaisa?: number,
+    actorId: string,
+    role: "PASSENGER" | "DRIVER",
+    offerVersion: number | undefined,
   ) {
     try {
       return await prisma.$transaction(
         async (transaction) => {
+          await transaction.$queryRaw<{ id: string }[]>(
+            Prisma.sql`SELECT "id" FROM "RideRequest" WHERE "id" = ${rideRequestId} FOR UPDATE`,
+          );
           const existing = await transaction.rideRequest.findFirst({
             where: {
               id: rideRequestId,
-              status: "PENDING_DRIVER_ACCEPTANCE",
-              pool: { vehicle: { driver: { userId: driverUserId } } },
+              status: { in: ["REQUESTED", "PENDING_DRIVER_ACCEPTANCE"] },
             },
             select: {
               id: true,
+              passengerId: true,
               poolId: true,
               requestedSeats: true,
               status: true,
+              fareOffers: {
+                where: { status: "CURRENT" },
+                orderBy: { offerVersion: "desc" },
+                take: 1,
+                select: {
+                  id: true,
+                  offerVersion: true,
+                  amountPaisa: true,
+                  proposedById: true,
+                  passengerAcceptedAt: true,
+                  driverAcceptedAt: true,
+                },
+              },
+              ridePool: {
+                select: {
+                  vehicle: {
+                    select: {
+                      capacity: true,
+                      driver: { select: { userId: true } },
+                    },
+                  },
+                },
+              },
             },
           });
 
           if (!existing) return { kind: "not_found" as const };
-          if (!existing.poolId) return { kind: "pool_not_found" as const };
+          const driverUserId = existing.ridePool?.vehicle.driver.userId;
+          const authorized =
+            (role === "PASSENGER" && existing.passengerId === actorId) ||
+            (role === "DRIVER" && driverUserId === actorId);
+          if (!authorized) return { kind: "forbidden" as const };
 
-          // Fetch pool and vehicle
-          const pool = await transaction.ridePool.findUnique({
-            where: { id: existing.poolId },
-            select: {
-              id: true,
-              reservedSeats: true,
-              vehicle: {
-                select: {
-                  capacity: true,
-                },
-              },
-            },
-          });
-
-          if (!pool) return { kind: "pool_not_found" as const };
-          if (!pool.vehicle) return { kind: "capacity_conflict" as const };
+          const currentOffer = existing.fareOffers[0];
+          if (!currentOffer) return { kind: "offer_not_found" as const };
+          await transaction.$queryRaw<{ id: string }[]>(
+            Prisma.sql`SELECT "id" FROM "RideFareOffer" WHERE "id" = ${currentOffer.id} FOR UPDATE`,
+          );
           if (
-            pool.reservedSeats + existing.requestedSeats >
-            pool.vehicle.capacity
+            offerVersion !== undefined &&
+            currentOffer.offerVersion !== offerVersion
           ) {
-            return {
-              kind: `capacity_conflict` as const,
-            };
+            return { kind: "stale_offer" as const, offer: currentOffer };
           }
 
-          const updatedPool = await transaction.ridePool.update({
-            where: { id: pool.id },
-            data: { reservedSeats: { increment: existing.requestedSeats } },
-            select: { id: true, reservedSeats: true },
+          const otherAlreadyAccepted =
+            role === "PASSENGER"
+              ? currentOffer.driverAcceptedAt !== null
+              : currentOffer.passengerAcceptedAt !== null;
+
+          let pool: {
+            id: string;
+            reservedSeats: number;
+            vehicle: { capacity: number };
+          } | null = null;
+          if (otherAlreadyAccepted && existing.poolId) {
+            await transaction.$queryRaw<{ id: string }[]>(
+              Prisma.sql`SELECT "id" FROM "RidePool" WHERE "id" = ${existing.poolId} FOR UPDATE`,
+            );
+            pool = await transaction.ridePool.findUnique({
+              where: { id: existing.poolId },
+              select: {
+                id: true,
+                reservedSeats: true,
+                vehicle: { select: { capacity: true } },
+              },
+            });
+            if (!pool) return { kind: "pool_not_found" as const };
+            const occupied = await transaction.rideRequest.aggregate({
+              where: { poolId: pool.id, status: { not: "CANCELLED" } },
+              _sum: { requestedSeats: true },
+            });
+            if ((occupied._sum.requestedSeats ?? 0) > pool.vehicle.capacity) {
+              return { kind: "capacity_conflict" as const };
+            }
+          }
+
+          const now = new Date();
+          const updatedOffer = await transaction.rideFareOffer.update({
+            where: { id: currentOffer.id },
+            data:
+              role === "PASSENGER"
+                ? { passengerAcceptedAt: now }
+                : { driverAcceptedAt: now },
+            select: {
+              id: true,
+              offerVersion: true,
+              amountPaisa: true,
+              proposedById: true,
+              passengerAcceptedAt: true,
+              driverAcceptedAt: true,
+            },
           });
 
-          const accepted = await transaction.rideRequest.update({
+          const matched =
+            updatedOffer.passengerAcceptedAt !== null &&
+            updatedOffer.driverAcceptedAt !== null;
+
+          const request = await transaction.rideRequest.update({
             where: { id: existing.id },
-            data: {
-              status: "MATCHED",
-              ...(counterFarePaisa === undefined
-                ? {}
-                : { farePaisa: counterFarePaisa }),
-            },
+            data: matched
+              ? {
+                  status: "MATCHED",
+                  farePaisa: updatedOffer.amountPaisa,
+                  matchedAt: now,
+                }
+              : {},
             include: {
-              pickupZone: {
+              pickupServiceZone: {
                 select: {
                   id: true,
                   name: true,
@@ -492,7 +762,7 @@ export class RideRequestRepository {
                   longitude: true,
                 },
               },
-              destinationZone: {
+              destinationServiceZone: {
                 select: {
                   id: true,
                   name: true,
@@ -500,37 +770,70 @@ export class RideRequestRepository {
                   longitude: true,
                 },
               },
-              pool: {
+              ridePool: {
                 select: {
                   id: true,
                   status: true,
+                  reservedSeats: true,
                   vehicle: { select: { id: true, name: true, capacity: true } },
                 },
               },
             },
           });
 
-          await transaction.rideStatusHistory.create({
-            data: {
-              requestId: existing.id,
-              fromStatus: existing.status,
-              toStatus: "MATCHED",
-              changedById: driverUserId,
-            },
-          });
+          if (matched) {
+            await transaction.rideStatusHistory.create({
+              data: {
+                requestId: existing.id,
+                fromStatus: existing.status,
+                toStatus: "MATCHED",
+                changedById: actorId,
+              },
+            });
+          }
 
           return {
             kind: "accepted" as const,
-            pool: updatedPool,
-            request: accepted,
+            matched,
+            request,
+            offer: updatedOffer,
+            passengerId: existing.passengerId,
+            driverUserId,
+            pool,
           };
         },
         { isolationLevel: "Serializable" },
       );
     } catch (error) {
-      this.fail("acceptForDriver", error, driverUserId);
+      this.fail("acceptForActor", error, actorId);
       throw error;
     }
+  }
+
+  async acceptForDriver(
+    rideRequestId: string,
+    driverUserId: string,
+    offerVersion?: number,
+  ) {
+    return this.acceptForActor(
+      rideRequestId,
+      driverUserId,
+      "DRIVER",
+      offerVersion,
+    );
+  }
+
+  async acceptForPassenger(
+    rideRequestId: string,
+    passengerId: string,
+    offerVersion: number,
+  ) {
+    return this.acceptForActor(
+      rideRequestId,
+      passengerId,
+      "PASSENGER",
+      offerVersion,
+    );
   }
 
   async findStatusHistoryForPassenger(
@@ -543,7 +846,7 @@ export class RideRequestRepository {
         select: {
           id: true,
           status: true,
-          statusHistory: {
+          rideStatusHistories: {
             orderBy: { createdAt: "asc" },
             select: {
               id: true,
@@ -583,7 +886,7 @@ export class RideRequestRepository {
           };
         }
 
-          const cancelled = await transaction.rideRequest.update({
+        const cancelled = await transaction.rideRequest.update({
           where: { id: existing.id },
           data: { status: "CANCELLED" },
           select: {
@@ -591,11 +894,13 @@ export class RideRequestRepository {
             passengerId: true,
             status: true,
             updatedAt: true,
-            pool: {
-              select: { vehicle: { select: { driver: { select: { userId: true } } } } },
+            ridePool: {
+              select: {
+                vehicle: { select: { driver: { select: { userId: true } } } },
+              },
             },
           },
-          });
+        });
 
         await transaction.rideStatusHistory.create({
           data: {
@@ -609,7 +914,7 @@ export class RideRequestRepository {
         return {
           kind: "cancelled" as const,
           request: cancelled,
-          driverUserId: cancelled.pool?.vehicle.driver.userId ?? null,
+          driverUserId: cancelled.ridePool?.vehicle.driver.userId ?? null,
         };
       });
     } catch (error) {
@@ -625,7 +930,7 @@ export class RideRequestRepository {
           where: {
             id: rideRequestId,
             status: "PENDING_DRIVER_ACCEPTANCE",
-            pool: { vehicle: { driver: { userId: driverUserId } } },
+            ridePool: { vehicle: { driver: { userId: driverUserId } } },
           },
           select: { id: true, passengerId: true, status: true },
         });
@@ -668,7 +973,7 @@ export class RideRequestRepository {
     try {
       const requests = await prisma.rideRequest.findMany({
         where: {
-          pool: {
+          ridePool: {
             vehicle: { driver: { userId: driverUserId } },
           },
           ...(cursor
@@ -692,15 +997,28 @@ export class RideRequestRepository {
           requestedSeats: true,
           status: true,
           farePaisa: true,
+          fareOffers: {
+            where: { status: "CURRENT" },
+            orderBy: { offerVersion: "desc" },
+            take: 1,
+            select: {
+              id: true,
+              offerVersion: true,
+              amountPaisa: true,
+              proposedById: true,
+              passengerAcceptedAt: true,
+              driverAcceptedAt: true,
+            },
+          },
           createdAt: true,
           updatedAt: true,
-          pickupZone: {
+          pickupServiceZone: {
             select: { id: true, name: true, latitude: true, longitude: true },
           },
-          destinationZone: {
+          destinationServiceZone: {
             select: { id: true, name: true, latitude: true, longitude: true },
           },
-          pool: {
+          ridePool: {
             select: {
               id: true,
               status: true,
@@ -728,7 +1046,7 @@ export class RideRequestRepository {
     try {
       const where = {
         status: "COMPLETED" as const,
-        pool: { vehicle: { driver: { userId: driverUserId } } },
+        ridePool: { vehicle: { driver: { userId: driverUserId } } },
       };
       const [items, totalItems] = await prisma.$transaction([
         prisma.rideRequest.findMany({
@@ -745,13 +1063,13 @@ export class RideRequestRepository {
             farePaisa: true,
             createdAt: true,
             updatedAt: true,
-            pickupZone: {
+            pickupServiceZone: {
               select: { id: true, name: true, latitude: true, longitude: true },
             },
-            destinationZone: {
+            destinationServiceZone: {
               select: { id: true, name: true, latitude: true, longitude: true },
             },
-            pool: {
+            ridePool: {
               select: {
                 id: true,
                 status: true,
@@ -790,13 +1108,13 @@ export class RideRequestRepository {
             farePaisa: true,
             createdAt: true,
             updatedAt: true,
-            pickupZone: {
+            pickupServiceZone: {
               select: { id: true, name: true, latitude: true, longitude: true },
             },
-            destinationZone: {
+            destinationServiceZone: {
               select: { id: true, name: true, latitude: true, longitude: true },
             },
-            pool: {
+            ridePool: {
               select: {
                 id: true,
                 status: true,

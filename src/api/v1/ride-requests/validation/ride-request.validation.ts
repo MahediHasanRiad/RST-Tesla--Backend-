@@ -66,4 +66,10 @@ export const counterFareSchema = z
 
 export type CounterFareInput = z.infer<typeof counterFareSchema>;
 
+export const acceptFareSchema = z
+  .object({ offerVersion: z.coerce.number().int().positive().optional() })
+  .strict();
+
+export type AcceptFareInput = z.infer<typeof acceptFareSchema>;
+
 export const completedRideHistoryQuerySchema = offsetQuerySchema;

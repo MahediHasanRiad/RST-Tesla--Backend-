@@ -4,6 +4,7 @@ import { asyncHandler } from "../../../shared/http/async-handler.js";
 import { createRideRequestController } from "./controllers/create-ride-request.controller.js";
 import { createFreshRideRequestController } from "./controllers/create-fresh-ride-request.controller.js";
 import { counterFareRideRequestController } from "./controllers/counter-fare-ride-request.controller.js";
+import { acceptRideRequestController } from "./controllers/accept-ride-request.controller.js";
 import { getRideRequestController } from "./controllers/get-ride-request.controller.js";
 import { listAvailableRidePoolsController } from "./controllers/list-available-ride-pools.controller.js";
 import { listAvailableVehiclesController } from "./controllers/list-available-vehicles.controller.js";
@@ -40,6 +41,12 @@ rideRequestRoutes.post(
   "/:rideRequestId/counter-fare",
   requireAuth,
   asyncHandler(counterFareRideRequestController),
+);
+
+rideRequestRoutes.post(
+  "/:rideRequestId/accept",
+  requireAuth,
+  asyncHandler(acceptRideRequestController),
 );
 
 rideRequestRoutes.get(
