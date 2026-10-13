@@ -16,6 +16,7 @@ import { env } from "../../../../config/env.js";
 
 async function registerHandler(req: Request, res: Response) {
   
+  // input validation
   const registration = registerSchema.parse({
     ...req.body,
     avatar: req.file

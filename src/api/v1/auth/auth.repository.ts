@@ -23,6 +23,7 @@ export class AuthRepository {
       throw error;
     }
   }
+  
   async findUserForLogin(email: string) {
     try {
       return await prisma.user.findUnique({

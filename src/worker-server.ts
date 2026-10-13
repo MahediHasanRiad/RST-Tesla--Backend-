@@ -5,6 +5,7 @@ import { createServer } from "node:http";
 
 import { buildApp } from "./app.js";
 import { createRedisClient } from "./lib/redis.js";
+import { attachRideStatus } from "./realtime/ride-status.js";
 
 
 export async function startWorker() {
@@ -30,6 +31,8 @@ export async function startWorker() {
 
   // Cluster sticky sessions
   setupWorker(io);
+
+  attachRideStatus(io);
 
   const shutdown = async () => {
     await io.close();

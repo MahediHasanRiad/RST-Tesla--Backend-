@@ -23,8 +23,10 @@ export const errorHandler: ErrorRequestHandler = (
       "validation_failed",
       "Invalid request input",
     );
+
   if (error instanceof multer.MulterError)
     return sendError(response, 400, "upload_invalid", "Invalid upload");
+  
   if (
     error instanceof Prisma.PrismaClientKnownRequestError &&
     error.code === "P2002"

@@ -9,9 +9,12 @@ import { redis } from "../../../../lib/redis.js";
 import { env } from "../../../../config/env.js";
 
 async function forgotPasswordHandler(req: Request, res: Response) {
+  
   const body = forgotPasswordSchema.parse(req.body);
+  
   if (!body) return;
   const user = await authRepository.findUserByEmail(body.email);
+  
   if (user?.isEmailVerified) {
     const otp = AuthCredentials.createOtp();
     await redis.set(`auth:otp:${user.email}`, otp, "EX", env.OTP_TTL_SECONDS);
@@ -32,7 +35,7 @@ async function forgotPasswordHandler(req: Request, res: Response) {
     }
   }
 
-  return res.status(202).send({ accepted: true });
+  return res.status(202).send({ send_OTP: true });
 }
 
 export const forgotPasswordController = asyncHandler(forgotPasswordHandler);
