@@ -7,7 +7,6 @@ import {
 } from "../validation/ride-request.validation.js";
 import { rideRequestRepository } from "../repository/ride-request.repository.js";
 import { persistAndQueuePushNotification } from "../../../../shared/notifications/push-notification.js";
-import { emitRideNegotiationUpdate } from "../../../../realtime/ride-status.js";
 
 export async function counterFareRideRequestController(
   request: Request,
@@ -23,7 +22,8 @@ export async function counterFareRideRequestController(
   const { farePaisa } = counterFareSchema.parse(request.body);
 
   // find ride request
-  const context = await rideRequestRepository.findFareNegotiationContext(rideRequestId);
+  const context =
+    await rideRequestRepository.findFareNegotiationContext(rideRequestId);
 
   if (!context) throw new ApiError(404, "ride_request_not_found");
   if (
@@ -77,7 +77,10 @@ export async function counterFareRideRequestController(
     data: {
       rideRequestId,
       farePaisa: String(farePaisa),
-      offerVersion: String((result as { offer: { offerVersion: number | string } }).offer.offerVersion),
+      offerVersion: String(
+        (result as { offer: { offerVersion: number | string } }).offer
+          .offerVersion,
+      ),
     },
   });
 

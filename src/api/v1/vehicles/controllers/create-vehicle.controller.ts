@@ -4,8 +4,10 @@ import { ApiError } from "../../../../shared/http/api-error.js";
 import { sendSuccess } from "../../../../shared/http/api-response.js";
 import { vehicleRepository } from "../vehicle.repository.js";
 import { createVehicleSchema } from "../vehicle.validation.js";
-import { deleteUploadedAvatar, uploadAvatar } from "../../../../shared/media/avatar.js";
-
+import {
+  deleteUploadedAvatar,
+  uploadAvatar,
+} from "../../../../shared/media/avatar.js";
 
 export async function createVehicleController(
   request: Request,
@@ -16,11 +18,14 @@ export async function createVehicleController(
 
   const driver = await vehicleRepository.findDriverByUserId(request.user.id);
   if (!driver) throw new ApiError(404, "driver_not_found");
-  
+
   const input = createVehicleSchema.parse({
     ...request.body,
     images: Array.isArray(request.files)
-      ? request.files.map((file) => ({ buffer: file.buffer, mimetype: file.mimetype }))
+      ? request.files.map((file) => ({
+          buffer: file.buffer,
+          mimetype: file.mimetype,
+        }))
       : [],
   });
 
@@ -32,10 +37,10 @@ export async function createVehicleController(
     return sendSuccess(
       response,
       201,
-      await vehicleRepository.create(
-        driver?.id,
-        { ...input, images: uploadedImages.map((image) => image.url) },
-      ),
+      await vehicleRepository.create(driver?.id, {
+        ...input,
+        images: uploadedImages.map((image) => image.url),
+      }),
     );
   } catch (error) {
     const responseError =
@@ -43,7 +48,11 @@ export async function createVehicleController(
       error.code === "P2002"
         ? new ApiError(409, "vehicle_exists")
         : error;
-    await Promise.all(uploadedImages.map((image) => deleteUploadedAvatar(image.publicId).catch(() => undefined)));
+    await Promise.all(
+      uploadedImages.map((image) =>
+        deleteUploadedAvatar(image.publicId).catch(() => undefined),
+      ),
+    );
     throw responseError;
   }
 }

@@ -12,8 +12,10 @@ export const errorHandler: ErrorRequestHandler = (
   response,
   _next,
 ) => {
+  
   if (error instanceof ApiError)
     return sendError(response, error.status, error.code, error.message);
+  
   if (error instanceof ZodError)
     return sendError(
       response,
@@ -28,12 +30,14 @@ export const errorHandler: ErrorRequestHandler = (
     error.code === "P2002"
   )
     return sendError(response, 409, "conflict", "Resource already exists");
-  logger.error("Unhandled request error", {
+  
+    logger.error("Unhandled request error", {
     requestId: request.requestId,
     errorName: error instanceof Error ? error.name : "UnknownError",
     errorMessage: error instanceof Error ? error.message : String(error),
     errorStack: error instanceof Error ? error.stack : undefined,
   });
+  
   return sendError(
     response,
     500,
