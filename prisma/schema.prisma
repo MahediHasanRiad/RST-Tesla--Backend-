@@ -36,6 +36,7 @@ enum RideRequestStatus {
 enum PaymentMethod {
   CASH
   TESLA_PAY
+  STRIPE
 }
 
 enum PaymentStatus {
@@ -263,6 +264,10 @@ model Payment {
   status      PaymentStatus @default(PENDING)
 
   paidAt    DateTime?
+  stripePaymentIntentId String? @unique
+  stripeEventId        String? @unique
+  failureCode          String?
+  failureMessage       String?
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
 

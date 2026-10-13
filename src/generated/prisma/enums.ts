@@ -49,7 +49,8 @@ export type RideRequestStatus = (typeof RideRequestStatus)[keyof typeof RideRequ
 
 export const PaymentMethod = {
   CASH: 'CASH',
-  TESLA_PAY: 'TESLA_PAY'
+  TESLA_PAY: 'TESLA_PAY',
+  STRIPE: 'STRIPE'
 } as const
 
 export type PaymentMethod = (typeof PaymentMethod)[keyof typeof PaymentMethod]

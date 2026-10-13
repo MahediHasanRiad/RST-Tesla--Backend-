@@ -7,6 +7,11 @@ const tokenTtl = (fallback: string) =>
     z.string().trim().regex(/^[1-9]\d*(?:\s*[smhdw])?$/i).default(fallback),
   ).transform((value) => /^\d+$/.test(value) ? `${value}s` : value.replace(/\s+/g, ""));
 
+const optionalEnvString = z.preprocess(
+  (value) => value === "" ? undefined : value,
+  z.string().trim().min(1).optional(),
+);
+
 const environment = z.object({
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
   PORT: z.coerce.number().int().positive().default(3001),
@@ -34,6 +39,10 @@ const environment = z.object({
   QUEUE_NOTIFICATION_CONCURRENCY: z.coerce.number().int().positive().default(5),
   QUEUE_EMAIL_CONCURRENCY: z.coerce.number().int().positive().default(3),
   GOOGLE_APPLICATION_CREDENTIALS: z.string().min(1).optional(),
+  STRIPE_SECRET_KEY: optionalEnvString,
+  STRIPE_WEBHOOK_SECRET: optionalEnvString,
+  STRIPE_CURRENCY: z.literal("bdt").default("bdt"),
+  STRIPE_PUBLISHABLE_KEY: optionalEnvString,
 }).superRefine((value, context) => {
   if (value.NODE_ENV === "production" && !value.BREVO_API_KEY)
     context.addIssue({
@@ -46,6 +55,18 @@ const environment = z.object({
       code: z.ZodIssueCode.custom,
       path: ["BREVO_SENDER_EMAIL"],
       message: "BREVO_SENDER_EMAIL is required in production",
+    });
+  if (value.NODE_ENV === "production" && !value.STRIPE_SECRET_KEY)
+    context.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["STRIPE_SECRET_KEY"],
+      message: "STRIPE_SECRET_KEY is required in production",
+    });
+  if (value.NODE_ENV === "production" && !value.STRIPE_WEBHOOK_SECRET)
+    context.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["STRIPE_WEBHOOK_SECRET"],
+      message: "STRIPE_WEBHOOK_SECRET is required in production",
     });
 });
 

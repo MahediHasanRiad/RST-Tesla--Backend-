@@ -27,7 +27,7 @@ Unlike traditional ride-booking systems, **both passengers and drivers can creat
 - Individual fare calculation with pooling discounts
 - Real-time ride status updates
 - Ride cancellation and history
-- Cash payment
+- Cash payment and post-ride Stripe payment
 
 ## Tech Stack
 
@@ -70,6 +70,8 @@ docker compose up -d
 ```
 
 Configure environment variables using `.env.example` and run the required database migrations.
+
+Stripe payment setup, webhook registration, test cards, and test/live credential separation are documented in [docs/stripe-payments.md](docs/stripe-payments.md).
 
 ## Project Scope
 

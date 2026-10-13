@@ -1532,6 +1532,10 @@ export const PaymentScalarFieldEnum = {
   method: 'method',
   status: 'status',
   paidAt: 'paidAt',
+  stripePaymentIntentId: 'stripePaymentIntentId',
+  stripeEventId: 'stripeEventId',
+  failureCode: 'failureCode',
+  failureMessage: 'failureMessage',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

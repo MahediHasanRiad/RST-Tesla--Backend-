@@ -8,6 +8,8 @@ import { serviceZoneRoutes } from "./api/v1/service-zones/service-zone.routes.js
 import { rideRequestRoutes } from "./api/v1/ride-requests/ride-request.routes.js";
 import { driverRoutes } from "./api/v1/drivers/driver.routes.js";
 import { errorHandler } from "./middleware/error.middleware.js";
+import { paymentRoutes } from "./api/v1/payments/payment.routes.js";
+import { stripeWebhookRoutes } from "./api/v1/payments/stripe-webhook.routes.js";
 
 export function buildApp() {
 
@@ -15,6 +17,11 @@ export function buildApp() {
   
   app.use(cors({ origin: false }));
   app.use(helmet());
+  app.use(
+    "/api/v1/payments/stripe/webhook",
+    express.raw({ type: "application/json", limit: "256kb" }),
+    stripeWebhookRoutes,
+  );
   app.use(express.json({ limit: "100kb" }));
   app.use(express.urlencoded({extended: true}))
 
@@ -24,6 +31,7 @@ export function buildApp() {
   app.use("/api/v1/service-zones", serviceZoneRoutes);
   app.use("/api/v1/ride-requests", rideRequestRoutes);
   app.use("/api/v1/drivers", driverRoutes);
+  app.use("/api/v1/payments", paymentRoutes);
   
   app.get("/health", (_request, response) => response.json({ status: "ok" }));
 

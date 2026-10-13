@@ -1,4 +1,5 @@
 import type { Request, Response, NextFunction } from "express"
+import { logger } from "../../lib/logger.js";
 
 type asyncHandlerType = (
     req: Request,
@@ -10,7 +11,10 @@ export const asyncHandler = (fn: asyncHandlerType) => async (req: Request, res: 
     try {
         await fn(req, res, next)
     } catch (error: any) {
-        console.log(error?.response?.data?.message || error?.message)
+        logger.debug("Async request handler failed", {
+            requestId: req.requestId,
+            errorName: error instanceof Error ? error.name : "UnknownError",
+        });
         next(error)
     }
 }
