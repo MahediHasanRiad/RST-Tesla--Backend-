@@ -14,6 +14,7 @@ export async function listServiceZonesController(
   request: Request,
   response: Response,
 ) {
+  
   const { cursor, limit, position } = parseCursorQuery(request.query);
 
   const cacheKey = `list:service-zones:cursor=${encodeURIComponent(cursor ?? "")}:limit=${limit}`;

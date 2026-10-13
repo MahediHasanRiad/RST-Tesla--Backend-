@@ -25,6 +25,7 @@ vehicleRoutes.patch(
   vehicleUpload.array("images", 5),
   asyncHandler(updateVehicleController),
 );
+
 vehicleRoutes.delete(
   "/delete",
   requireAuth,

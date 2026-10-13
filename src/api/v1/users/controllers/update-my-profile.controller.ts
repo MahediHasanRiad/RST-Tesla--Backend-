@@ -13,6 +13,7 @@ export async function updateMyProfileController(
   request: Request,
   response: Response,
 ) {
+  
   if (!request?.user) throw new ApiError(401, "unauthenticated");
   
   // validate input
@@ -22,12 +23,14 @@ export async function updateMyProfileController(
       ? { buffer: request.file.buffer, mimetype: request.file.mimetype }
       : undefined,
   });
+
   // check phone unique or not
   if (
     input.phone &&
     (await userRepository.phoneBelongsToAnother(input.phone, request.user.id))
   )
     throw new ApiError(409, "phone_conflict");
+
   const existing = await userRepository.findForDeletion(request.user.id);
   if (!existing) throw new ApiError(404, "user_not_found");
   
@@ -55,6 +58,8 @@ export async function updateMyProfileController(
         }),
       );
     const { avatarPublicId: _avatarPublicId, ...safeProfile } = profile;
+
+    // response
     return sendSuccess(response, 200, safeProfile);
   } 
   catch (error) {

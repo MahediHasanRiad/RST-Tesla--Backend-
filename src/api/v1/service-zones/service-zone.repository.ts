@@ -40,6 +40,24 @@ export class ServiceZoneRepository {
       throw error;
     }
   }
+
+  async create(data: { name: string; latitude: number; longitude: number }) {
+    try {
+      return await prisma.serviceZone.create({
+        data,
+        select: {
+          id: true,
+          name: true,
+          latitude: true,
+          longitude: true,
+          createdAt: true,
+        },
+      });
+    } catch (error) {
+      this.fail("create", error);
+      throw error;
+    }
+  }
 }
 
 export const serviceZoneRepository = new ServiceZoneRepository();

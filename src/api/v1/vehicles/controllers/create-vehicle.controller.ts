@@ -19,6 +19,7 @@ export async function createVehicleController(
   const driver = await vehicleRepository.findDriverByUserId(request.user.id);
   if (!driver) throw new ApiError(404, "driver_not_found");
 
+  // input validation
   const input = createVehicleSchema.parse({
     ...request.body,
     images: Array.isArray(request.files)
@@ -34,6 +35,7 @@ export async function createVehicleController(
   try {
     for (const image of input.images)
       uploadedImages.push(await uploadAvatar(image.buffer, image.mimetype));
+    
     return sendSuccess(
       response,
       201,
@@ -42,7 +44,8 @@ export async function createVehicleController(
         images: uploadedImages.map((image) => image.url),
       }),
     );
-  } catch (error) {
+  } 
+  catch (error) {
     const responseError =
       error instanceof Prisma.PrismaClientKnownRequestError &&
       error.code === "P2002"

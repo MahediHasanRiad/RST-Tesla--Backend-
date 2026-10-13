@@ -12,6 +12,7 @@ import {
   emitRideStatusUpdateToUser,
 } from "../../../../realtime/ride-status.js";
 import { persistAndQueuePushNotification } from "../../../../shared/notifications/push-notification.js";
+import { logger } from "../../../../lib/logger.js";
 
 export async function acceptRideRequestController(
   request: Request,
@@ -74,7 +75,7 @@ export async function acceptRideRequestController(
         status: "MATCHED",
       });
     } catch {
-      // Realtime delivery is best-effort after the database commit.
+      logger.warn('confilct during ride request')
     }
     await persistAndQueuePushNotification({
       userId: result.passengerId,
@@ -89,7 +90,7 @@ export async function acceptRideRequestController(
     try {
       emitRideNegotiationUpdate(otherUserId, negotiation);
     } catch {
-      // Realtime delivery is best-effort after the database commit.
+      logger.warn('confilct during ride request')
     }
     await persistAndQueuePushNotification({
       userId: otherUserId,
