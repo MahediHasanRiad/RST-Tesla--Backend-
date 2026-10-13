@@ -476,147 +476,143 @@ export class RideRequestRepository {
     }
   }
 
-  async counterFare(rideRequestId: string, passengerId: string, amountPaisa: number ) {
+  async counterFare(
+    rideRequestId: string,
+    passengerId: string,
+    amountPaisa: number,
+  ) {
     try {
       if (!Number.isSafeInteger(amountPaisa) || amountPaisa <= 0) {
         return { kind: "invalid_amount" as const };
       }
 
-      return await prisma.$transaction(
-        async (tx) => {
-          const existing = await tx.rideRequest.findUnique({
-            where: {
-              id: rideRequestId,
-            },
-            select: {
-              id: true,
-              status: true,
-              passengerId: true,
-              ridePool: {
-                select: {
-                  vehicle: {
-                    select: {
-                      driver: {
-                        select: {
-                          userId: true,
-                        },
+      return await prisma.$transaction(async (tx) => {
+        const existing = await tx.rideRequest.findUnique({
+          where: {
+            id: rideRequestId,
+          },
+          select: {
+            id: true,
+            status: true,
+            passengerId: true,
+            ridePool: {
+              select: {
+                vehicle: {
+                  select: {
+                    driver: {
+                      select: {
+                        userId: true,
                       },
                     },
                   },
                 },
               },
-              fareOffers: {
-                where: {
-                  status: "CURRENT",
-                },
-                orderBy: {
-                  offerVersion: "desc",
-                },
-                take: 1,
-                select: {
-                  id: true,
-                  offerVersion: true,
-                  proposedById: true,
-                },
-              },
             },
-          });
-
-          if (!existing) {
-            return { kind: "not_found" as const };
-          }
-
-          if (
-            !["REQUESTED", "PENDING_DRIVER_ACCEPTANCE"].includes(
-              existing.status,
-            )
-          ) {
-            return { kind: "invalid_status" as const };
-          }
-
-          const driverUserId = existing.ridePool?.vehicle.driver.userId;
-
-          if (
-            existing.passengerId !== passengerId &&
-            driverUserId !== passengerId
-          ) {
-            return { kind: "forbidden" as const };
-          }
-
-          const currentOffer = existing.fareOffers[0];
-
-          // Prevent a user from countering their own offer.
-          if (currentOffer?.proposedById === passengerId) {
-            return { kind: "own_offer" as const };
-          }
-
-          const nextVersion = (currentOffer?.offerVersion ?? 0) + 1;
-
-          // Conditional write protects against concurrent changes
-          // to the ride request.
-          const claim = await tx.rideRequest.updateMany({
-            where: {
-              id: existing.id,
-              status: {
-                in: ["REQUESTED", "PENDING_DRIVER_ACCEPTANCE"],
-              },
-            },
-            data: {
-              updatedAt: new Date(),
-            },
-          });
-
-          if (claim.count !== 1) {
-            return { kind: "conflict" as const };
-          }
-
-          if (currentOffer) {
-            const replaced = await tx.rideFareOffer.updateMany({
+            fareOffers: {
               where: {
-                id: currentOffer.id,
                 status: "CURRENT",
               },
-              data: {
-                status: "REPLACED",
+              orderBy: {
+                offerVersion: "desc",
               },
-            });
+              take: 1,
+              select: {
+                id: true,
+                offerVersion: true,
+                proposedById: true,
+              },
+            },
+          },
+        });
 
-            if (replaced.count !== 1) {
-              return { kind: "conflict" as const };
-            }
-          }
+        if (!existing) {
+          return { kind: "not_found" as const };
+        }
 
-          const offer = await tx.rideFareOffer.create({
-            data: {
-              rideRequestId: existing.id,
-              offerVersion: nextVersion,
-              amountPaisa,
-              proposedById: passengerId,
+        if (
+          !["REQUESTED", "PENDING_DRIVER_ACCEPTANCE"].includes(existing.status)
+        ) {
+          return { kind: "invalid_status" as const };
+        }
+
+        const driverUserId = existing.ridePool?.vehicle.driver.userId;
+
+        if (
+          existing.passengerId !== passengerId &&
+          driverUserId !== passengerId
+        ) {
+          return { kind: "forbidden" as const };
+        }
+
+        const currentOffer = existing.fareOffers[0];
+
+        // Prevent a user from countering their own offer.
+        if (currentOffer?.proposedById === passengerId) {
+          return { kind: "own_offer" as const };
+        }
+
+        const nextVersion = (currentOffer?.offerVersion ?? 0) + 1;
+
+        // Conditional write protects against concurrent changes
+        const claim = await tx.rideRequest.updateMany({
+          where: {
+            id: existing.id,
+            status: {
+              in: ["REQUESTED", "PENDING_DRIVER_ACCEPTANCE"],
+            },
+          },
+          data: {
+            updatedAt: new Date(),
+          },
+        });
+
+        if (claim.count !== 1) {
+          return { kind: "conflict" as const };
+        }
+
+        if (currentOffer) {
+          const replaced = await tx.rideFareOffer.updateMany({
+            where: {
+              id: currentOffer.id,
               status: "CURRENT",
             },
-            select: {
-              id: true,
-              offerVersion: true,
-              amountPaisa: true,
-              proposedById: true,
-              passengerAcceptedAt: true,
-              driverAcceptedAt: true,
+            data: {
+              status: "REPLACED",
             },
           });
 
-          return {
-            kind: "countered" as const,
-            requestId: existing.id,
-            status: existing.status,
-            offer,
-            passengerId: existing.passengerId,
-            driverUserId,
-          };
-        },
-        {
-          isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
-        },
-      );
+          if (replaced.count !== 1) {
+            return { kind: "conflict" as const };
+          }
+        }
+
+        const offer = await tx.rideFareOffer.create({
+          data: {
+            rideRequestId: existing.id,
+            offerVersion: nextVersion,
+            amountPaisa,
+            proposedById: passengerId,
+            status: "CURRENT",
+          },
+          select: {
+            id: true,
+            offerVersion: true,
+            amountPaisa: true,
+            proposedById: true,
+            passengerAcceptedAt: true,
+            driverAcceptedAt: true,
+          },
+        });
+
+        return {
+          kind: "countered" as const,
+          requestId: existing.id,
+          status: existing.status,
+          offer,
+          passengerId: existing.passengerId,
+          driverUserId,
+        };
+      });
     } catch (error) {
       this.fail("counterFare", error, passengerId);
       throw error;
@@ -630,180 +626,171 @@ export class RideRequestRepository {
     offerVersion: number | undefined,
   ) {
     try {
-      return await prisma.$transaction(
-        async (transaction) => {
-          await transaction.$queryRaw<{ id: string }[]>(
-            Prisma.sql`SELECT "id" FROM "RideRequest" WHERE "id" = ${rideRequestId} FOR UPDATE`,
-          );
-          const existing = await transaction.rideRequest.findFirst({
-            where: {
-              id: rideRequestId,
-              status: { in: ["REQUESTED", "PENDING_DRIVER_ACCEPTANCE"] },
-            },
-            select: {
-              id: true,
-              passengerId: true,
-              poolId: true,
-              requestedSeats: true,
-              status: true,
-              fareOffers: {
-                where: { status: "CURRENT" },
-                orderBy: { offerVersion: "desc" },
-                take: 1,
-                select: {
-                  id: true,
-                  offerVersion: true,
-                  amountPaisa: true,
-                  proposedById: true,
-                  passengerAcceptedAt: true,
-                  driverAcceptedAt: true,
-                },
+      return await prisma.$transaction(async (transaction) => {
+        const existing = await transaction.rideRequest.findFirst({
+          where: {
+            id: rideRequestId,
+            status: { in: ["REQUESTED", "PENDING_DRIVER_ACCEPTANCE"] },
+          },
+          select: {
+            id: true,
+            passengerId: true,
+            poolId: true,
+            requestedSeats: true,
+            status: true,
+            fareOffers: {
+              where: { status: "CURRENT" },
+              orderBy: { offerVersion: "desc" },
+              take: 1,
+              select: {
+                id: true,
+                offerVersion: true,
+                amountPaisa: true,
+                proposedById: true,
+                passengerAcceptedAt: true,
+                driverAcceptedAt: true,
               },
-              ridePool: {
-                select: {
-                  vehicle: {
-                    select: {
-                      capacity: true,
-                      driver: { select: { userId: true } },
-                    },
+            },
+            ridePool: {
+              select: {
+                id: true,
+                reservedSeats: true,
+                vehicle: {
+                  select: {
+                    id: true,
+                    capacity: true,
+                    driver: { select: { userId: true } },
                   },
                 },
               },
             },
-          });
+          },
+        });
 
-          if (!existing) return { kind: "not_found" as const };
-          const driverUserId = existing.ridePool?.vehicle.driver.userId;
-          const authorized =
-            (role === "PASSENGER" && existing.passengerId === actorId) ||
-            (role === "DRIVER" && driverUserId === actorId);
-          if (!authorized) return { kind: "forbidden" as const };
+        if (!existing) return { kind: "not_found" as const };
 
-          const currentOffer = existing.fareOffers[0];
-          if (!currentOffer) return { kind: "offer_not_found" as const };
-          await transaction.$queryRaw<{ id: string }[]>(
-            Prisma.sql`SELECT "id" FROM "RideFareOffer" WHERE "id" = ${currentOffer.id} FOR UPDATE`,
-          );
-          if (
-            offerVersion !== undefined &&
-            currentOffer.offerVersion !== offerVersion
-          ) {
-            return { kind: "stale_offer" as const, offer: currentOffer };
+        const driverUserId = existing.ridePool?.vehicle.driver.userId;
+        const authorized =
+          (role === "PASSENGER" && existing.passengerId === actorId) ||
+          (role === "DRIVER" && driverUserId === actorId);
+        if (!authorized) return { kind: "forbidden" as const };
+
+        const currentOffer = existing.fareOffers[0];
+        if (!currentOffer) return { kind: "offer_not_found" as const };
+
+        if (
+          offerVersion !== undefined &&
+          currentOffer.offerVersion !== offerVersion
+        ) {
+          return { kind: "stale_offer" as const, offer: currentOffer };
+        }
+
+        const otherAlreadyAccepted =
+          role === "PASSENGER"
+            ? currentOffer.driverAcceptedAt !== null
+            : currentOffer.passengerAcceptedAt !== null;
+
+        if (otherAlreadyAccepted && existing.ridePool) {
+          const pool = existing.ridePool;
+          const projectedSeats = pool.reservedSeats + existing.requestedSeats;
+
+          if (projectedSeats > pool.vehicle.capacity) {
+            return { kind: "capacity_conflict" as const };
           }
+        }
 
-          const otherAlreadyAccepted =
+        const now = new Date();
+
+        const updateResult = await transaction.rideFareOffer.updateMany({
+          where: {
+            id: currentOffer.id,
+            offerVersion: currentOffer.offerVersion,
+          },
+          data:
             role === "PASSENGER"
-              ? currentOffer.driverAcceptedAt !== null
-              : currentOffer.passengerAcceptedAt !== null;
+              ? { passengerAcceptedAt: now }
+              : { driverAcceptedAt: now },
+        });
 
-          let pool: {
-            id: string;
-            reservedSeats: number;
-            vehicle: { capacity: number };
-          } | null = null;
-          if (otherAlreadyAccepted && existing.poolId) {
-            await transaction.$queryRaw<{ id: string }[]>(
-              Prisma.sql`SELECT "id" FROM "RidePool" WHERE "id" = ${existing.poolId} FOR UPDATE`,
-            );
-            pool = await transaction.ridePool.findUnique({
-              where: { id: existing.poolId },
+        if (updateResult.count === 0) {
+          return { kind: "stale_offer" as const, offer: currentOffer };
+        }
+
+        const updatedOffer = await transaction.rideFareOffer.findUniqueOrThrow({
+          where: { id: currentOffer.id },
+          select: {
+            id: true,
+            offerVersion: true,
+            amountPaisa: true,
+            proposedById: true,
+            passengerAcceptedAt: true,
+            driverAcceptedAt: true,
+          },
+        });
+
+        const matched =
+          updatedOffer.passengerAcceptedAt !== null &&
+          updatedOffer.driverAcceptedAt !== null;
+
+        if (matched && existing.poolId) {
+          await transaction.ridePool.update({
+            where: { id: existing.poolId },
+            data: {
+              reservedSeats: {
+                increment: existing.requestedSeats,
+              },
+            },
+          });
+        }
+
+        const request = await transaction.rideRequest.update({
+          where: { id: existing.id },
+          data: matched
+            ? {
+                status: "MATCHED",
+                farePaisa: updatedOffer.amountPaisa,
+                matchedAt: now,
+              }
+            : {},
+          include: {
+            pickupServiceZone: {
+              select: { id: true, name: true, latitude: true, longitude: true },
+            },
+            destinationServiceZone: {
+              select: { id: true, name: true, latitude: true, longitude: true },
+            },
+            ridePool: {
               select: {
                 id: true,
+                status: true,
                 reservedSeats: true,
-                vehicle: { select: { capacity: true } },
-              },
-            });
-            if (!pool) return { kind: "pool_not_found" as const };
-            const occupied = await transaction.rideRequest.aggregate({
-              where: { poolId: pool.id, status: { not: "CANCELLED" } },
-              _sum: { requestedSeats: true },
-            });
-            if ((occupied._sum.requestedSeats ?? 0) > pool.vehicle.capacity) {
-              return { kind: "capacity_conflict" as const };
-            }
-          }
-
-          const now = new Date();
-          const updatedOffer = await transaction.rideFareOffer.update({
-            where: { id: currentOffer.id },
-            data:
-              role === "PASSENGER"
-                ? { passengerAcceptedAt: now }
-                : { driverAcceptedAt: now },
-            select: {
-              id: true,
-              offerVersion: true,
-              amountPaisa: true,
-              proposedById: true,
-              passengerAcceptedAt: true,
-              driverAcceptedAt: true,
-            },
-          });
-
-          const matched =
-            updatedOffer.passengerAcceptedAt !== null &&
-            updatedOffer.driverAcceptedAt !== null;
-
-          const request = await transaction.rideRequest.update({
-            where: { id: existing.id },
-            data: matched
-              ? {
-                  status: "MATCHED",
-                  farePaisa: updatedOffer.amountPaisa,
-                  matchedAt: now,
-                }
-              : {},
-            include: {
-              pickupServiceZone: {
-                select: {
-                  id: true,
-                  name: true,
-                  latitude: true,
-                  longitude: true,
-                },
-              },
-              destinationServiceZone: {
-                select: {
-                  id: true,
-                  name: true,
-                  latitude: true,
-                  longitude: true,
-                },
-              },
-              ridePool: {
-                select: {
-                  id: true,
-                  status: true,
-                  reservedSeats: true,
-                  vehicle: { select: { id: true, name: true, capacity: true } },
-                },
+                vehicle: { select: { id: true, name: true, capacity: true } },
               },
             },
+          },
+        });
+
+        if (matched) {
+          await transaction.rideStatusHistory.create({
+            data: {
+              requestId: existing.id,
+              fromStatus: existing.status,
+              toStatus: "MATCHED",
+              changedById: actorId,
+            },
           });
+        }
 
-          if (matched) {
-            await transaction.rideStatusHistory.create({
-              data: {
-                requestId: existing.id,
-                fromStatus: existing.status,
-                toStatus: "MATCHED",
-                changedById: actorId,
-              },
-            });
-          }
-
-          return {
-            kind: "accepted" as const,
-            matched,
-            request,
-            offer: updatedOffer,
-            passengerId: existing.passengerId,
-            driverUserId,
-            pool,
-          };
-        },
-        { isolationLevel: "Serializable" },
-      );
+        return {
+          kind: "accepted" as const,
+          matched,
+          request,
+          offer: updatedOffer,
+          passengerId: existing.passengerId,
+          driverUserId,
+          pool: existing.ridePool,
+        };
+      });
     } catch (error) {
       this.fail("acceptForActor", error, actorId);
       throw error;

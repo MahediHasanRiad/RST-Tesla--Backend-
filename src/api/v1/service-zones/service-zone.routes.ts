@@ -6,9 +6,10 @@ import { listServiceZonesController } from "./controllers/list-service-zones.con
 
 export const serviceZoneRoutes = Router();
 
-serviceZoneRoutes.get("/list-of-service-zone", asyncHandler(listServiceZonesController));
 serviceZoneRoutes.post(
   "/add-service-zone",
   requireAuth,
   asyncHandler(createServiceZoneController),
 );
+
+serviceZoneRoutes.get("/list-of-service-zone", asyncHandler(listServiceZonesController));

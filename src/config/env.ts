@@ -34,7 +34,6 @@ const environment = z.object({
   QUEUE_NOTIFICATION_CONCURRENCY: z.coerce.number().int().positive().default(5),
   QUEUE_EMAIL_CONCURRENCY: z.coerce.number().int().positive().default(3),
   GOOGLE_APPLICATION_CREDENTIALS: z.string().min(1).optional(),
-  VAPID_key: z.string().min(1).optional(),
 }).superRefine((value, context) => {
   if (value.NODE_ENV === "production" && !value.BREVO_API_KEY)
     context.addIssue({

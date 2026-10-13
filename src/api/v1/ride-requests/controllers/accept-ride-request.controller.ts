@@ -50,7 +50,6 @@ export async function acceptRideRequestController(
   if (result.kind === "forbidden") throw new ApiError(403, "forbidden");
   if (result.kind === "offer_not_found") throw new ApiError(409, "ride_offer_not_found");
   if (result.kind === "stale_offer") throw new ApiError(409, "ride_offer_stale");
-  if (result.kind === "pool_not_found") throw new ApiError(404, "pool_not_found");
   if (result.kind === "capacity_conflict") {
     throw new ApiError(409, "ride_pool_capacity_conflict");
   }
@@ -65,18 +64,7 @@ export async function acceptRideRequestController(
   };
 
   if (result.matched) {
-    try {
-      emitRideStatusUpdate(result.passengerId, {
-        rideRequestId,
-        status: "MATCHED",
-      });
-      emitRideStatusUpdateToUser(result.driverUserId, {
-        rideRequestId,
-        status: "MATCHED",
-      });
-    } catch {
-      logger.warn('confilct during ride request')
-    }
+    
     await persistAndQueuePushNotification({
       userId: result.passengerId,
       eventType: "RIDE_MATCHED",
@@ -87,11 +75,7 @@ export async function acceptRideRequestController(
   } else {
     const otherUserId =
       request.user.role === "PASSENGER" ? result.driverUserId : result.passengerId;
-    try {
-      emitRideNegotiationUpdate(otherUserId, negotiation);
-    } catch {
-      logger.warn('confilct during ride request')
-    }
+
     await persistAndQueuePushNotification({
       userId: otherUserId,
       eventType: "RIDE_FARE_ACCEPTED",
