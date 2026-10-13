@@ -5,18 +5,25 @@ import { authRepository } from "../auth.repository.js";
 import { changePasswordSchema } from "../auth.validation.js";
 
 async function changePasswordHandler(req: Request, res: Response) {
+  
   if (!req.user) return res.status(401).send({ error: "unauthenticated" });
+  
   const body = changePasswordSchema.parse(req.body);
   if (!body) return;
+  
   const user = await authRepository.findUserById(req.user.id);
   if (
     !user ||
     !(await AuthCredentials.verifyPassword(user.password, body.currentPassword))
   )
-    return res.status(401).send("send");
-  await authRepository.updatePassword(
+    return res.status(400).send("invalid credential !!!");
+  
+    // update
+    const pass = await AuthCredentials.hashPassword(body.password)
+    
+    await authRepository.updatePassword(
     user.id,
-    await AuthCredentials.hashPassword(body.password),
+    pass
   );
   return res.status(200).send({ passwordChanged: true });
 }

@@ -1,6 +1,4 @@
 import { Router } from "express";
-import multer from "multer";
-import { env } from "../../../config/env.js";
 import { requireAuth } from "../../../middleware/auth.middleware.js";
 import { changePasswordController } from "./controllers/change-password.controller.js";
 import { loginController } from "./controllers/login.controller.js";
@@ -21,15 +19,15 @@ authRoutes.post(
   upload.single("avatar"),
   asyncHandler(registerController),
 );
-authRoutes.post("/verify-email", asyncHandler(verifyEmailController));
+authRoutes.patch("/verify-email", asyncHandler(verifyEmailController));
 authRoutes.post(
   "/resend-verification",
   asyncHandler(resendVerificationController),
 );
 authRoutes.post("/login", asyncHandler(loginController));
 authRoutes.post("/forgot-password", asyncHandler(forgotPasswordController));
-authRoutes.post("/reset-password", asyncHandler(resetPasswordController));
-authRoutes.post(
+authRoutes.patch("/reset-password", asyncHandler(resetPasswordController));
+authRoutes.patch(
   "/change-password",
   requireAuth,
   asyncHandler(changePasswordController),
